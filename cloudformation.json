@@ -460,8 +460,8 @@
       			"Value" : { "Ref" : "EIPww2" }
     		},
 		"LoadBalancerDNSName" : {
-			"Description" : "DNS name of load balancer",
-			"Value" : { "Fn::GetAtt" : [ "ElasticLoadBalancer" , "DNSName" ] }
+			"Description" : "LoadBalancerURL",
+      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}]]}
 		},
     		"JenkinsURL" : {
       			"Description" : "JenkinsURL",
