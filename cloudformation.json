@@ -226,7 +226,7 @@
                            					"group":"root"
 							},
 							"/etc/puppet/nando-automation-demo.xml.erb" : {
-								"source":"http://nando-automation-demo.s3.amazonaws.com/jenkins-demo.xml.erb",
+								"source":"http://nando-automation-demo.s3.amazonaws.com/jenkins.xml.erb",
                            					"mode":"000644",
                            					"owner":"root",
                            					"group":"root"
@@ -235,9 +235,10 @@
 						"commands" : {
 							"installjenkins" : { 
 								"command" : { "Fn::Join" : ["", [ 
+									"mkdir /etc/puppet/modules\n",
 									"puppet module install rtyler/jenkins\n",
-									"sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp",
-									"puppet apply /etc/puppet/init.pp"
+									"sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp\n",
+									"puppet apply /etc/puppet/init.pp\n"
 								]]}
 							}
 						},
