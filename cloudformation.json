@@ -459,7 +459,7 @@
       			"Description" : "IP address of ww2 instance",
       			"Value" : { "Ref" : "EIPww2" }
     		},
-		"LoadBalancerDNSName" : {
+		"LoadBalancerURL" : {
 			"Description" : "LoadBalancerURL",
       			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}]]}
 		},
