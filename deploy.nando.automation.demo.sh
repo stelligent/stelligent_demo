@@ -24,7 +24,7 @@ if [[ $existingKeypair == *$keyName* ]]; then
 fi
 echo
 echo "Creating $keyName private key as $keyName.pem ."
-privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName)
+privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
 echo
 echo $privateKeyValue > $keyName.pem
 ls -la $keyName.pem
