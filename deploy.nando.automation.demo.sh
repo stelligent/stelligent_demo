@@ -57,6 +57,14 @@ while [ "$complete" -ne 1 ]; do
 	fi
 done
 echo
+echo "Create hosts file:"
+aws cloudformation describe-stacks --stack-name $keyName|grep ww1PrivateIP|cut -f4 > hosts
+aws cloudformation describe-stacks --stack-name $keyName|grep ww2PrivateIP|cut -f4 >> hosts
+cat hosts
+echo
+echo "Upload hosts to s3 bucket
+# put hosts file in s3 bucket
+echo
 echo
 echo
 echo "$title has deployed in $seconds seconds."
