@@ -7,7 +7,7 @@ clear
 echo
 echo "$title Launch Script"
 echo
-existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
+existingStack=$(aws cloudformation describe-stacks --stack-name $keyName)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
 	echo "Stack \"$keyName\" exists. Please delete manually before executing this script."
@@ -54,6 +54,10 @@ while [ "$complete" -ne 1 ]; do
 		let seconds=seconds+1
 	fi
 done
+echo
+echo "Writing out private key as $keyName.pem ."
+echo $privateKeyValue > $keyName.pem
+ls -la $keyName.pem
 echo
 echo
 echo "$title has deployed in $seconds seconds."
