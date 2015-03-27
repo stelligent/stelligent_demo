@@ -62,8 +62,9 @@ aws cloudformation describe-stacks --stack-name $keyName|grep ww1PrivateIP|cut -
 aws cloudformation describe-stacks --stack-name $keyName|grep ww2PrivateIP|cut -f4 >> hosts
 cat hosts
 echo
-echo "Upload hosts to s3 bucket
-# put hosts file in s3 bucket
+echo "Upload hosts:"
+$jenkinsPublicIP=$(aws cloudformation describe-stacks --stack-name $keyName|grep jenkinsPublicIP|cut -f4)
+scp -i nando-demo.pem hosts ec2-user@$jenkinsPublicIP
 echo
 echo
 echo
