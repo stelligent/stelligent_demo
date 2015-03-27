@@ -1,11 +1,12 @@
 #!/bin/bash
 
-clear
-echo
-echo "Nando Automation Demo Launch Script"
-echo
 keyName="nando-demo"
 cfnFile="file://cloudformation.json"
+title="Nando Automation Demo"
+clear
+echo
+echo "$title Launch Script"
+echo
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
@@ -15,7 +16,7 @@ if [[ $existingStack == *CREATE_COMPLETE* ]]; then
 	exit 666
 fi
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName) 
-if [ ! -z "$existingKeypair" ]; then 
+if [[ $existingKeypair == "*$keyName*" ]]; then 
 	echo
 	echo "Deleting existing $keyName keypair: $existingKeypair"; 
 	aws ec2 delete-key-pair --key-name $keyName
@@ -42,19 +43,19 @@ while [ "$complete" -ne 1 ]; do
 		echo
 		echo
 		exit 666
-	elif [[ $stackStatus != *CREATE_COMPLETE* ]]; then 
-		sleep 1; 
-		echo -n "."; 
-		let seconds=seconds+1
-	else 
+	elif [[ $stackStatus == *CREATE_COMPLETE* ]]; then 
 		echo
 		echo $stackStatus
 		echo
 		complete=1; 
+	else 
+		sleep 1; 
+		echo -n "."; 
+		let seconds=seconds+1
 	fi
 done
 echo
 echo
-echo "The Demo has been deployed in $seconds seconds."
+echo "$title has deployed in $seconds seconds."
 echo
 echo
