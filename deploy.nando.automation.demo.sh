@@ -7,7 +7,7 @@ clear
 echo
 echo "$title Launch Script"
 echo
-existingStack=$(aws cloudformation describe-stacks --stack-name $keyName)
+existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
 	echo "Stack \"$keyName\" exists. Please delete manually before executing this script."
@@ -15,22 +15,25 @@ if [[ $existingStack == *CREATE_COMPLETE* ]]; then
 	echo
 	exit 666
 fi
-existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName) 
-if [[ $existingKeypair == "*$keyName*" ]]; then 
+existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
+if [[ $existingKeypair == *$keyName* ]]; then 
 	echo
 	echo "Deleting existing $keyName keypair: $existingKeypair"; 
 	aws ec2 delete-key-pair --key-name $keyName
 	echo
 fi
 echo
-echo "Creating $keyName keypair:"
-echo
+echo "Creating $keyName private key as $keyName.pem ."
 privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName)
+echo
+echo $privateKeyValue > $keyName.pem
+ls -la $keyName.pem
+echo
+echo
 echo
 echo "Launching stack:"
 echo
 aws cloudformation create-stack --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue"
-
 complete=0
 while [ "$complete" -ne 1 ]; do
 	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName)
@@ -54,9 +57,6 @@ while [ "$complete" -ne 1 ]; do
 	fi
 done
 echo
-echo "Writing out private key as $keyName.pem ."
-echo $privateKeyValue > $keyName.pem
-ls -la $keyName.pem
 echo
 echo
 echo "$title has deployed in $seconds seconds."
