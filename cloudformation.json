@@ -465,8 +465,8 @@
     		}
 	},
   	"Outputs" : {
-    		"jenkinsIPAddress" : {
-      			"Description" : "IP address of jenkins instance",
+    		"jenkinsPublicIP" : {
+      			"Description" : "Public IP address of jenkins instance",
       			"Value" : { "Ref" : "EIPjenkins" }
     		},
     		"ww1PublicIP" : {
@@ -478,7 +478,7 @@
       			"Value" : { "Fn::GetAtt" : [ "ww1", "PrivateIp" ] }
     		},
     		"ww2PublicIP" : {
-      			"Description" : "IP address of ww2 instance",
+      			"Description" : "Public IP address of ww2 instance",
       			"Value" : { "Ref" : "EIPww2" }
     		},
     		"ww2PrivateIP" : {
