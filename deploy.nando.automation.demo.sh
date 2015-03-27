@@ -32,7 +32,6 @@ echo
 aws cloudformation create-stack --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue"
 
 complete=0
-second=0
 while [ "$complete" -ne 1 ]; do
 	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName)
 	if [[ $stackStatus == *ROLLBACK* ]]; then
