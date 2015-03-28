@@ -248,7 +248,7 @@
                                                 },
 						"commands" : {
 							"installjenkins" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
- 							"installjenksleep" : { "command" : "sleep 180" },
+ 							"installjenksleep" : { "command" : "sleep 120" },
 							"installjob" : { "command" : "puppet apply /etc/puppet/installjob.pp" },
 							"installprivatekeyA" : { "command" : "cp /root/nando-demo.pem /var/lib/jenkins/nando-demo.pem" },
 							"installprivatekeyB" : { "command" : "chown jenkins. /var/lib/jenkins/nando-demo.pem" },

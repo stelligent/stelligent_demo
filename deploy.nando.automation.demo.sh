@@ -63,7 +63,7 @@ aws cloudformation describe-stacks --stack-name $keyName|grep ww2PrivateIP|cut -
 cat hosts
 echo
 echo "Upload hosts:"
-$jenkinsPublicIP=$(aws cloudformation describe-stacks --stack-name $keyName|grep jenkinsPublicIP|cut -f4)
+jenkinsPublicIP=$(aws cloudformation describe-stacks --stack-name $keyName|grep jenkinsPublicIP|cut -f4)
 scp -i nando-demo.pem hosts ec2-user@$jenkinsPublicIP
 echo
 echo
