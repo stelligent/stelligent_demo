@@ -11,20 +11,50 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>H/5 * * * *</spec>
+      <spec>* * * * *</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
+    <hudson.plugins.python.Python plugin="python@1.2">
+      <command>import os
+from instagram.client import InstagramAPI
+
+api = InstagramAPI(client_id=&apos;4d456b2f3f27436ab95f8a476171d739&apos;)
+popular_media = api.media_popular(count=1)
+os.system(&apos;wget -O image1.jpg %s&apos; % (popular_media[0].images[&apos;thumbnail&apos;].url) )
+popular_media = api.media_popular(count=1)
+os.system(&apos;wget -O image2.jpg %s&apos; % (popular_media[0].images[&apos;thumbnail&apos;].url) )
+</command>
+    </hudson.plugins.python.Python>
     <hudson.tasks.Shell>
       <command>sshcmd=&quot;ssh -tt -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet&quot;
-site=&quot;$(date)&quot;
-for word in {1..100}; do site=&quot;$site $(cat /dev/urandom|tr -dc 0-1|head -c8)&quot;; done
+scpcmd=&quot;scp -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet&quot;
+
+site=&quot;$(date) &lt;br&gt; &lt;table border=1&quot;
+
+placeImage1=$[ 1 + $[ RANDOM % 100 ]]
+placeImage2=$[ 1 + $[ RANDOM % 100 ]]
+
+for placeHolder in {1..100}; do 
+	if [ $placeHolder -eq $placeImage1 ]; then site=&quot;$site &lt;td&gt;&lt;img src=image1.jpg align=absmiddle&gt;&lt;/td&gt;&quot;
+    elif [ $placeHolder -eq $placeImage2 ]; then site=&quot;$site &lt;td&gt;&lt;img src=image2.jpg align=absmiddle&gt;&lt;/td&gt;&quot;
+	else site=&quot;$site &lt;td&gt; $(cat /dev/urandom|tr -dc 0-1|head -c8) &lt;/td&gt;&quot;
+    fi
+done
+
+site=&quot;$site &lt;/table&gt;&quot;
 
 if [ -f hosts ]; then rm -fv hosts; fi
 wget http://nando-automation-demo.s3.amazonaws.com/hosts
 
-for ip in $(cat hosts); do $sshcmd ec2-user@$ip &quot;echo $site | sudo tee /var/www/html/index.html&quot;; done</command>
+for ip in $(cat hosts); do 
+	$sshcmd ec2-user@$ip &quot;echo \&quot;$site\&quot; | sudo tee /var/www/html/index.html&quot;
+    $scpcmd image1.jpg ec2-user@$ip:
+    $sshcmd ec2-user@$ip &quot;sudo mv -v /home/ec2-user/image1.jpg /var/www/html&quot;
+    $scpcmd image2.jpg ec2-user@$ip:
+    $sshcmd ec2-user@$ip &quot;sudo mv -v /home/ec2-user/image2.jpg /var/www/html&quot;
+done</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

@@ -17,14 +17,14 @@ if [[ $existingStack == *CREATE_COMPLETE* ]]; then
 fi
 if [[ $existingStack == *DELETE_IN_PROGRESS* ]]; then 
 	echo
-	echo "Stack \"keyName\" is deleting.  Please wait until deletion is complete before running this script."
+	echo "Stack \"$keyName\" is deleting.  Please wait until deletion is complete before running this script."
 	echo
 	echo
 	exit 666
 fi
 if [[ $existingStack == *CREATING_IN_PROGRESS* ]]; then
         echo
-        echo "Stack \"keyName\" is creating.  Please wait until deletion is complete before running this script."
+        echo "Stack \"$keyName\" is creating.  Please wait until deletion is complete before running this script."
         echo
         echo
         exit 666

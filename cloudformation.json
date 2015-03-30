@@ -166,6 +166,20 @@
 				"SecurityGroups" : [ { "Ref" : "NandoDemoSecGroup" } ]
       			}
     		},
+      		"ELBCNAME" : {
+        		"Type" : "AWS::Route53::RecordSetGroup",
+        		"Properties" : {
+          			"HostedZoneName" : "elasticoperations.com.",
+          			"RecordSets" : [ {
+              				"Name" : "nando-automation-demo.elasticoperations.com.",
+              				"Type" : "A",
+              				"AliasTarget" : {
+                  				"HostedZoneId" : { "Fn::GetAtt" : ["ElasticLoadBalancer", "CanonicalHostedZoneNameID"] },
+                  				"DNSName" : { "Fn::GetAtt" : ["ElasticLoadBalancer","CanonicalHostedZoneName"] }
+              				}
+            			} ]
+			}
+        	},
 		"jenkins" : {
  			"Type" : "AWS::EC2::Instance",
  			"DependsOn" : "GatewayToInternet",
@@ -183,6 +197,10 @@
 					"mkdir /etc/puppet/modules\n",
 					"puppet module install rtyler/jenkins\n",
 					"sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp\n",
+					"yum -y install python-pip\n",
+					"pip install python-instagram\n",
+					"pip install tldr\n",
+					"pip install -U six\n",
           				"yum update -y aws-cfn-bootstrap\n",
              				"/opt/aws/bin/cfn-init -v ",
              				"         --stack ", { "Ref" : "AWS::StackName" },
