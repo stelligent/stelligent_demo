@@ -253,6 +253,18 @@
                            					"owner" : "root",
                            					"group" : "root"
 							},
+                                                        "/etc/puppet/installmodulegit.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installmodulegit.pp",
+                                                                "mode" : "000644",
+                                                                "owner" : "root",
+                                                                "group" : "root"
+                                                        },
+                                                        "/etc/puppet/installmodulepython.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installmodulepython.pp",
+                                                                "mode" : "000644",
+                                                                "owner" : "root",
+                                                                "group" : "root"
+                                                        },
 							"/etc/puppet/nando-automation-demo.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jenkins.xml.erb",
                            					"mode" : "000644",
@@ -268,7 +280,11 @@
                                                 },
 						"commands" : {
 							"installjenkins" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
- 							"installjenksleep" : { "command" : "sleep 120" },
+ 							"installjenkinssleep" : { "command" : "sleep 60" },
+							"installjenkmodulegit" " { "command" : "puppet apply /etc/puppet/installmodulegit.pp" },
+ 							"installjenkmodulegitsleep" : { "command" : "sleep 10" },
+							"installjenkmodulepython" " { "command" : "puppet apply /etc/puppet/installmodulepython.pp" },
+ 							"installjenkmodulepythonsleep" : { "command" : "sleep 10" },
 							"installjob" : { "command" : "puppet apply /etc/puppet/installjob.pp" },
 							"installprivatekeyA" : { "command" : "cp /root/nando-demo.pem /var/lib/jenkins/nando-demo.pem" },
 							"installprivatekeyB" : { "command" : "chown jenkins. /var/lib/jenkins/nando-demo.pem" },

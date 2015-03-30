@@ -20,9 +20,10 @@ This demo launches three instances in a VPC. One command and control box with pu
 
 DETAILED PROCESS NOTES
 
-- upload jenkins template to s3
+- upload jenkins template to S3
+- upload puppet manifests to S3
 - create keypair for use in demo
-- launch stack and upload www private ip's host file to s3 (cfn outputs)
+- launch stack and upload www private ip's host file to S3 (cfn outputs)
 	- build vpc and dependancies
 	- build www instances and ELB and register ELB CNAME
 	- build jenkins server
