@@ -7,8 +7,10 @@ clear
 echo
 echo "$title Launch Script"
 echo
-echo "Upload Jenkins Template to S3"
-s3cmd put jenkins.xml.erb s3://nando-automation-demo
+echo "Upload Files to S3"
+s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:authenticated-read
+s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:authenticated-read
+s3cmd put installjob.pp s3://nando-automation-demo --add-header=x-amz-acl:authenticated-read 
 echo
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
