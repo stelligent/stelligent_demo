@@ -7,11 +7,6 @@ clear
 echo
 echo "$title Launch Script"
 echo
-echo "Upload Files to S3"
-s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:public-read
-s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
-s3cmd put installjob.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read 
-echo
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
@@ -27,6 +22,19 @@ if [[ $existingStack == *DELETE_IN_PROGRESS* ]]; then
 	echo
 	exit 666
 fi
+if [[ $existingStack == *CREATING_IN_PROGRESS* ]]; then
+        echo
+        echo "Stack \"keyName\" is creating.  Please wait until deletion is complete before running this script."
+        echo
+        echo
+        exit 666
+fi
+echo "Upload Files to S3"
+s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:public-read
+s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
+s3cmd put installjob.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read 
+echo
+
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
 if [[ $existingKeypair == *$keyName* ]]; then 
 	echo
