@@ -279,12 +279,12 @@
 							}
                                                 },
 						"commands" : {
-							"installjenkins" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
- 							"installjenkinssleep" : { "command" : "sleep 120" },
-							"installjenkmodulegit" : { "command" : "puppet apply /etc/puppet/installmodulegit.pp" },
- 							"installjenkmodulegitsleep" : { "command" : "sleep 10" },
-							"installjenkmodulepython" : { "command" : "puppet apply /etc/puppet/installmodulepython.pp" },
- 							"installjenkmodulepythonsleep" : { "command" : "sleep 10" },
+							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
+ 							"installjenkinsB" : { "command" : "sleep 120" },
+							"installjenkmodulegitA" : { "command" : "puppet apply /etc/puppet/installmodulegit.pp" },
+ 							"installjenkmodulegitB" : { "command" : "sleep 10" },
+							"installjenkmodulepythonA" : { "command" : "puppet apply /etc/puppet/installmodulepython.pp" },
+ 							"installjenkmodulepythonB" : { "command" : "sleep 10" },
 							"installjob" : { "command" : "puppet apply /etc/puppet/installjob.pp" },
 							"installprivatekeyA" : { "command" : "cp /root/nando-demo.pem /var/lib/jenkins/nando-demo.pem" },
 							"installprivatekeyB" : { "command" : "chown jenkins. /var/lib/jenkins/nando-demo.pem" },
