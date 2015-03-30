@@ -7,6 +7,14 @@ clear
 echo
 echo "$title Launch Script"
 echo
+if [ "$1" ==  "delete" ]; then
+	echo
+	echo "DELETE MODE.  Deleting stack: \"$keyName\"."
+	echo
+	aws cloudformation delete-stack --stack-name $keyName
+	echo
+	exit
+fi 
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
