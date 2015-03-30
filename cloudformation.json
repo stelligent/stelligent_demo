@@ -330,7 +330,7 @@
                   							"[main]\n",
                   							"stack=", { "Ref" : "AWS::StackId" }, "\n",
                   							"region=", { "Ref" : "AWS::Region" }, "\n"
-                						]]},
+                						] ] },
                 						"mode" : "000400",
                 						"owner" : "root",
                 						"group" : "root"
@@ -345,7 +345,7 @@
                   							"         --resource ww1 ",
                   							"         --region ", { "Ref" : "AWS::Region" }, "\n",
                   							"runas=root\n"
-                						]]}
+                						] ] }
               						}
             					},
             					"services" : {
