@@ -521,13 +521,17 @@
       			"Description" : "Private IP address of ww2 instance",
       			"Value" : { "Fn::GetAtt" : [ "ww2", "PrivateIp" ] }
     		},
+    		"JenkinsURL" : {
+      			"Description" : "JenkinsURL",
+      			"Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "jenkins", "PublicDnsName" ] }, ":8080" ]]}
+    		},
 		"LoadBalancerURL" : {
 			"Description" : "LoadBalancerURL",
       			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}]]}
 		},
-    		"JenkinsURL" : {
-      			"Description" : "JenkinsURL",
-      			"Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "jenkins", "PublicDnsName" ] }, ":8080" ]]}
-    		}
+		"LoadBalancerCNAME" : {
+			"Description" : "ELBalias",
+			"Value" : { "Fn::GetAtt" : ["ElasticLoadBalancer","CanonicalHostedZoneName"] }
+		}
   	}
 }
