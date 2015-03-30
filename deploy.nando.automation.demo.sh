@@ -52,7 +52,7 @@ ls -la $keyName.pem
 echo
 echo
 
-echo "create s3 role for jenkins instance:"
+#echo "create s3 role for jenkins instance:"
 # Create the role and attach the trust policy that enables EC2 to assume this role.
 #aws iam create-role --role-name Test-Role-for-EC2 --assume-role-policy-document file://C:\policies\trustpolicyforec2.json
 # Attach the permissions policy to the role to specify what it is allowed to do.
