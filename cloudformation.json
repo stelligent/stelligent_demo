@@ -531,7 +531,7 @@
 		},
 		"LoadBalancerCNAME" : {
 			"Description" : "ELBalias",
-			"Value" : { "Fn::GetAtt" : ["ElasticLoadBalancer","CanonicalHostedZoneName"] }
+			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : ["ElasticLoadBalancer","CanonicalHostedZoneName" ]}]]}
 		}
   	}
 }
