@@ -31,19 +31,25 @@ os.system(&apos;wget -O image2.jpg %s&apos; % (popular_media[0].images[&apos;thu
       <command>sshcmd=&quot;ssh -tt -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet&quot;
 scpcmd=&quot;scp -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet&quot;
 
-site=&quot;$(date) &lt;br&gt; &lt;table border=1&quot;
+site=&quot;$(date) &lt;br&gt; &lt;table border=0 width=100%&gt; &lt;tr&gt;&quot;
 
-placeImage1=$[ 1 + $[ RANDOM % 100 ]]
-placeImage2=$[ 1 + $[ RANDOM % 100 ]]
+placeImage1=$[ 1 + $[ RANDOM % 24 ]]
+placeImage2=$[ 1 + $[ RANDOM % 24 ]]
 
-for placeHolder in {1..100}; do 
-	if [ $placeHolder -eq $placeImage1 ]; then site=&quot;$site &lt;td&gt;&lt;img src=image1.jpg align=absmiddle&gt;&lt;/td&gt;&quot;
-    elif [ $placeHolder -eq $placeImage2 ]; then site=&quot;$site &lt;td&gt;&lt;img src=image2.jpg align=absmiddle&gt;&lt;/td&gt;&quot;
-	else site=&quot;$site &lt;td&gt; $(cat /dev/urandom|tr -dc 0-1|head -c8) &lt;/td&gt;&quot;
+for placeHolder in {0..24}; do 
+	if (( $placeHolder % 5 == 0 )); then site=&quot;$site &lt;/tr&gt;&lt;tr&gt;&quot;; fi
+	if [ $placeHolder -eq $placeImage1 ]; then site=&quot;$site &lt;td width=20% align=center&gt;&lt;img src=image1.jpg&gt;&lt;/td&gt;&quot;
+    elif [ $placeHolder -eq $placeImage2 ]; then site=&quot;$site &lt;td width=20% align=center&gt;&lt;img src=image2.jpg&gt;&lt;/td&gt;&quot;
+	else 
+    	site=&quot;$site &lt;td width=20% align=center&gt;&quot;
+    	for tddata in {0..8}; do
+        	site=&quot;$site $(cat /dev/urandom|tr -dc 0-1|head -c8) $(cat /dev/urandom|tr -dc 0-1|head -c8) &lt;br&gt;&quot;
+        done
+        site=&quot;$site $(cat /dev/urandom|tr -dc 0-1|head -c8) $(cat /dev/urandom|tr -dc 0-1|head -c8) &lt;/td&gt;&quot;
     fi
 done
 
-site=&quot;$site &lt;/table&gt;&quot;
+site=&quot;$site &lt;/tr&gt;&lt;/table&gt;&quot;
 
 if [ -f hosts ]; then rm -fv hosts; fi
 wget http://nando-automation-demo.s3.amazonaws.com/hosts
