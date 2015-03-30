@@ -39,10 +39,9 @@ if [[ $existingStack == *CREATING_IN_PROGRESS* ]]; then
 fi
 echo "Upload Files to S3"
 s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:public-read
-s3cmd put installmodulegit.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
-s3cmd put installmodulepython.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
 s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
-s3cmd put installjob.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read 
+s3cmd put installjenkinsjob.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read 
+s3cmd put installjenkinsmodules.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
 echo
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
 if [[ $existingKeypair == *$keyName* ]]; then 

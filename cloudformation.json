@@ -253,14 +253,8 @@
                            					"owner" : "root",
                            					"group" : "root"
 							},
-                                                        "/etc/puppet/installmodulegit.pp" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installmodulegit.pp",
-                                                                "mode" : "000644",
-                                                                "owner" : "root",
-                                                                "group" : "root"
-                                                        },
-                                                        "/etc/puppet/installmodulepython.pp" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installmodulepython.pp",
+                                                        "/etc/puppet/installjenkinsmodules.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinsmodules.pp",
                                                                 "mode" : "000644",
                                                                 "owner" : "root",
                                                                 "group" : "root"
@@ -280,12 +274,10 @@
                                                 },
 						"commands" : {
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
- 							"installjenkinsB" : { "command" : "sleep 120" },
-							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installmodulepython.pp" },
- 							"installjenkinsD" : { "command" : "sleep 10" },
-							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installmodulegit.pp" },
- 							"installjenkinsF" : { "command" : "sleep 10" },
-							"installjenkinsG" : { "command" : "puppet apply /etc/puppet/installjob.pp" },
+ 							"installjenkinsB" : { "command" : "sleep 30" },
+							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installjenkinsmodules.pp" },
+ 							"installjenkinsD" : { "command" : "sleep 30" },
+							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" },
 							"installprivatekeyA" : { "command" : "cp /root/nando-demo.pem /var/lib/jenkins/nando-demo.pem" },
 							"installprivatekeyB" : { "command" : "chown jenkins. /var/lib/jenkins/nando-demo.pem" },
 							"installprivatekeyC" : { "command" : "chmod 0400 /var/lib/jenkins/nando-demo.pem" }
@@ -527,11 +519,7 @@
     		},
 		"LoadBalancerURL" : {
 			"Description" : "LoadBalancerURL",
-      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] }
-		},
-		"LoadBalancerCNAME" : {
-			"Description" : "LoadBalancerCNAME",
-			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : ["NandoDemoELB","CanonicalHostedZoneName" ] } ] ] }
+      			"Value" : "http://nando-automation-demo.elasticoperations.com"
 		}
   	}
 }
