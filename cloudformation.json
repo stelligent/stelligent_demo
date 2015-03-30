@@ -274,7 +274,7 @@
                                                 },
 						"commands" : {
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
- 							"installjenkinsB" : { "command" : "sleep 30" },
+ 							"installjenkinsB" : { "command" : "sleep 60" },
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installjenkinsmodules.pp" },
  							"installjenkinsD" : { "command" : "sleep 30" },
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" },
