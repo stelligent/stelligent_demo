@@ -280,7 +280,7 @@
                                                 },
 						"commands" : {
 							"installjenkins" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
- 							"installjenkinssleep" : { "command" : "sleep 60" },
+ 							"installjenkinssleep" : { "command" : "sleep 120" },
 							"installjenkmodulegit" : { "command" : "puppet apply /etc/puppet/installmodulegit.pp" },
  							"installjenkmodulegitsleep" : { "command" : "sleep 10" },
 							"installjenkmodulepython" : { "command" : "puppet apply /etc/puppet/installmodulepython.pp" },

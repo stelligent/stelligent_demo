@@ -55,10 +55,6 @@ echo
 echo "Creating $keyName private key as $keyName.pem ."
 privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
 echo
-if [ -f "$keyName.pem" ]; then chmod -v u+w nando-demo.pem; fi
-echo $privateKeyValue > $keyName.pem
-ls -la $keyName.pem
-echo
 echo
 
 #echo "create s3 role for jenkins instance:"
