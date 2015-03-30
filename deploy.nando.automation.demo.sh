@@ -8,9 +8,9 @@ echo
 echo "$title Launch Script"
 echo
 echo "Upload Files to S3"
-s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:authenticated-read
-s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:authenticated-read
-s3cmd put installjob.pp s3://nando-automation-demo --add-header=x-amz-acl:authenticated-read 
+s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:public-read
+s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
+s3cmd put installjob.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read 
 echo
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
@@ -35,6 +35,18 @@ if [ -f "$keyName.pem" ]; then chmod -v u+w nando-demo.pem; fi
 echo $privateKeyValue > $keyName.pem
 ls -la $keyName.pem
 echo
+echo
+
+echo "create s3 role for jenkins instance:"
+# Create the role and attach the trust policy that enables EC2 to assume this role.
+#aws iam create-role --role-name Test-Role-for-EC2 --assume-role-policy-document file://C:\policies\trustpolicyforec2.json
+# Attach the permissions policy to the role to specify what it is allowed to do.
+#aws iam put-role-policy --role-name Test-Role-for-EC2 --policy-name Permissions-Policy-For-Ec2 --policy-document file://c:\policies\permissionspolicyforec2.json
+# Create the instance profile required by EC2 to contain the role
+#aws iam create-instance-profile --instance-profile-name EC2-ListBucket-S3
+## Finally, add the role to the instance profile
+#aws iam add-role-to-instance-profile --instance-profile-name EC2-ListBucket-S3 --role-name Test-Role-for-EC2
+
 echo
 echo
 echo "Launching stack:"
@@ -69,8 +81,7 @@ aws cloudformation describe-stacks --stack-name $keyName|grep ww2PrivateIP|cut -
 cat hosts
 echo
 echo "Upload hosts:"
-jenkinsPublicIP=$(aws cloudformation describe-stacks --stack-name $keyName|grep jenkinsPublicIP|cut -f4)
-scp -i nando-demo.pem hosts ec2-user@$jenkinsPublicIP
+s3cmd put hosts s3://nando-automation-demo --add-header=x-amz-acl:public-read 
 echo
 echo
 echo
