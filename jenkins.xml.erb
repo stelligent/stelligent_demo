@@ -18,6 +18,7 @@
   <builders>
     <hudson.tasks.Shell>
       <command>sshcmd=&quot;ssh -tt -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet&quot;
+site=&quot;$(date)&quot;
 for word in {1..100}; do site=&quot;$site $(cat /dev/urandom|tr -dc 0-1|head -c8)&quot;; done
 
 if [ -f hosts ]; then rm -fv hosts; fi

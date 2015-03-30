@@ -20,6 +20,13 @@ if [[ $existingStack == *CREATE_COMPLETE* ]]; then
 	echo
 	exit 666
 fi
+if [[ $existingStack == *DELETE_IN_PROGRESS* ]]; then 
+	echo
+	echo "Stack \"keyName\" is deleting.  Please wait until deletion is complete before running this script."
+	echo
+	echo
+	exit 666
+fi
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
 if [[ $existingKeypair == *$keyName* ]]; then 
 	echo
