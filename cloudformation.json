@@ -166,7 +166,7 @@
 				"SecurityGroups" : [ { "Ref" : "NandoDemoSecGroup" } ]
       			}
     		},
-      		"ELBCNAME" : {
+      		"ELBalias" : {
         		"Type" : "AWS::Route53::RecordSetGroup",
         		"Properties" : {
           			"HostedZoneName" : "elasticoperations.com.",
