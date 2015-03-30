@@ -15,26 +15,24 @@ all-in-one automated demo from single cli command
 ==> ./deploy.nando.automation.demo.sh
 
 
-This demo launches three instances in a VPC. One command and control box with puppet and jenkins, and two webservers with an ELB in front.  The web service serves up "Juxtapo-random": two random instagram images, created within the last 300 seconds, juxtaposed for postmodern study.  Jenkins continually deploys the website every 5 minutes, updating the images and their layout on the page.  A test suite ensures the images are valid, sized appropriately, tags pass decency tests, and that the image placement makes sense from a UI feng shui perspective.
+This demo launches three instances in a VPC. One command and control box with puppet and jenkins, and two webservers with an ELB in front.  The web service serves up "Juxtapo-random": two random instagram images, created within the last 300 seconds, juxtaposed for postmodern study.  Jenkins deploys http://nando-automation-demo.elasticoperations.com, based on SCM of this github repo, updating the images and their layout on the page.  A test suite ensures the images are valid, sized appropriately, tags pass decency tests, and that the image placement makes sense from a UI feng shui perspective.
 
 
 DETAILED PROCESS NOTES
 
 - upload jenkins template to s3
 - create keypair for use in demo
-- launch stack
+- launch stack and upload www private ip's host file to s3 (cfn outputs)
 	- build vpc and dependancies
-	- build www instances and elb
+	- build www instances and ELB and register ELB CNAME
 	- build jenkins server
-		- pull jenkins job template from s3
-		- job executes continuously
-			- look for updated hosts file on s3 and update if needed
-			- look for updated template file on s3 and update if needed
-			- generate html and push to www's
-			- generate images and push to s3
-			- run full acceptance testing suite, including application security tests,  and rollback if needed
-- upload www private ip's host file to s3
-- pull www private ip's host file from s3 to jenkins
-- run post deployment test suite, including system security tests
+		- add python instagram functionality
+		- add git functionality
+		- pull jenkins job template from S3 and create jenkins job
+		- job executes based on SCM
+			- download latest hosts file from S3 (web server private IP list) 
+			- get images and generate html and push to staging (jenkins server doubles as staging server)
+			- run full acceptance testing suite, including application and environment security tests
+			- on success of all tests, push to production
 
 
