@@ -4,22 +4,7 @@
   <description>nando-automation-demo</description>
   <keepDependencies>false</keepDependencies>
   <properties/>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.3.5">
-    <configVersion>2</configVersion>
-    <userRemoteConfigs>
-      <hudson.plugins.git.UserRemoteConfig>
-        <url>https://github.com/stelligent/nando_automation_demo.git</url>
-      </hudson.plugins.git.UserRemoteConfig>
-    </userRemoteConfigs>
-    <branches>
-      <hudson.plugins.git.BranchSpec>
-        <name>*/master</name>
-      </hudson.plugins.git.BranchSpec>
-    </branches>
-    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
-    <submoduleCfg class="list"/>
-    <extensions/>
-  </scm>
+  <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
@@ -49,10 +34,10 @@ scpcmd=&quot;scp -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/n
 
 site=&quot;$(date) &lt;br&gt; &lt;table border=0 width=100%&gt; &lt;tr&gt;&quot;
 
-placeImage1=$[ 1 + $[ RANDOM % 24 ]]
-placeImage2=$[ 1 + $[ RANDOM % 24 ]]
+placeImage1=$[ 1 + $[ RANDOM % 19 ]]
+placeImage2=$[ 1 + $[ RANDOM % 19 ]]
 
-for placeHolder in {0..24}; do 
+for placeHolder in {0..19}; do 
 	if (( $placeHolder % 5 == 0 )); then site=&quot;$site &lt;/tr&gt;&lt;tr&gt;&quot;; fi
 	if [ $placeHolder -eq $placeImage1 ]; then site=&quot;$site &lt;td width=20% align=center&gt;&lt;img src=image1.jpg&gt;&lt;/td&gt;&quot;
     elif [ $placeHolder -eq $placeImage2 ]; then site=&quot;$site &lt;td width=20% align=center&gt;&lt;img src=image2.jpg&gt;&lt;/td&gt;&quot;
