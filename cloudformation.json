@@ -166,7 +166,7 @@
 				"SecurityGroups" : [ { "Ref" : "NandoDemoSecGroup" } ]
       			}
     		},
-      		"ELBalias" : {
+      		"LoadBalancerCNAME" : {
         		"Type" : "AWS::Route53::RecordSetGroup",
         		"Properties" : {
           			"HostedZoneName" : "elasticoperations.com.",
@@ -530,7 +530,7 @@
       			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ]}]]}
 		},
 		"LoadBalancerCNAME" : {
-			"Description" : "ELBalias",
+			"Description" : "LoadBalancerCNAME",
 			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : ["ElasticLoadBalancer","CanonicalHostedZoneName" ]}]]}
 		}
   	}
