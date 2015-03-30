@@ -247,8 +247,8 @@
                            					"owner" : "root",
                            					"group" : "root"
 							},
-							"/etc/puppet/installjob.pp" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/installjob.pp",
+							"/etc/puppet/installjenkinsjob.pp" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinsjob.pp",
                            					"mode" : "000644",
                            					"owner" : "root",
                            					"group" : "root"
