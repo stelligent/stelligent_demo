@@ -17,7 +17,13 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>echo hello world</command>
+      <command>sshcmd=&quot;ssh -tt -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet&quot;
+for word in {1..100}; do site=&quot;$site $(cat /dev/urandom|tr -dc 0-1|head -c8)&quot;; done
+
+if [ -f hosts ]; then rm -fv hosts; fi
+wget http://nando-automation-demo.s3.amazonaws.com/hosts
+
+for ip in $(cat hosts); do $sshcmd ec2-user@$ip &quot;echo $site | sudo tee /var/www/html/index.html&quot;; done</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>
