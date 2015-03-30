@@ -493,25 +493,25 @@
     		}
 	},
   	"Outputs" : {
-    		"jenkinsPublicIP" : {
-      			"Description" : "Public IP address of jenkins instance",
-      			"Value" : { "Ref" : "EIPjenkins" }
-    		},
-    		"ww1PublicIP" : {
-      			"Description" : "Public IP address of ww1 instance",
-      			"Value" : { "Ref" : "EIPww1" }
-    		},
     		"ww1PrivateIP" : {
       			"Description" : "Private IP address of ww1 instance",
       			"Value" : { "Fn::GetAtt" : [ "ww1", "PrivateIp" ] }
     		},
-    		"ww2PublicIP" : {
-      			"Description" : "Public IP address of ww2 instance",
-      			"Value" : { "Ref" : "EIPww2" }
-    		},
     		"ww2PrivateIP" : {
       			"Description" : "Private IP address of ww2 instance",
       			"Value" : { "Fn::GetAtt" : [ "ww2", "PrivateIp" ] }
+    		},
+    		"jenkinsPublicIP" : {
+      			"Description" : "Public IP address of jenkins instance",
+      			"Value" : { "Ref" : "EIPjenkins" }
+    		},
+    		"ww1PublicURL" : {
+      			"Description" : "Public IP address of ww1 instance",
+      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIPww1" } ] ] }
+    		},
+    		"ww2PublicURL" : {
+      			"Description" : "Public IP address of ww2 instance",
+      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIPww2" } ] ] }
     		},
     		"JenkinsURL" : {
       			"Description" : "JenkinsURL",
