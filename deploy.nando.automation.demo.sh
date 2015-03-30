@@ -42,7 +42,6 @@ s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:publ
 s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
 s3cmd put installjob.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read 
 echo
-
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
 if [[ $existingKeypair == *$keyName* ]]; then 
 	echo
