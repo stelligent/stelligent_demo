@@ -146,7 +146,7 @@
  				"RouteTableId" : { "Ref" : "PublicRouteTable" }
  			}
  		}, 
-    		"ElasticLoadBalancer" : {
+    		"NandoDemoELB" : {
       			"Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
       			"Properties" : {
 				"Subnets" : [ { "Ref" : "PublicSubnet" } ],
@@ -174,8 +174,8 @@
               				"Name" : "nando-automation-demo.elasticoperations.com.",
               				"Type" : "A",
               				"AliasTarget" : {
-                  				"HostedZoneId" : { "Fn::GetAtt" : [ "ElasticLoadBalancer", "CanonicalHostedZoneNameID" ] },
-                  				"DNSName" : { "Fn::GetAtt" : [ "ElasticLoadBalancer","CanonicalHostedZoneName" ] }
+                  				"HostedZoneId" : { "Fn::GetAtt" : [ "NandoDemoELB", "CanonicalHostedZoneNameID" ] },
+                  				"DNSName" : { "Fn::GetAtt" : [ "NandoDemoELB","CanonicalHostedZoneName" ] }
               				}
             			} ]
 			}
@@ -527,11 +527,11 @@
     		},
 		"LoadBalancerURL" : {
 			"Description" : "LoadBalancerURL",
-      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "ElasticLoadBalancer", "DNSName" ] } ] ] }
+      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] }
 		},
 		"LoadBalancerCNAME" : {
 			"Description" : "LoadBalancerCNAME",
-			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : ["ElasticLoadBalancer","CanonicalHostedZoneName" ] } ] ] }
+			"Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : ["NandoDemoELB","CanonicalHostedZoneName" ] } ] ] }
 		}
   	}
 }
