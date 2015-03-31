@@ -18,7 +18,8 @@ all-in-one automated demo from single cli command
 This demo launches three instances in a VPC. One command and control box with puppet and jenkins, and two webservers with an ELB in front resolved via route53 cname alias.  The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins deploys http://nando-automation-demo.elasticoperations.com, based on SCM of this github repo, updating the images and their layout on the page.  A test suite ensures the images are valid, sized appropriately, tags pass decency tests, and that the image placement makes sense from a UI feng shui perspective.
 
 
-DETAILED PROCESS NOTES
+
+# Process Notes
 
 - upload jenkins template to S3
 - upload puppet manifests to S3
