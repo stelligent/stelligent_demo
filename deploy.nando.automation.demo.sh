@@ -20,6 +20,8 @@ if [[ $existingStack == *CREATE_COMPLETE* ]]; then
 	echo
 	echo "Stack \"$keyName\" exists. Please delete manually before executing this script."
 	echo
+	echo $existingStack
+	echo
 	echo
 	exit 666
 fi
@@ -27,12 +29,16 @@ if [[ $existingStack == *ROLLBACK* ]]; then
         echo
         echo "Stack \"$keyName\" is in Rollback Mode. Please delete manually before executing this script."
         echo
+	echo $existingStack
+	echo
         echo
         exit 666
 fi
 if [[ $existingStack == *DELETE_IN_PROGRESS* ]]; then 
 	echo
 	echo "Stack \"$keyName\" is deleting.  Please wait until deletion is complete before running this script."
+	echo
+	echo $existingStack
 	echo
 	echo
 	exit 666
@@ -41,6 +47,8 @@ if [[ $existingStack == *CREATING_IN_PROGRESS* ]]; then
         echo
         echo "Stack \"$keyName\" is creating.  Please wait until creation is complete or delete stack before running this script."
         echo
+	echo $existingStack
+	echo
         echo
         exit 666
 fi
