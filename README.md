@@ -48,7 +48,7 @@ This demo launches three instances in a VPC. One command and control box with pu
 - IAM roles
 - Ensure latest code
 - Layer 4: tcp/ip only from known admin ip/subnets
-- layer 7: jenkins matrix user security
+- Layer 7: jenkins matrix user security
 - Instance Firewall (iptables)
 
 
@@ -56,7 +56,7 @@ This demo launches three instances in a VPC. One command and control box with pu
 
 - Application Pen Testing https://github.com/OWASP
 - Manual Tests (curl testing for HTTP methods, etc)
-- OSSEC Host Intrusion Detection https://github.com/ossec/ossec-hids
+- Instance Intrusion Detection https://github.com/ossec/ossec-hids
 - Remote Logging (https://github.com/Graylog2)
 - Private VPC subnet
 - Instance Firewall (iptables)
