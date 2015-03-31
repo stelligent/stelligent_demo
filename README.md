@@ -18,6 +18,54 @@ all-in-one automated demo from single cli command
 This demo launches three instances in a VPC. One command and control box with puppet and jenkins, and two webservers with an ELB in front resolved via route53 cname alias.  The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins deploys http://nando-automation-demo.elasticoperations.com, based on SCM of this github repo, updating the images and their layout on the page.  A test suite ensures the images are valid, sized appropriately, tags pass decency tests, and that the image placement makes sense from a UI feng shui perspective.
 
 
+# Pipeline Blueprint
+
+- deploy-pipeline-1-command (bash script launches all cfn resources except unsupported ec2::create-keypair)
+- provision-environment (cloudformation, bash)
+- node-configuration (packages, files, services)
+- poll-version-control (github every minute https://github.com/stelligent/nando_automation_demo)
+- app-deployment: (jenkins, plugins, and jobs installed by puppet with erb templates)
+
+
+
+# Pipeline pending:
+
+- node-configuration: data encryption
+- node-configuration: security hardening
+- node-configuration: test db and local tests
+- configure-local-environment-1-command: vagrant
+- run-application-build: (Rake, Maven, Ant, Grunt)
+- store-distros: (Nexus, Artifactory, S3)
+- run-unit-tests: (RSpec, JUnit, XUnit)
+- run-static-analysis: (CheckStyle, PMD, Sonar, CodeClimate, JSONLint, ValidateTemplate, ratproxy, Foodcritic)
+- app-deployment: (Chef, Puppet, Ansible, CodeDeploy)
+- run-infrastructure-tests: (ServerSpec, Cucumber)
+- poll-version-control (puppet, jenkins modules)
+
+
+
+# Pipeline Security:
+
+- use of IAM role eliminates need to store keys on servers
+- ensure latest code on jenkins and plug-ins (poll-version-control)
+- ensure layer 4 and layer 7 security
+	- no incoming tcp/ip except from known admin subnets
+	- matrix user security model for jenkins
+- Trusted Advisor 
+- Instance Firewall (iptables)
+
+
+# Application Security:
+
+- OWASP ZAP via REST API
+- Manual Tests (curl testing for HTTP methods, etc)
+- Tripwire Intrusion Detection
+- Remote Logging (https://github.com/Graylog2)
+
+
+
+
+
 
 # process_notes
 
