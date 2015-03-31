@@ -19,7 +19,7 @@ This demo launches three instances in a VPC. One command and control box with pu
 
 
 
-# Process Notes
+# process notes
 
 - upload jenkins template to S3
 - upload puppet manifests to S3
