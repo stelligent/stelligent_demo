@@ -27,8 +27,7 @@ This demo launches three instances in a VPC. One command and control box with pu
 - app-deployment: (jenkins, plugins, and jobs installed by puppet with erb templates)
 
 
-
-# Pipeline pending:
+# Pipeline Pending:
 
 - node-configuration: data encryption
 - node-configuration: security hardening
@@ -43,25 +42,24 @@ This demo launches three instances in a VPC. One command and control box with pu
 - poll-version-control (puppet, jenkins modules)
 
 
-
 # Pipeline Security:
 
-- use of IAM role eliminates need to store keys on servers
-- ensure latest code on jenkins and plug-ins (poll-version-control)
-- ensure layer 4 and layer 7 security
-	- no incoming tcp/ip except from known admin subnets
-	- matrix user security model for jenkins
 - Trusted Advisor 
+- IAM roles
+- Ensure latest code
+- Layer 4: tcp/ip only from known admin ip/subnets
+- layer 7: jenkins matrix user security
 - Instance Firewall (iptables)
 
 
 # Application Security:
 
-- OWASP ZAP via REST API
+- Application Pen Testing https://github.com/OWASP
 - Manual Tests (curl testing for HTTP methods, etc)
-- Tripwire Intrusion Detection
+- OSSEC Host Intrusion Detection https://github.com/ossec/ossec-hids
 - Remote Logging (https://github.com/Graylog2)
-
+- Private VPC subnet
+- Instance Firewall (iptables)
 
 
 
