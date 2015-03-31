@@ -19,7 +19,7 @@ This demo launches three instances in a VPC. One command and control box with pu
 
 
 
-# process notes
+# process_notes
 
 - upload jenkins template to S3
 - upload puppet manifests to S3
@@ -37,4 +37,17 @@ This demo launches three instances in a VPC. One command and control box with pu
 			- run full acceptance testing suite, including application and environment security tests
 			- on success of all tests, push to production
 
+
+
+# todo
+
+- move instance bootstrap from user-data to meta-data in cfn
+- push private key for jenkins from cfn paramater to s3 kms
+- add iam role to jenkins instance in cfn 
+	- iam policy for s3 nando-automation-demo bucket
+	- remove world-read to nando-automation-demo bucket 
+- move www's into private subnet and remove eip
+- 1:1 cfn template to service lifecycle
+	- one template for www's, elb, route53, etc
+	- one template for jenkins, iam, etc
 
