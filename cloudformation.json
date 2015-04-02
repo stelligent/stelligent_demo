@@ -158,12 +158,11 @@
       			"Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
       			"Properties" : {
 				"Subnets" : [ { "Ref" : "PublicSubnet" } ],
-        			"Instances" : [ { "Ref" : "ww1" },{ "Ref" : "ww2" } ],
-        			"Listeners" : [ {
-          				"LoadBalancerPort" : "80",
-          				"InstancePort" : "80",
-          				"Protocol" : "HTTP"
-        			} ],
+        			"Instances" : [ { "Ref" : "ww1" }, { "Ref" : "ww2" } ],
+        			"Listeners" : [ 
+					{ "LoadBalancerPort" : "80", "InstancePort" : "80", "Protocol" : "HTTP" },
+					{ "LoadBalancerPort" : "2222", "InstancePort" : "22", "Protocol" : "TCP" }
+				],
         			"HealthCheck" : {
           				"Target" : "HTTP:80/",
           				"HealthyThreshold" : "2",
