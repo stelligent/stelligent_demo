@@ -15,6 +15,33 @@ if [ "$1" ==  "delete" ]; then
 	echo
 	exit
 fi 
+if [ "$1" ==  "redeploy" ]; then
+        echo
+        echo "REDEPLOY MODE.  Deleting stack: \"$keyName\"."
+        echo
+        aws cloudformation delete-stack --stack-name $keyName
+        echo "waiting on delete stack $keyName ."
+	sleep 5
+        echo
+	complete=0
+	seconds=0
+	while [ "$complete" -ne 1 ]; do
+        	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName)
+        	if [[ $stackStatus == *DELETE_IN_PROGRESS* ]]; then
+                	echo -n ".";
+                	sleep 1;
+                	let seconds=seconds+1
+        	else
+			sleep 1
+                	echo
+                	echo $stackStatus
+                	echo
+			echo "Stack $keyName deleted in $seconds seconds"
+			echo
+                	complete=1;
+        	fi
+	done
+fi
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
@@ -87,6 +114,7 @@ echo "Launching stack:"
 echo
 aws cloudformation create-stack --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue"
 complete=0
+seconds=0
 while [ "$complete" -ne 1 ]; do
 	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName)
 	if [[ $stackStatus == *ROLLBACK* ]]; then

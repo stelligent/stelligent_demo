@@ -10,9 +10,17 @@
       			"Type": "AWS::EC2::KeyPair::KeyName",
 			"Default": "nando-demo"
     		},
-    		"SSHLocation" : {
+    		"Location1" : {
       			"Type": "String",
       			"Default": "173.77.221.81/32"
+    		},
+    		"Location2" : {
+      			"Type": "String",
+      			"Default": "74.93.117.125/32"
+    		},
+    		"Location3" : {
+      			"Type": "String",
+      			"Default": "98.164.85.226/32"
     		},
 		"PrivateKey" : {
     			"Type" : "String"
@@ -464,36 +472,17 @@
         			"GroupDescription" : "nando-demo",
         			"VpcId"            : { "Ref" : "VPC" },
         			"SecurityGroupIngress" : [ 
-					{
-          					"IpProtocol" : "tcp",
-          					"FromPort" : "22",
-          					"ToPort" : "22",
-          					"CidrIp" : { "Ref" : "SSHLocation"}
-        				},
-					{
-          					"IpProtocol" : "tcp",
-          					"FromPort" : "22",
-          					"ToPort" : "22",
-          					"CidrIp" : "10.200.0.0/16"
-        				},
-					{
-          					"IpProtocol" : "tcp",
-          					"FromPort" : "8080",
-          					"ToPort" : "8080",
-          					"CidrIp" : { "Ref" : "SSHLocation"}
-        				},
-					{
-          					"IpProtocol" : "tcp",
-          					"FromPort" : "8080",
-          					"ToPort" : "8080",
-          					"CidrIp" : "74.93.117.125/32"
-        				},
-        				{
-          					"IpProtocol" : "tcp",
-          					"FromPort" : "80",
-          					"ToPort" : "80",
-          					"CidrIp" : "0.0.0.0/0"
-        				} 
+					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "10.200.0.0/16" },
+					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location1"} },
+					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location2"} },
+					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location3"} },
+					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location1"} },
+					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location2"} },
+					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location3"} },
+					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location1"} },
+					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location2"} },
+					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location3"} },
+        				{ "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" } 
 				]
       			}
     		}
