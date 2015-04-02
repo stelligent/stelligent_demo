@@ -109,3 +109,4 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 - create auto-scaling group for www's
 	- ensure 2 instances with ASG, instead of launching standalone instances
 
+
