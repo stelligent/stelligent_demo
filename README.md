@@ -1,6 +1,7 @@
 # nando_automation_demo
 
 
+
 all-in-one automated demo from single cli command
 
 - cloud deployment with cloudformation and auto-scaling
@@ -12,7 +13,9 @@ all-in-one automated demo from single cli command
 - s3 for static templates, manifests, and encrypted keys
 
 
+
 ==> ./deploy.nando.automation.demo.sh
+
 
 
 This demo launches in an AmazonWebServices VirtualPrivateCloud with one command. One pipeline control box with puppet and jenkins is launched, as well as a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 cname alias.  SimpleStorageService is used to store static templates, manifests, and encrypted keys. 
@@ -22,6 +25,7 @@ The web service serves up "Juxtapo-random": two random instagram images juxtapos
 Acceptance tests ensure the images are valid, sized appropriately, tags pass decency tests, and that the image placement makes sense from a UserInterface feng shui perspective. Security tests ensure the application has been deployed securely.
 
 
+
 # Pipeline Blueprint
 
 - deploy-pipeline-1-command (bash script launches all cfn resources except unsupported ec2::create-keypair)
@@ -29,6 +33,7 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 - node-configuration (packages, files, services)
 - poll-version-control (github every minute https://github.com/stelligent/nando_automation_demo)
 - app-deployment: (jenkins, plugins, and jobs installed by puppet with erb templates)
+
 
 
 # Pipeline Pending:
@@ -46,6 +51,7 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 - poll-version-control (puppet, jenkins modules)
 
 
+
 # Pipeline Security:
 
 - Trusted Advisor 
@@ -56,6 +62,7 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 - Instance Firewall (iptables)
 
 
+
 # Application Security:
 
 - Application Pen Testing https://github.com/OWASP
@@ -64,8 +71,6 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 - Remote Logging (https://github.com/Graylog2)
 - Private VPC subnet
 - Instance Firewall (iptables)
-
-
 
 
 
