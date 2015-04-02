@@ -26,7 +26,7 @@ if [ "$1" ==  "redeploy" ]; then
 	complete=0
 	seconds=0
 	while [ "$complete" -ne 1 ]; do
-        	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName)
+        	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
         	if [[ $stackStatus == *DELETE_IN_PROGRESS* ]]; then
                 	echo -n ".";
                 	sleep 1;
