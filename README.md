@@ -15,7 +15,7 @@ all-in-one automated demo from single cli command
 ==> ./deploy.nando.automation.demo.sh
 
 
-This demo launches three instances in a VirtualPrivateCloud. One command and control box with puppet and jenkins, and a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 cname alias.  SimpleStorageService is used to store static templates, manifests, and encrypted keys. 
+This demo launches in an AmazonWebServices VirtualPrivateCloud with one command. One pipeline control box with puppet and jenkins is launched, as well as a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 cname alias.  SimpleStorageService is used to store static templates, manifests, and encrypted keys. 
 
 The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins deploys http://nando-automation-demo.elasticoperations.com, based on SourceControlManagement of this github repo, updating the images and their layout on the page.  
 
