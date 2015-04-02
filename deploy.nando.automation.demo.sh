@@ -32,11 +32,12 @@ if [ "$1" ==  "redeploy" ]; then
                 	sleep 1;
                 	let seconds=seconds+1
         	else
-			sleep 1
                 	echo
                 	echo $stackStatus
                 	echo
+			echo
 			echo "Stack $keyName deleted in $seconds seconds"
+			echo
 			echo
                 	complete=1;
         	fi
