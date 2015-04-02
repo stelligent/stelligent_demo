@@ -3,7 +3,7 @@
 
 all-in-one automated demo from single cli command
 
-- cloud deployment with cloudformation
+- cloud deployment with cloudformation and auto-scaling
 
 - configuration management with puppet 
 
@@ -15,7 +15,11 @@ all-in-one automated demo from single cli command
 ==> ./deploy.nando.automation.demo.sh
 
 
-This demo launches three instances in a VPC. One command and control box with puppet and jenkins, and two webservers with an ELB in front resolved via route53 cname alias.  The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins deploys http://nando-automation-demo.elasticoperations.com, based on SCM of this github repo, updating the images and their layout on the page.  A test suite ensures the images are valid, sized appropriately, tags pass decency tests, and that the image placement makes sense from a UI feng shui perspective.
+This demo launches three instances in a VirtualPrivateCloud. One command and control box with puppet and jenkins, and a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 cname alias.  SimpleStorageService is used to store static templates, manifests, and encrypted keys. 
+
+The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins deploys http://nando-automation-demo.elasticoperations.com, based on SourceControlManagement of this github repo, updating the images and their layout on the page.  
+
+Acceptance tests ensure the images are valid, sized appropriately, tags pass decency tests, and that the image placement makes sense from a UserInterface feng shui perspective. Security tests ensure the application has been deployed securely.
 
 
 # Pipeline Blueprint
