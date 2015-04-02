@@ -96,4 +96,5 @@ This demo launches three instances in a VPC. One command and control box with pu
 - 1:1 cfn template to service lifecycle
 	- one template for www's, elb, route53, etc
 	- one template for jenkins, iam, etc
+- add route53 entry for jenkins box via cfn with url as output
 
