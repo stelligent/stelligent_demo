@@ -507,10 +507,6 @@
       			"Description" : "Private IP address of ww2 instance",
       			"Value" : { "Fn::GetAtt" : [ "ww2", "PrivateIp" ] }
     		},
-    		"jenkinsPublicIP" : {
-      			"Description" : "Public IP address of jenkins instance",
-      			"Value" : { "Ref" : "EIPjenkins" }
-    		},
     		"ww1PublicURL" : {
       			"Description" : "Public IP address of ww1 instance",
       			"Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIPww1" } ] ] }
@@ -518,6 +514,10 @@
     		"ww2PublicURL" : {
       			"Description" : "Public IP address of ww2 instance",
       			"Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIPww2" } ] ] }
+    		},
+    		"jenkinsPublicIP" : {
+      			"Description" : "Public IP address of jenkins instance",
+      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIPjenkins" } ] ] }
     		},
     		"JenkinsURL" : {
       			"Description" : "JenkinsURL",
