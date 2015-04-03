@@ -34,8 +34,6 @@ if [ "$1" ==  "delete" ]; then
         	fi
 	done
 fi
-
-
 numLocationsExpected=$(grep "Location.\" :" cloudformation.json |wc -l)
 if [ "$numLocationsExpected" -ne "$#" ]; then
 	echo
@@ -43,8 +41,8 @@ if [ "$numLocationsExpected" -ne "$#" ]; then
 	echo
 	exit 666
 fi
-
 ipcount=0
+echo "Secure locations (for ssh and jenkins) are: "
 for ip in "$@"; do
 	if [[ ! $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then 
 		echo
@@ -52,13 +50,13 @@ for ip in "$@"; do
 		echo
 		exit 666
 	else
+		echo -n $ip
 		let ipcount=$ipcount+1
-		locationParameters+="$locationParameter \"ParameterKey=Location$ipcount,ParameterValue=\"$ip/32\"\""
+		locationParameters+=" $locationParameter ParameterKey=Location$ipcount,ParameterValue=\"$ip/32\" "
 	fi
 done
-echo $locationParameters;
-exit
-	
+echo
+echo
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo

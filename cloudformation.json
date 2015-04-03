@@ -11,13 +11,13 @@
 			"Default": "nando-demo"
     		},
     		"Location1" : {
-      			"Type": "String",
+      			"Type": "String"
     		},
     		"Location2" : {
-      			"Type": "String",
+      			"Type": "String"
     		},
     		"Location3" : {
-      			"Type": "String",
+      			"Type": "String"
     		},
 		"PrivateKey" : {
     			"Type" : "String"
