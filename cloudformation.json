@@ -12,15 +12,12 @@
     		},
     		"Location1" : {
       			"Type": "String",
-      			"Default": "173.77.221.81/32"
     		},
     		"Location2" : {
       			"Type": "String",
-      			"Default": "74.93.117.125/32"
     		},
     		"Location3" : {
       			"Type": "String",
-      			"Default": "98.164.85.226/32"
     		},
 		"PrivateKey" : {
     			"Type" : "String"

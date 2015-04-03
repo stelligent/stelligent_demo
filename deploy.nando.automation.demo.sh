@@ -43,16 +43,22 @@ if [ "$numLocationsExpected" -ne "$#" ]; then
 	echo
 	exit 666
 fi
+
+ipcount=0
+for ip in "$@"; do
+	if [[ ! $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then 
+		echo
+		echo "invalid IP: $ip"; 
+		echo
+		exit 666
+	else
+		let ipcount=$ipcount+1
+		locationParameters+="$locationParameter \"ParameterKey=Location$ipcount,ParameterValue=\"$ip/32\"\""
+	fi
+done
+echo $locationParameters;
 exit
-#for arguments in "$@"
-#do
-#    echo "The length of argument '$var' is: ${#var}"
-#    (( count++ ))
-#    (( accum += ${#var} ))
-#done
-
-
-
+	
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
@@ -124,7 +130,7 @@ echo
 echo
 echo "Launching stack:"
 echo
-aws cloudformation create-stack --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue"
+aws cloudformation create-stack --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $locationParameters
 complete=0
 seconds=0
 while [ "$complete" -ne 1 ]; do
