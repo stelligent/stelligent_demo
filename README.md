@@ -14,7 +14,7 @@ all-in-one automated demo from single cli command
 
 
 
-==> ./deploy.nando.automation.demo.sh
+==> ./deploy.nando.automation.demo.sh [TrustedIP1] [TrustedIP2] [TrustedIPX]
 
 
 
