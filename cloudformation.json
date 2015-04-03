@@ -76,27 +76,27 @@
       			"Type" : "AWS::EC2::NetworkInterface",
  			"DependsOn" : "NandoDemoSecGroup",
       			"Properties" : {
-        			"Description"        	: "eth0ww1",
-        			"SubnetId"           	: { "Ref" : "PublicSubnet" },
-        			"GroupSet" 	     	: [ { "Ref" : "NandoDemoSecGroup" } ]
+        			"Description" : "eth0ww1",
+        			"SubnetId" : { "Ref" : "PublicSubnet" },
+        			"GroupSet" : [ { "Ref" : "NandoDemoSecGroup" } ]
       			}
     		},
     		"Eth0ww2" : {
       			"Type" : "AWS::EC2::NetworkInterface",
  			"DependsOn" : "NandoDemoSecGroup",
       			"Properties" : {
-        			"Description"        	: "eth0ww2",
-        			"SubnetId"           	: { "Ref" : "PublicSubnet" },
-        			"GroupSet" 	     	: [ { "Ref" : "NandoDemoSecGroup" } ]
+        			"Description" : "eth0ww2",
+        			"SubnetId" : { "Ref" : "PublicSubnet" },
+        			"GroupSet" : [ { "Ref" : "NandoDemoSecGroup" } ]
       			}
     		},
     		"Eth0jenkins" : {
       			"Type" : "AWS::EC2::NetworkInterface",
  			"DependsOn" : "NandoDemoSecGroup",
       			"Properties" : {
-        			"Description"        	: "eth0jenkins",
-        			"SubnetId"           	: { "Ref" : "PublicSubnet" },
-        			"GroupSet" 	     	: [ { "Ref" : "NandoDemoSecGroup" } ]
+        			"Description" : "eth0jenkins",
+        			"SubnetId" : { "Ref" : "PublicSubnet" },
+        			"GroupSet" : [ { "Ref" : "NandoDemoSecGroup" } ]
       			}
     		},
  		"VPC" : {

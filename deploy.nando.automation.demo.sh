@@ -8,16 +8,8 @@ echo
 echo "$title Launch Script"
 echo
 if [ "$1" ==  "delete" ]; then
-	echo
-	echo "DELETE MODE.  Deleting stack: \"$keyName\"."
-	echo
-	aws cloudformation delete-stack --stack-name $keyName
-	echo
-	exit
-fi 
-if [ "$1" ==  "redeploy" ]; then
         echo
-        echo "REDEPLOY MODE.  Deleting stack: \"$keyName\"."
+        echo "DELETE MODE.  Deleting stack: \"$keyName\"."
         echo
         aws cloudformation delete-stack --stack-name $keyName
         echo "waiting on delete stack $keyName ."
@@ -25,7 +17,7 @@ if [ "$1" ==  "redeploy" ]; then
         echo
 	complete=0
 	seconds=0
-	while [ "$complete" -ne 1 ]; do
+	while true; do
         	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
         	if [[ $stackStatus == *DELETE_IN_PROGRESS* ]]; then
                 	echo -n ".";
@@ -35,14 +27,32 @@ if [ "$1" ==  "redeploy" ]; then
                 	echo
                 	echo $stackStatus
                 	echo
-			echo
 			echo "Stack $keyName deleted in $seconds seconds"
 			echo
 			echo
-                	complete=1;
+			exit
         	fi
 	done
 fi
+
+
+numLocationsExpected=$(grep "Location.\" :" cloudformation.json |wc -l)
+if [ "$numLocationsExpected" -ne "$#" ]; then
+	echo
+	echo "expected $numLocationsExpected and number provided is $#"
+	echo
+	exit 666
+fi
+exit
+#for arguments in "$@"
+#do
+#    echo "The length of argument '$var' is: ${#var}"
+#    (( count++ ))
+#    (( accum += ${#var} ))
+#done
+
+
+
 existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
@@ -80,7 +90,9 @@ if [[ $existingStack == *CREATING_IN_PROGRESS* ]]; then
         echo
         exit 666
 fi
+echo
 echo "Upload Files to S3"
+echo
 s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:public-read
 s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
 s3cmd put installjenkinsjob.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read 
@@ -109,7 +121,6 @@ echo
 ## Finally, add the role to the instance profile
 #aws iam add-role-to-instance-profile --instance-profile-name EC2-ListBucket-S3 --role-name Test-Role-for-EC2
 
-echo
 echo
 echo "Launching stack:"
 echo
