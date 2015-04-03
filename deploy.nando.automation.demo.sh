@@ -50,7 +50,7 @@ for ip in "$@"; do
 		echo
 		exit 666
 	else
-		echo -n $ip
+		echo -n " $ip "
 		let ipcount=$ipcount+1
 		locationParameters+=" $locationParameter ParameterKey=Location$ipcount,ParameterValue=\"$ip/32\" "
 	fi
@@ -154,8 +154,11 @@ while [ "$complete" -ne 1 ]; do
 done
 echo
 echo "Create hosts file:"
-aws cloudformation describe-stacks --stack-name $keyName|grep ww1PrivateIP|cut -f4 > hosts
-aws cloudformation describe-stacks --stack-name $keyName|grep ww2PrivateIP|cut -f4 >> hosts
+cp /dev/null hosts
+asgName=$(aws cloudformation describe-stacks --stack-name $keyName|grep ASG|cut -f4)
+for instance in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name $asgName|grep INSTANCES|cut -f4); do
+	aws ec2 describe-instances --instance-id $instance | grep PRIVATEIPADDRESSES | cut -f4 >> hosts
+done
 cat hosts
 echo
 echo "Upload hosts:"

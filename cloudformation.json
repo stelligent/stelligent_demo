@@ -21,7 +21,11 @@
     		},
 		"PrivateKey" : {
     			"Type" : "String"
-  		}
+  		},
+		"AZ" : {
+			"Type" : "String",
+			"Default" : "us-east-1d"
+		}
   	},
  	"Mappings" : {
   		"SubnetConfig" : {
@@ -30,16 +34,13 @@
   		}
  	}, 
  	"Resources" : {
-    		"EIPww1" :  {
-      			"Type" : "AWS::EC2::EIP",
+    		"Eth0jenkins" : {
+      			"Type" : "AWS::EC2::NetworkInterface",
+ 			"DependsOn" : "NandoDemoSecurityGroup",
       			"Properties" : {
-        			"Domain" : "vpc"
-      			}
-    		},
-    		"EIPww2" :  {
-      			"Type" : "AWS::EC2::EIP",
-      			"Properties" : {
-        			"Domain" : "vpc"
+        			"Description" : "eth0jenkins",
+        			"SubnetId" : { "Ref" : "PublicSubnet" },
+        			"GroupSet" : [ { "Ref" : "NandoDemoSecurityGroup" } ]
       			}
     		},
     		"EIPjenkins" :  {
@@ -48,52 +49,11 @@
         			"Domain" : "vpc"
       			}
     		},
-    		"EIPAssocww1" : {
-      			"Type" : "AWS::EC2::EIPAssociation",
-      			"Properties" : {
-        			"NetworkInterfaceId" : { "Ref" : "Eth0ww1" },
-        			"AllocationId" : { "Fn::GetAtt" : [ "EIPww1", "AllocationId" ] }
-      			}
-    		},
-    		"EIPAssocww2" : {
-      			"Type" : "AWS::EC2::EIPAssociation",
-      			"Properties" : {
-        			"NetworkInterfaceId" : { "Ref" : "Eth0ww2" },
-        			"AllocationId" : { "Fn::GetAtt" : [ "EIPww2", "AllocationId" ] }
-      			}
-    		},
     		"EIPAssocjenkins" : {
       			"Type" : "AWS::EC2::EIPAssociation",
       			"Properties" : {
         			"NetworkInterfaceId" : { "Ref" : "Eth0jenkins" },
         			"AllocationId" : { "Fn::GetAtt" : [ "EIPjenkins", "AllocationId" ] }
-      			}
-    		},
-    		"Eth0ww1" : {
-      			"Type" : "AWS::EC2::NetworkInterface",
- 			"DependsOn" : "NandoDemoSecGroup",
-      			"Properties" : {
-        			"Description" : "eth0ww1",
-        			"SubnetId" : { "Ref" : "PublicSubnet" },
-        			"GroupSet" : [ { "Ref" : "NandoDemoSecGroup" } ]
-      			}
-    		},
-    		"Eth0ww2" : {
-      			"Type" : "AWS::EC2::NetworkInterface",
- 			"DependsOn" : "NandoDemoSecGroup",
-      			"Properties" : {
-        			"Description" : "eth0ww2",
-        			"SubnetId" : { "Ref" : "PublicSubnet" },
-        			"GroupSet" : [ { "Ref" : "NandoDemoSecGroup" } ]
-      			}
-    		},
-    		"Eth0jenkins" : {
-      			"Type" : "AWS::EC2::NetworkInterface",
- 			"DependsOn" : "NandoDemoSecGroup",
-      			"Properties" : {
-        			"Description" : "eth0jenkins",
-        			"SubnetId" : { "Ref" : "PublicSubnet" },
-        			"GroupSet" : [ { "Ref" : "NandoDemoSecGroup" } ]
       			}
     		},
  		"VPC" : {
@@ -111,8 +71,9 @@
 		"PublicSubnet" : {
  			"Type" : "AWS::EC2::Subnet",
  			"Properties" : {
+				"AvailabilityZone" : { "Ref" : "AZ" },
  				"VpcId" : { "Ref" : "VPC" },
- 				"CidrBlock" : "10.200.0.0/16",
+ 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Public", "CIDR" ] },
  				"Tags" : [
  					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
  					{ "Key" : "Network", "Value" : "Public" }
@@ -155,7 +116,6 @@
       			"Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
       			"Properties" : {
 				"Subnets" : [ { "Ref" : "PublicSubnet" } ],
-        			"Instances" : [ { "Ref" : "ww1" }, { "Ref" : "ww2" } ],
         			"Listeners" : [ 
 					{ "LoadBalancerPort" : "80", "InstancePort" : "80", "Protocol" : "HTTP" },
 					{ "LoadBalancerPort" : "2222", "InstancePort" : "22", "Protocol" : "TCP" }
@@ -167,7 +127,7 @@
           				"Interval" : "5",
           				"Timeout" : "4"
         			},
-				"SecurityGroups" : [ { "Ref" : "NandoDemoSecGroup" } ]
+				"SecurityGroups" : [ { "Ref" : "NandoDemoSecurityGroup" } ]
       			}
     		},
       		"LoadBalancerCNAME" : {
@@ -191,6 +151,7 @@
         			"KeyName" : { "Ref" : "KeyName" },
  				"InstanceType" : { "Ref" : "InstanceType" },
  				"ImageId" : "ami-fb8e9292",
+				"AvailabilityZone" : { "Ref" : "AZ" },
         			"NetworkInterfaces" : [ { 
           				"NetworkInterfaceId" : {"Ref" : "Eth0jenkins" },
           				"DeviceIndex" : "0"
@@ -302,8 +263,26 @@
         			}
       			}
  		},
-    		"ww1" : {
-      			"Type" : "AWS::EC2::Instance",
+		"wwASG" : {
+      			"Type": "AWS::AutoScaling::AutoScalingGroup",
+      			"Version": "2009-05-15",
+ 			"DependsOn" : "VPC",
+      			"Properties": {
+				"AvailabilityZones" : [ { "Ref" : "AZ" } ],
+        			"LaunchConfigurationName": { "Ref": "wwLaunchConfig" },
+				"LoadBalancerNames" : [ {"Ref" : "NandoDemoELB" } ],
+				"VPCZoneIdentifier" : [ { "Ref" : "PublicSubnet" } ],
+        			"MinSize": "2",
+        			"MaxSize": "2",
+        			"Tags" : [ {
+          				"Key"   : "Name",
+          				"Value" : { "Fn::Join"  : [ "-" , [ { "Ref" : "AWS::StackName" }, "webserver" ]]},
+          				"PropagateAtLaunch" : "true"
+        			} ]
+			}
+      		},
+		"wwLaunchConfig" : {
+   			"Type" : "AWS::AutoScaling::LaunchConfiguration",
  			"DependsOn" : "GatewayToInternet",
       			"Metadata" : {
         			"Comment" : "Nando Demo Instance One",
@@ -335,10 +314,10 @@
                 						"content" : { "Fn::Join" : [ "", [
                   							"[cfn-auto-reloader-hook]\n",
                   							"triggers=post.update\n",
-                  							"path=Resources.ww1.Metadata.AWS::CloudFormation::Init\n",
+                  							"path=Resources.wwASG.Metadata.AWS::CloudFormation::Init\n",
                   							"action=/opt/aws/bin/cfn-init -v ",
                   							"         --stack ", { "Ref" : "AWS::StackName" },
-                  							"         --resource ww1 ",
+                  							"         --resource wwLaunchConfig ",
                   							"         --region ", { "Ref" : "AWS::Region" }, "\n",
                   							"runas=root\n"
                 						] ] }
@@ -358,20 +337,18 @@
         			"KeyName" : { "Ref" : "KeyName" },
         			"InstanceType" : { "Ref" : "InstanceType" },
  				"ImageId" : "ami-fb8e9292",
-        			"NetworkInterfaces" : [ { 
-          				"NetworkInterfaceId" : { "Ref" : "Eth0ww1" },
-          				"DeviceIndex" : "0"
-        			}],
+				"AssociatePublicIpAddress" : "true",
+				"SecurityGroups": [ { "Ref": "NandoDemoSecurityGroup" } ],
         			"UserData"       : { "Fn::Base64" : { "Fn::Join" : [ "", [
              				"#!/bin/bash -xe\n",
              				"yum update -y aws-cfn-bootstrap\n",
              				"/opt/aws/bin/cfn-init -v ",
              				"         --stack ", { "Ref" : "AWS::StackName" },
-             				"         --resource ww1 ",
+             				"         --resource wwLaunchConfig ",
              				"         --region ", { "Ref" : "AWS::Region" }, "\n",
              				"/opt/aws/bin/cfn-signal -e $? ",
              				"         --stack ", { "Ref" : "AWS::StackName" },
-             				"         --resource ww1 ",
+             				"         --resource wwLaunchConfig ",
              				"         --region ", { "Ref" : "AWS::Region" }, "\n"
         				] ] }
 				}
@@ -382,91 +359,11 @@
         			}
       			}
     		},
-    		"ww2" : {
-      			"Type" : "AWS::EC2::Instance",
- 			"DependsOn" : "GatewayToInternet",
-			"Metadata" : {
-                                "Comment" : "Nando Demo Instance Two",
-                                "AWS::CloudFormation::Init" : {
-                                        "config" : {
-                                                "packages" : {
-                                                        "yum" : {
-                                                                "httpd" : []
-                                                        }
-                                                },
-                                                "files" : {
-                                                        "/var/www/html/index.html" : {
-                                                                "content": "<h1>Nando Automation Demo.</h1>",
-                                                                "mode" : "000644",
-                                                                "owner" : "root",
-                                                                "group" : "root"
-                                                        },
-                                                        "/etc/cfn/cfn-hup.conf" : {
-                                                                "content" : { "Fn::Join" : [ "", [
-                                                                        "[main]\n",
-                                                                        "stack=", { "Ref" : "AWS::StackId" }, "\n",
-                                                                        "region=", { "Ref" : "AWS::Region" }, "\n"
-                                                                ] ] },
-                                                                "mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root"
-                                                        },
-                                                        "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
-                                                                "content": { "Fn::Join" : [ "", [
-                                                                        "[cfn-auto-reloader-hook]\n",
-                                                                        "triggers=post.update\n",
-                                                                        "path=Resources.ww2.Metadata.AWS::CloudFormation::Init\n",
-                                                                        "action=/opt/aws/bin/cfn-init -v ",
-                                                                        "         --stack ", { "Ref" : "AWS::StackName" },
-                                                                        "         --resource ww2 ",
-                                                                        "         --region ", { "Ref" : "AWS::Region" }, "\n",
-                                                                        "runas=root\n"
-                                                                ] ] }
-                                                        }
-                                                },
-                                                "services" : {
-                                                        "sysvinit" : {
-                                                                "httpd" : { "enabled" : "true", "ensureRunning" : "true" },
-                                                                "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
-                                                                "files" : ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]}
-                                                        }
-                                                }
-                                        }
-                                }
-                        },
-      			"Properties" : {
-        			"KeyName" : { "Ref" : "KeyName" },
-        			"InstanceType" : { "Ref" : "InstanceType" },
- 				"ImageId" : "ami-fb8e9292",
-        			"NetworkInterfaces" : [ { 
-          				"NetworkInterfaceId" : {"Ref" : "Eth0ww2" },
-          				"DeviceIndex" : "0"
-        			} ],
-        			"UserData" : { "Fn::Base64" : { "Fn::Join" : [ "", [
-             				"#!/bin/bash -xe\n",
-             				"yum update -y aws-cfn-bootstrap\n",
-             				"/opt/aws/bin/cfn-init -v ",
-             				"         --stack ", { "Ref" : "AWS::StackName" },
-             				"         --resource ww2 ",
-             				"         --region ", { "Ref" : "AWS::Region" }, "\n",
-             				"/opt/aws/bin/cfn-signal -e $? ",
-             				"         --stack ", { "Ref" : "AWS::StackName" },
-             				"         --resource ww2 ",
-             				"         --region ", { "Ref" : "AWS::Region" }, "\n"
-        				] ] }
-				}
-      			},
-      			"CreationPolicy" : {
-        			"ResourceSignal" : {
-          				"Timeout" : "PT5M"
-        			}
-      			}
-    		},
-    		"NandoDemoSecGroup" : {
+    		"NandoDemoSecurityGroup" : {
       			"Type" : "AWS::EC2::SecurityGroup",
       			"Properties" : {
         			"GroupDescription" : "nando-demo",
-        			"VpcId"            : { "Ref" : "VPC" },
+        			"VpcId" : { "Ref" : "VPC" },
         			"SecurityGroupIngress" : [ 
 					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "10.200.0.0/16" },
 					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location1"} },
@@ -484,25 +381,13 @@
     		}
 	},
   	"Outputs" : {
-    		"ww1PrivateIP" : {
-      			"Description" : "Private IP address of ww1 instance",
-      			"Value" : { "Fn::GetAtt" : [ "ww1", "PrivateIp" ] }
-    		},
-    		"ww2PrivateIP" : {
-      			"Description" : "Private IP address of ww2 instance",
-      			"Value" : { "Fn::GetAtt" : [ "ww2", "PrivateIp" ] }
-    		},
+		"ASGname" : {
+			"Description" : "ASG Name",
+			"Value" : { "Ref" : "wwASG" }
+		},
     		"jenkinsPublicIP" : {
       			"Description" : "Public IP address of jenkins instance",
       			"Value" : { "Ref" : "EIPjenkins" }
-    		},
-    		"ww1PublicURL" : {
-      			"Description" : "Public IP address of ww1 instance",
-      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIPww1" } ] ] }
-    		},
-    		"ww2PublicURL" : {
-      			"Description" : "Public IP address of ww2 instance",
-      			"Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "EIPww2" } ] ] }
     		},
     		"JenkinsURL" : {
       			"Description" : "JenkinsURL",
