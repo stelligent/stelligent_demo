@@ -231,11 +231,17 @@
                            					"owner" : "root",
                            					"group" : "root"
 							},
-							"/root/nando-demo.pem" : {
+							"/var/lib/jenkins/nando-demo.pem" : {
 								"content" : { "Ref" : "PrivateKey" },
 								"mode" : "000644",
-								"owner" : "root",
-								"group" : "root"
+								"owner" : "jenkins",
+								"group" : "jenkins"
+							},
+							"/var/lib/jenkins/cloudformation-stack-name" : {
+								"content" : { "Ref" : "AWS::StackName" },
+								"mode" : "000644",
+								"owner" : "jenkins",
+								"group" : "jenkins"
 							}
                                                 },
 						"commands" : {
@@ -244,9 +250,6 @@
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installjenkinsmodules.pp" },
  							"installjenkinsD" : { "command" : "sleep 30" },
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" },
-							"installprivatekeyA" : { "command" : "cp /root/nando-demo.pem /var/lib/jenkins/nando-demo.pem" },
-							"installprivatekeyB" : { "command" : "chown jenkins. /var/lib/jenkins/nando-demo.pem" },
-							"installprivatekeyC" : { "command" : "chmod 0400 /var/lib/jenkins/nando-demo.pem" }
 						},
                                                 "services" : {
                                                         "sysvinit" : {

@@ -153,17 +153,14 @@ while [ "$complete" -ne 1 ]; do
 	fi
 done
 echo
-echo "Create hosts file:"
-cp /dev/null hosts
-asgName=$(aws cloudformation describe-stacks --stack-name $keyName|grep ASG|cut -f4)
-for instance in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name $asgName|grep INSTANCES|cut -f4); do
-	aws ec2 describe-instances --instance-id $instance | grep PRIVATEIPADDRESSES | cut -f4 >> hosts
-done
-cat hosts
-echo
-echo "Upload hosts:"
-s3cmd put hosts s3://nando-automation-demo --add-header=x-amz-acl:public-read 
-echo
+
+#echo "Create hosts file:"
+#cp /dev/null hosts
+#asgName=$(aws cloudformation describe-stacks --stack-name $keyName|grep ASG|cut -f4)
+#for instance in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name $asgName|grep INSTANCES|cut -f4); do
+#	aws ec2 describe-instances --instance-id $instance | grep PRIVATEIPADDRESSES | cut -f4 >> hosts
+#done
+
 echo
 echo "write out private key $keyName.pem ."
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
