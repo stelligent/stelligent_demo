@@ -152,7 +152,6 @@
  				"InstanceType" : { "Ref" : "InstanceType" },
  				"ImageId" : "ami-fb8e9292",
 				"AvailabilityZone" : { "Ref" : "AZ" },
-            			"InstanceMonitoring": "true",
             			"IamInstanceProfile": { "Ref": "nandoDemoInstanceProfile" },
         			"NetworkInterfaces" : [ { 
           				"NetworkInterfaceId" : {"Ref" : "Eth0jenkins" },

@@ -128,7 +128,7 @@ echo
 echo
 echo "Launching stack:"
 echo
-aws cloudformation create-stack --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $locationParameters
+aws cloudformation create-stack --capabilities CAPABILITY_IAM --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $locationParameters
 complete=0
 seconds=0
 while [ "$complete" -ne 1 ]; do
