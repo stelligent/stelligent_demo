@@ -163,6 +163,7 @@ echo
 
 echo
 echo "write out private key $keyName.pem ."
+rm -fv $keyName.pem
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
 chmod -c 0400 $keyName.pem
 echo

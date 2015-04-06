@@ -67,16 +67,18 @@ done
 
 site=&quot;$site &lt;/tr&gt;&lt;/table&gt;&quot;
 
-if [ -f hosts ]; then rm -fv hosts; fi
-wget http://nando-automation-demo.s3.amazonaws.com/hosts
+stack=$(cat /var/lib/jenkins/cloudformation-stack-name)
+asgName=$(aws cloudformation describe-stacks --stack-name $stack --region us-east-1 --output text|grep ASG|cut -f4)
+for instance in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name $asgName --region us-east-1 --output text|grep INSTANCES|cut -f4); do
+	instanceIP=$(aws ec2 describe-instances --instance-id $instance --region us-east-1 --output text|grep PRIVATEIPADDRESSES|cut -f4)
+    $sshcmd ec2-user@$instanceIP &quot;echo \&quot;$site\&quot; | sudo tee /var/www/html/index.html&quot;
+    $scpcmd image1.jpg ec2-user@$instanceIP:
+    $sshcmd ec2-user@$instanceIP &quot;sudo mv -v /home/ec2-user/image1.jpg /var/www/html&quot;
+    $scpcmd image2.jpg ec2-user@$instanceIP:
+    $sshcmd ec2-user@$instanceIP &quot;sudo mv -v /home/ec2-user/image2.jpg /var/www/html&quot;
+done
 
-for ip in $(cat hosts); do 
-	$sshcmd ec2-user@$ip &quot;echo \&quot;$site\&quot; | sudo tee /var/www/html/index.html&quot;
-    $scpcmd image1.jpg ec2-user@$ip:
-    $sshcmd ec2-user@$ip &quot;sudo mv -v /home/ec2-user/image1.jpg /var/www/html&quot;
-    $scpcmd image2.jpg ec2-user@$ip:
-    $sshcmd ec2-user@$ip &quot;sudo mv -v /home/ec2-user/image2.jpg /var/www/html&quot;
-done</command>
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

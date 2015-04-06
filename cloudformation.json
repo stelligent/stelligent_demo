@@ -162,6 +162,7 @@
 					"yum -y install git\n",
 					"yum -y install puppet\n",
 					"mkdir /etc/puppet/modules\n",
+					"mkdir /var/lib/jenkins\n",
 					"puppet module install rtyler/jenkins\n",
 					"sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp\n",
 					"yum -y install python-pip\n",
@@ -209,47 +210,35 @@
                                                         },
 							"/etc/puppet/installjenkins.pp" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkins.pp",
-                           					"mode" : "000644",
-                           					"owner" : "root",
-                           					"group" : "root"
+                           					"mode" : "000644"
 							},
 							"/etc/puppet/installjenkinsjob.pp" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinsjob.pp",
-                           					"mode" : "000644",
-                           					"owner" : "root",
-                           					"group" : "root"
+                           					"mode" : "000644"
 							},
                                                         "/etc/puppet/installjenkinsmodules.pp" : {
                                                                 "source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinsmodules.pp",
-                                                                "mode" : "000644",
-                                                                "owner" : "root",
-                                                                "group" : "root"
+                                                                "mode" : "000644"
                                                         },
 							"/etc/puppet/nando-automation-demo.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jenkins.xml.erb",
-                           					"mode" : "000644",
-                           					"owner" : "root",
-                           					"group" : "root"
+                           					"mode" : "000644"
 							},
 							"/var/lib/jenkins/nando-demo.pem" : {
 								"content" : { "Ref" : "PrivateKey" },
-								"mode" : "000644",
-								"owner" : "jenkins",
-								"group" : "jenkins"
+								"mode" : "000400"
 							},
 							"/var/lib/jenkins/cloudformation-stack-name" : {
 								"content" : { "Ref" : "AWS::StackName" },
-								"mode" : "000644",
-								"owner" : "jenkins",
-								"group" : "jenkins"
+								"mode" : "000644"
 							}
                                                 },
 						"commands" : {
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
- 							"installjenkinsB" : { "command" : "sleep 60" },
+ 							"installjenkinsB" : { "command" : "sleep 30" },
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installjenkinsmodules.pp" },
  							"installjenkinsD" : { "command" : "sleep 30" },
-							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" },
+							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" }
 						},
                                                 "services" : {
                                                         "sysvinit" : {
