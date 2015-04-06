@@ -152,6 +152,8 @@
  				"InstanceType" : { "Ref" : "InstanceType" },
  				"ImageId" : "ami-fb8e9292",
 				"AvailabilityZone" : { "Ref" : "AZ" },
+            			"InstanceMonitoring": "true",
+            			"IamInstanceProfile": { "Ref": "nandoDemoInstanceProfile" },
         			"NetworkInterfaces" : [ { 
           				"NetworkInterfaceId" : {"Ref" : "Eth0jenkins" },
           				"DeviceIndex" : "0"
@@ -378,7 +380,48 @@
         				{ "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" } 
 				]
       			}
-    		}
+    		},
+	      	"nandoDemoRole": {
+         		"Type": "AWS::IAM::Role",
+         		"Properties": {
+            			"AssumeRolePolicyDocument": {
+               				"Version" : "2012-10-17",
+               				"Statement": [ {
+                  				"Effect": "Allow",
+                  				"Principal": { "Service": [ "ec2.amazonaws.com" ] },
+                  				"Action": [ "sts:AssumeRole" ]
+               				} ]
+            			},
+            			"Path": "/"
+         		}
+      		},
+      		"nandoDemoPolicy": {
+     			"Type": "AWS::IAM::Policy",
+         		"Properties": {
+            			"PolicyName": "nando-demo-policy",
+            			"PolicyDocument": {
+               				"Version" : "2012-10-17",
+					"Statement": [ {
+      						"Action": [
+        						"autoscaling:Describe*",
+        						"cloudformation:DescribeStacks",
+        						"ec2:Describe*",
+        						"s3:Get*"
+      						],
+      						"Effect": "Allow",
+      						"Resource": "*"
+    					} ]
+            			},
+            			"Roles": [ { "Ref": "nandoDemoRole" } ]
+         		}
+      		},
+      		"nandoDemoInstanceProfile": {
+         		"Type": "AWS::IAM::InstanceProfile",
+         		"Properties": {
+            			"Path": "/",
+            			"Roles": [ { "Ref": "nandoDemoRole" } ]
+         		}
+      		}
 	},
   	"Outputs" : {
 		"ASGname" : {

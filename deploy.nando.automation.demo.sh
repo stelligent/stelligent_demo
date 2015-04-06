@@ -165,6 +165,10 @@ echo "Upload hosts:"
 s3cmd put hosts s3://nando-automation-demo --add-header=x-amz-acl:public-read 
 echo
 echo
+echo "write out private key $keyName.pem ."
+aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
+chmod -c 0400 $keyName.pem
+echo
 echo
 echo "$title has deployed in $seconds seconds."
 echo
