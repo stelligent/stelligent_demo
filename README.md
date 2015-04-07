@@ -76,21 +76,24 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 
 # process_notes
 
-- upload jenkins template to S3
-- upload puppet manifests to S3
-- create keypair for use in demo
-- launch stack and upload www private ip's host file to S3 (cfn outputs)
-	- build vpc and dependancies
-	- build www instances and ELB with Route53 CNAME Alias
-	- build jenkins server
-		- add python instagram functionality
-		- add git functionality
-		- pull jenkins job template from S3 and create jenkins job
+- uploads jenkins template to S3
+- uploads puppet manifests to S3
+- creates keypair for use in demo
+- launches cfn stack
+	- builds vpc and dependancies
+	- builds Webserver ASG and ELB with Route53 Alias
+	- sets up S3 bucket for all logging
+	- builds jenkins server via cloud init and authenticated S3
+		- adds python instagram functionality
+		- adds git functionality
+		- installs and configures jenkins via puppet
+		- pulls jenkins job template from S3 and creates jenkins job
 		- job executes based on SCM
-			- download latest hosts file from S3 (web server private IP list) 
-			- get images and generate html and push to staging (jenkins server doubles as staging server)
-			- run full acceptance testing suite, including application and environment security tests
-			- on success of all tests, push to production
+			- queries aws for private IPs of web AutoScalingGroup
+			- gets instagram images and generates html
+			- pushes code and images to staging
+			- application and security acceptance testing
+			- push to production
 
 
 
@@ -98,16 +101,10 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 
 - move instance bootstrap from user-data to meta-data in cfn
 - push private key for jenkins from cfn paramater to s3 kms
-- add iam role to jenkins instance in cfn 
-	- iam policy for s3 nando-automation-demo bucket
-	- remove world-read to nando-automation-demo bucket 
-- move www's into private subnet and remove eip
 - 1:1 cfn template to service lifecycle
 	- one template for www's, elb, route53, etc
 	- one template for jenkins, iam, etc
 - add route53 entry for jenkins box via cfn with url as output
-- create auto-scaling group for www's
-	- ensure 2 instances with ASG, instead of launching standalone instances
 - rewrite deploy script in python
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
 - update jenkins job to python and boto
