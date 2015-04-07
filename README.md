@@ -106,7 +106,6 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 	- one template for www's, elb, route53, etc
 	- one template for jenkins, iam, etc
 - add route53 entry for jenkins box via cfn with url as output
-- add route53 entry to ELB for "nando-automation-demo.elasticoperations.com" 
 - rewrite deploy script in python
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
 - update jenkins jobs to python and boto
