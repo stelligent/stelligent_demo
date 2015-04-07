@@ -1,3 +1,5 @@
 node /.*internal$/ {
-   	include jenkins
+	class { jenkins:
+		lts => true,
+	}
 }

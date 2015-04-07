@@ -120,6 +120,7 @@
  		}, 
     		"NandoDemoELB" : {
       			"Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+			"DependsOn" : "WebLaunchConfig",
       			"Properties" : {
 				"Subnets" : [ { "Ref" : "PublicSubnet" } ],
         			"Listeners" : [ 
@@ -138,6 +139,7 @@
     		},
       		"LoadBalancerCNAME" : {
         		"Type" : "AWS::Route53::RecordSetGroup",
+			"DependsOn" : "NandoDemoELB",
         		"Properties" : {
           			"HostedZoneName" : { "Ref" : "DemoZone" },
           			"RecordSets" : [ {
@@ -431,7 +433,7 @@
             			"Path": "/"
          		}
       		},
-      		"NandoDemoPolicy": {
+      		"NandoDemoIAMPolicy": {
      			"Type": "AWS::IAM::Policy",
          		"Properties": {
             			"PolicyName": "nando-demo-policy",
@@ -465,8 +467,8 @@
          				"Id" : "NandoDemoBucketPolicy",
          				"Version": "2012-10-17",
          				"Statement" : [ {
-            					"Sid" : "ReadAccess",
-            					"Action" : [ "s3:GetObject" ],
+            					"Sid" : "allowTrustedIPs",
+            					"Action" : [ "s3:*" ],
             					"Effect" : "Allow",
             					"Resource" : { "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref" : "NandoDemoBucket" } , "/*" ] ] },
             					"Principal" : "*",

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-keyName="nando-demo2"
+keyName="nando-demo-$(date +%Y%m%d%H%M%S)"
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
@@ -158,6 +158,9 @@ rm -fv $keyName.pem
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
 chmod -c 0400 $keyName.pem
 echo
+echo
+jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName |grep JenkinsPublicIP|cut -f3)
+echo "Jenkins available at: ssh -i $keyName.pem ec2-user@$jenkinsIP ."
 echo
 echo
 echo "$title has deployed in $seconds seconds."
