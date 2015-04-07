@@ -83,7 +83,7 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 	- builds vpc and dependancies
 	- builds Webserver ASG and ELB with Route53 Alias
 	- sets up S3 bucket for all logging
-	- builds jenkins server via cloud init and authenticated S3
+	- bootstraps jenkins server via cloud init and authenticated S3
 		- adds python instagram functionality
 		- adds git functionality
 		- installs and configures jenkins via puppet
@@ -93,7 +93,7 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 			- gets instagram images and generates html
 			- pushes code and images to staging
 			- application and security acceptance testing
-			- push to production
+			- push to production via ssh on each ASG instance
 
 
 

@@ -242,6 +242,13 @@
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
                                                         },
+                                                       "/etc/puppet/installjenkinsusers.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinsusers.pp",
+                                                                "mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+                                                                "authentication" : "S3AccessCreds"
+                                                        },
 							"/etc/puppet/nando-automation-demo.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jenkins.xml.erb",
                            					"mode" : "000400",
@@ -269,7 +276,9 @@
  							"installjenkinsB" : { "command" : "sleep 30" },
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installjenkinsmodules.pp" },
  							"installjenkinsD" : { "command" : "sleep 30" },
-							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" }
+							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" },
+							"installjenkinsF" : { "command" : "/usr/bin/java -jar /usr/lib/jenkins/jenkins-cli.jar -s http://127.0.0.1:8080 groovy /usr/lib/jenkins/puppet_helper.groovy set_security full_control" },
+							"installjenkinsG" : { "command" : "puppet apply /etc/puppet/installjenkinsusers.pp" }	
 						},
                                                 "services" : {
                                                         "sysvinit" : {

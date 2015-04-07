@@ -1,6 +1,6 @@
 #!/bin/bash
 
-keyName="nando-demo8"
+keyName="nando-demo9"
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
@@ -102,6 +102,7 @@ aws s3 cp jenkins.xml.erb s3://nando-automation-demo
 aws s3 cp installjenkins.pp s3://nando-automation-demo
 aws s3 cp installjenkinsjob.pp s3://nando-automation-demo 
 aws s3 cp installjenkinsmodules.pp s3://nando-automation-demo 
+aws s3 cp installjenkinsusers.pp s3://nando-automation-demo 
 echo
 echo
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
