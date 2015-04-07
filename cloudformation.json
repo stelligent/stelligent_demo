@@ -57,6 +57,7 @@
     		},
     		"NandoDemoJenkinsAssocEIP" : {
       			"Type" : "AWS::EC2::EIPAssociation",
+			"DependsOn" : "NandoDemoJenkinsEIP",
       			"Properties" : {
         			"NetworkInterfaceId" : { "Ref" : "NandoDemoJenkinsEth0" },
         			"AllocationId" : { "Fn::GetAtt" : [ "NandoDemoJenkinsEIP", "AllocationId" ] }
@@ -76,6 +77,7 @@
  		}, 
 		"NandoDemoPublicSubnet" : {
  			"Type" : "AWS::EC2::Subnet",
+			"DependsOn" : "NandoDemoVPC",
  			"Properties" : {
 				"AvailabilityZone" : { "Ref" : "AZ" },
  				"VpcId" : { "Ref" : "NandoDemoVPC" },
@@ -91,6 +93,7 @@
 		}, 
 		"NandoDemoInternetGatewayAttach" : {
  			"Type" : "AWS::EC2::VPCGatewayAttachment",
+			"DependsOn" : "NandoDemoInternetGateway",
  			"Properties" : {
  				"VpcId" : { "Ref" : "NandoDemoVPC" },
  				"InternetGatewayId" : { "Ref" : "NandoDemoInternetGateway" }
@@ -98,6 +101,7 @@
  		}, 
 		"NandoDemoPublicRouteTable" : {
  			"Type" : "AWS::EC2::RouteTable",
+			"DependsOn" : "NandoDemoVPC",
  			"Properties" : {
  				"VpcId" : { "Ref" : "NandoDemoVPC" }
  			}
@@ -113,6 +117,7 @@
  		}, 
 		"NandoDemoPublicRouteTableAssociation" : {
  			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
+			"DependsOn" : "NandoDemoPublicRoute",
  			"Properties" : {
  				"SubnetId" : { "Ref" : "NandoDemoPublicSubnet" },
  				"RouteTableId" : { "Ref" : "NandoDemoPublicRouteTable" }
@@ -120,7 +125,7 @@
  		}, 
     		"NandoDemoELB" : {
       			"Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
-			"DependsOn" : "NandoDemoWebLaunchConfig",
+			"DependsOn" : "NandoDemoWebASG",
       			"Properties" : {
 				"Subnets" : [ { "Ref" : "NandoDemoPublicSubnet" } ],
         			"Listeners" : [ 
@@ -137,21 +142,6 @@
 				"SecurityGroups" : [ { "Ref" : "NandoDemoSecurityGroup" } ]
       			}
     		},
-      		"NandoDemoELBCNAME" : {
-        		"Type" : "AWS::Route53::RecordSetGroup",
-			"DependsOn" : "NandoDemoELB",
-        		"Properties" : {
-          			"HostedZoneName" : { "Ref" : "NandoDemoZone" },
-          			"RecordSets" : [ {
-              				"Name" : { "Fn::Join" : [ ".", [ { "Ref" : "NandoDemoName" }, { "Ref" : "NandoDemoZone" } ] ] },
-              				"Type" : "A",
-              				"AliasTarget" : {
-                  				"HostedZoneId" : { "Fn::GetAtt" : [ "NandoDemoELB", "CanonicalHostedZoneNameID" ] },
-                  				"DNSName" : { "Fn::GetAtt" : [ "NandoDemoELB","CanonicalHostedZoneName" ] }
-              				}
-            			} ]
-			}
-        	},
                 "NandoDemoCNAME" : {
                         "Type" : "AWS::Route53::RecordSetGroup",
                         "DependsOn" : "NandoDemoELB",
@@ -322,7 +312,7 @@
 		"NandoDemoWebASG" : {
       			"Type": "AWS::AutoScaling::AutoScalingGroup",
       			"Version": "2009-05-15",
- 			"DependsOn" : "NandoDemoVPC",
+ 			"DependsOn" : "NandoDemoLaunchConfig",
       			"Properties": {
 				"AvailabilityZones" : [ { "Ref" : "AZ" } ],
         			"LaunchConfigurationName": { "Ref": "NandoDemoWebLaunchConfig" },
@@ -436,7 +426,7 @@
       			}
     		},
 	      	"NandoDemoRole": {
-         		"Type": "AWS::IAM::Role",
+         		"Type" : "AWS::IAM::Role",
          		"Properties": {
             			"AssumeRolePolicyDocument": {
                				"Version" : "2012-10-17",
@@ -450,7 +440,8 @@
          		}
       		},
       		"NandoDemoIAMPolicy": {
-     			"Type": "AWS::IAM::Policy",
+     			"Type" : "AWS::IAM::Policy",
+			"DependsOn" : "NandoDemoRole",
          		"Properties": {
             			"PolicyName": "nando-demo-policy",
             			"PolicyDocument": {
@@ -470,7 +461,8 @@
          		}
       		},
       		"NandoDemoInstanceProfile": {
-         		"Type": "AWS::IAM::InstanceProfile",
+         		"Type" : "AWS::IAM::InstanceProfile",
+			"DependsOn" : "NandoDemoRole",
          		"Properties": {
             			"Path": "/",
             			"Roles": [ { "Ref": "NandoDemoRole" } ]
@@ -478,6 +470,7 @@
       		},
 		"NandoDemoBucketPolicy" : {
    			"Type" : "AWS::S3::BucketPolicy",
+			"DependsOn" : "NandoDemoBucket",
    			"Properties" : {
       				"PolicyDocument" : {
          				"Id" : "NandoDemoBucketPolicy",
@@ -513,7 +506,6 @@
     		"NandoDemoJenkinsEIP" : { "Value" : { "Ref" : "NandoDemoJenkinsEIP" } },
     		"NandoDemoJenkinsURL" : { "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoJenkins", "PublicDnsName" ] }, ":8080" ] ] } },
       		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
-		"NandoDemoELBCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoName" }, ".", { "Ref" : "NandoDemoZone" } ] ] } },
 		"NandoDemoName" : { "Value" : { "Ref" : "NandoDemoName" } },
 		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", "nando-automation-demo.", { "Ref" : "NandoDemoZone" } ] ] } },
    		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } }
