@@ -68,7 +68,7 @@ done
 site=&quot;$site &lt;/tr&gt;&lt;/table&gt;&quot;
 
 stack=$(cat /var/lib/jenkins/cloudformation-stack-name)
-asgName=$(aws cloudformation describe-stacks --stack-name $stack --region us-east-1 --output text|grep ASGname|cut -f3)
+asgName=$(aws cloudformation describe-stacks --stack-name $stack --region us-east-1 --output text|grep NandoDemoWebASG|cut -f3)
 for instance in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name $asgName --region us-east-1 --output text|grep INSTANCES|cut -f4); do
 	instanceIP=$(aws ec2 describe-instances --instance-id $instance --region us-east-1 --output text|grep PRIVATEIPADDRESSES|cut -f4)
     $sshcmd ec2-user@$instanceIP &quot;echo \&quot;$site\&quot; | sudo tee /var/www/html/index.html&quot;

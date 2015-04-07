@@ -116,7 +116,7 @@ fi
 echo
 echo "Creating $keyName private key as $keyName.pem ."
 privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
-cfnParameters+=" ParameterKey=DemoName,ParameterValue=$keyName ParameterKey=KeyName,ParameterValue=$keyName "
+cfnParameters+=" ParameterKey=NandoDemoName,ParameterValue=$keyName ParameterKey=KeyName,ParameterValue=$keyName "
 echo
 echo
 echo
@@ -158,11 +158,11 @@ rm -fv $keyName.pem
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
 chmod -c 0400 $keyName.pem
 echo
-s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName|grep -v URL| grep S3Bucket  |cut -f3)
+s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName|grep -v URL| grep NandoDemoBucket |cut -f3)
 echo "upload index.html to s3 bucket $s3bucket"
 aws s3 cp index.html s3://$s3bucket
 echo
-jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName |grep JenkinsPublicIP|cut -f3)
+jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName |grep NandoDemoJenkinsEIP|cut -f3)
 echo "ssh -i $keyName.pem ec2-user@$jenkinsIP"
 echo
 echo
