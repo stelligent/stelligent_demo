@@ -167,18 +167,6 @@
         			} ],
 				"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           				"#!/bin/bash\n",
-					"yum -y install git\n",
-					"yum -y install puppet\n",
-					"mkdir -pv /etc/puppet/modules\n",
-					"mkdir -pv /var/lib/jenkins\n",
-					"puppet module install rtyler/jenkins\n",
-					"sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp\n",
-					"yum -y install python-pip\n",
-					"pip install --upgrade pip\n",
-					"pip install python-instagram\n",
-					"pip install tldr\n",
-					"pip install --upgrade awscli\n",
-					"pip install --upgrade six\n",
           				"yum update -y aws-cfn-bootstrap\n",
              				"/opt/aws/bin/cfn-init -v ",
              				"         --stack ", { "Ref" : "AWS::StackName" },
@@ -282,6 +270,15 @@
 							}
                                                 },
 						"commands" : {
+							"bootstrapA" : { "command" : "yum -y install git" },
+							"bootstrapB" : { "command" : "yum -y install puppet" },
+							"bootstrapC" : { "command" : "mkdir -pv /etc/puppet/modules" },
+							"bootstrapD" : { "command" : "mkdir -pv /var/lib/jenkins" },
+							"bootstrapE" : { "command" : "puppet module install rtyler/jenkins" },
+							"bootstrapF" : { "command" : "sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp" },
+							"bootstrapG" : { "command" : "yum -y install python-pip" },
+							"bootstrapH" : { "command" : "pip install python-instagram" },
+							"bootstrapJ" : { "command" : "pip install --upgrade awscli" },
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installjenkinsmodules.pp" },
@@ -302,12 +299,12 @@
                                                 }
                                         }
                                 }
+      			},
+      			"CreationPolicy" : {
+        			"ResourceSignal" : {
+          				"Timeout" : "PT10M"
+        			}
       			}
-                        "CreationPolicy" : {
-                                "ResourceSignal" : {
-                                        "Timeout" : "PT10M"
-                                }
-                        }
  		},
 		"WebASG" : {
       			"Type": "AWS::AutoScaling::AutoScalingGroup",
@@ -489,8 +486,13 @@
       			}
    		},
 		"NandoDemoBucket" : {
- 			"Type" : "AWS::S3::Bucket"
-             	}
+ 			"Type" : "AWS::S3::Bucket",
+			"Properties" : { 
+				"WebsiteConfiguration" : { 
+					"IndexDocument" : "index.html" 
+				}
+             		}
+		}
 	},
   	"Outputs" : {
 		"S3Bucket" : { "Value" : { "Ref" : "NandoDemoBucket" } },

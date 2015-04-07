@@ -158,9 +158,12 @@ rm -fv $keyName.pem
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
 chmod -c 0400 $keyName.pem
 echo
+s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName|grep -v URL| grep S3Bucket  |cut -f3)
+echo "upload index.html to s3 bucket $s3bucket"
+aws s3 cp index.html s3://$s3bucket
 echo
 jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName |grep JenkinsPublicIP|cut -f3)
-echo "Jenkins available at: ssh -i $keyName.pem ec2-user@$jenkinsIP ."
+echo "ssh -i $keyName.pem ec2-user@$jenkinsIP"
 echo
 echo
 echo "$title has deployed in $seconds seconds."
