@@ -26,7 +26,7 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 
 
 
-# Pipeline Blueprint
+# Pipeline Blueprint (COMPLETE)
 
 - deploy-pipeline-1-command (bash script launches all cfn resources except unsupported ec2::create-keypair)
 - provision-environment (cloudformation, bash)
@@ -36,7 +36,7 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 
 
 
-# Pipeline Pending:
+# Pipeline Blueprint (PENDING):
 
 - node-configuration: data encryption
 - node-configuration: security hardening
