@@ -501,12 +501,12 @@
 		}
 	},
   	"Outputs" : {
+		"NandoDemoName" : { "Value" : { "Ref" : "NandoDemoName" } },
 		"NandoDemoBucket" : { "Value" : { "Ref" : "NandoDemoBucket" } },
 		"NandoDemoWebASG" : { "Value" : { "Ref" : "NandoDemoWebASG" } },
     		"NandoDemoJenkinsEIP" : { "Value" : { "Ref" : "NandoDemoJenkinsEIP" } },
     		"NandoDemoJenkinsURL" : { "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoJenkins", "PublicDnsName" ] }, ":8080" ] ] } },
       		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
-		"NandoDemoName" : { "Value" : { "Ref" : "NandoDemoName" } },
 		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", "nando-automation-demo.", { "Ref" : "NandoDemoZone" } ] ] } },
    		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } }
   	}
