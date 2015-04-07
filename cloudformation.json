@@ -6,9 +6,19 @@
       			"Type" : "String",
       			"Default" : "t1.micro" 
     		},
+		"AZ" : {
+			"Type" : "String",
+			"Default" : "us-east-1d"
+		},
+		"DemoZone" : {
+			"Type" : "String",
+			"Default" : "elasticoperations.com."	
+		},
+		"DemoName" : {
+			"Type" : "String"
+		},
     		"KeyName": {
       			"Type": "AWS::EC2::KeyPair::KeyName",
-			"Default": "nando-demo"
     		},
     		"Location1" : {
       			"Type": "String"
@@ -21,18 +31,7 @@
     		},
 		"PrivateKey" : {
     			"Type" : "String"
-  		},
-		"AZ" : {
-			"Type" : "String",
-			"Default" : "us-east-1d"
-		},
-		"DemoName" : {
-			"Type" : "String"
-		},
-		"DemoZone" : {
-			"Type" : "String",
-			"Default" : "elasticoperations.com."	
-		}
+  		}
   	},
  	"Mappings" : {
   		"SubnetConfig" : {

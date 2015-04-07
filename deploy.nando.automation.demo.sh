@@ -1,6 +1,6 @@
 #!/bin/bash
 
-keyName="nando-demo1"
+keyName="nando-demo2"
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
@@ -114,7 +114,7 @@ fi
 echo
 echo "Creating $keyName private key as $keyName.pem ."
 privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
-cfnParameters+=" ParameterKey=DemoName,ParameterValue=$keyName "
+cfnParameters+=" ParameterKey=DemoName,ParameterValue=$keyName ParameterKey=KeyName,ParameterValue=$keyName "
 echo
 echo
 echo
