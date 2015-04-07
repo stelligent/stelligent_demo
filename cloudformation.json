@@ -249,6 +249,13 @@
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
+                                                       "/etc/puppet/installjenkinssecurity.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinssecurity.pp",
+                                                                "mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+                                                                "authentication" : "S3AccessCreds"
+                                                        },
 							"/etc/puppet/nando-automation-demo.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jenkins.xml.erb",
                            					"mode" : "000400",
@@ -275,10 +282,13 @@
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installjenkinsmodules.pp" },
- 							"installjenkinsD" : { "command" : "sleep 30" },
+ 							"installjenkinsD" : { "command" : "sleep 15" },
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" },
-							"installjenkinsF" : { "command" : "/usr/bin/java -jar /usr/lib/jenkins/jenkins-cli.jar -s http://127.0.0.1:8080 groovy /usr/lib/jenkins/puppet_helper.groovy set_security full_control" },
-							"installjenkinsG" : { "command" : "puppet apply /etc/puppet/installjenkinsusers.pp" }	
+ 							"installjenkinsF" : { "command" : "sleep 5" },
+							"installjenkinsG" : { "command" : "/bin/sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp" },
+							"installjenkinsH" : { "command" : "puppet apply /etc/puppet/installjenkinssecurity.pp" },
+ 							"installjenkinsI" : { "command" : "sleep 5" },
+                                                        "installjenkinsJ" : { "command" : "puppet apply /etc/puppet/installjenkinsusers.pp" }
 						},
                                                 "services" : {
                                                         "sysvinit" : {
@@ -289,11 +299,6 @@
                                                 }
                                         }
                                 }
-                        },
-      			"CreationPolicy" : {
-        			"ResourceSignal" : {
-          				"Timeout" : "PT10M"
-        			}
       			}
  		},
 		"WebASG" : {
