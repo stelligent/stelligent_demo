@@ -125,7 +125,6 @@
  		}, 
     		"NandoDemoELB" : {
       			"Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
-			"DependsOn" : "NandoDemoWebASG",
       			"Properties" : {
 				"Subnets" : [ { "Ref" : "NandoDemoPublicSubnet" } ],
         			"Listeners" : [ 
@@ -311,8 +310,8 @@
  		},
 		"NandoDemoWebASG" : {
       			"Type": "AWS::AutoScaling::AutoScalingGroup",
+			"DependsOn" : "NandoDemoWebLaunchConfig",
       			"Version": "2009-05-15",
- 			"DependsOn" : "NandoDemoLaunchConfig",
       			"Properties": {
 				"AvailabilityZones" : [ { "Ref" : "AZ" } ],
         			"LaunchConfigurationName": { "Ref": "NandoDemoWebLaunchConfig" },
