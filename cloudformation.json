@@ -169,11 +169,12 @@
           				"#!/bin/bash\n",
 					"yum -y install git\n",
 					"yum -y install puppet\n",
-					"mkdir /etc/puppet/modules\n",
-					"mkdir -p /var/lib/jenkins\n",
+					"mkdir -pv /etc/puppet/modules\n",
+					"mkdir -pv /var/lib/jenkins\n",
 					"puppet module install rtyler/jenkins\n",
 					"sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp\n",
 					"yum -y install python-pip\n",
+					"pip install --upgrade pip\n",
 					"pip install python-instagram\n",
 					"pip install tldr\n",
 					"pip install --upgrade awscli\n",
@@ -302,6 +303,11 @@
                                         }
                                 }
       			}
+                        "CreationPolicy" : {
+                                "ResourceSignal" : {
+                                        "Timeout" : "PT10M"
+                                }
+                        }
  		},
 		"WebASG" : {
       			"Type": "AWS::AutoScaling::AutoScalingGroup",
