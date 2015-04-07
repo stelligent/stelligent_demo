@@ -501,6 +501,6 @@
     		"JenkinsURL" : { "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "Jenkins", "PublicDnsName" ] }, ":8080" ] ] } },
       		"LoadBalancerDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
 		"LoadBalancerCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "DemoName" }, ".", { "Ref" : "DemoZone" } ] ] } },
-   		"S3BucketURL" : { "Value" : { "Fn::Join" : [ "", [ "https://", { "Fn::GetAtt" : [ "NandoDemoBucket", "DomainName" ] } ] ] } }
+   		"S3BucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } },
   	}
 }
