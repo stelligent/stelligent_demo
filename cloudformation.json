@@ -452,7 +452,7 @@
          				"Version": "2012-10-17",
          				"Statement" : [ {
             					"Sid" : "ReadAccess",
-            					"Action" : [ "s3:ListBucket", "s3:GetObject" ],
+            					"Action" : [ "s3:GetObject" ],
             					"Effect" : "Allow",
             					"Resource" : { "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref" : "NandoDemoBucket" } , "/*" ] ] },
             					"Principal" : "*",

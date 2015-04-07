@@ -1,6 +1,6 @@
 #!/bin/bash
 
-keyName="nando-demo7"
+keyName="nando-demo8"
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
