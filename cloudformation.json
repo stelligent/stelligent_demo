@@ -389,17 +389,17 @@
         			"GroupDescription" : "nando-demo",
         			"VpcId" : { "Ref" : "VPC" },
         			"SecurityGroupIngress" : [ 
+        				{ "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" },
 					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "10.200.0.0/16" },
-					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location1"} },
-					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location2"} },
-					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location3"} },
-					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location1"} },
-					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location2"} },
-					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location3"} },
-					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location1"} },
-					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location2"} },
-					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location3"} },
-        				{ "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" } 
+					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location1" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location2" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location3" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location1" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location2" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location3" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location1" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location2" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location3" } }
 				]
       			}
     		},
@@ -452,19 +452,15 @@
          				"Version": "2012-10-17",
          				"Statement" : [ {
             					"Sid" : "ReadAccess",
-            					"Action" : [ "s3:GetObject" ],
+            					"Action" : [ "s3:ListBucket", "s3:GetObject" ],
             					"Effect" : "Allow",
             					"Resource" : { "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref" : "NandoDemoBucket" } , "/*" ] ] },
-            					"Principal" : "*"
-						"Condition" :  {
-       							"IpAddress" : {
-          							"aws:SourceIp" : [ 
-									{ "Ref" : "Location1" }, 
-									{ "Ref" : "Location2" }, 
-									{ "Ref" : "Location3" } 
-								] 
-							}
-						}
+            					"Principal" : "*",
+						"Condition" :  { "IpAddress" : { "aws:SourceIp" : [ 
+							{ "Ref" : "Location1" }, 
+							{ "Ref" : "Location2" }, 
+							{ "Ref" : "Location3" } 
+						] } }
          				} ]
       				},
       				"Bucket" : { "Ref" : "NandoDemoBucket" }
