@@ -286,9 +286,9 @@
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" },
  							"installjenkinsF" : { "command" : "sleep 5" },
 							"installjenkinsG" : { "command" : "/bin/sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp" },
-							"installjenkinsH" : { "command" : "puppet apply /etc/puppet/installjenkinssecurity.pp" },
+                                                        "installjenkinsH" : { "command" : "puppet apply /etc/puppet/installjenkinsusers.pp" },
  							"installjenkinsI" : { "command" : "sleep 5" },
-                                                        "installjenkinsJ" : { "command" : "puppet apply /etc/puppet/installjenkinsusers.pp" }
+							"installjenkinsJ" : { "command" : "puppet apply /etc/puppet/installjenkinssecurity.pp" }
 						},
                                                 "services" : {
                                                         "sysvinit" : {
