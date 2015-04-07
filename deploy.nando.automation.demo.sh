@@ -1,6 +1,6 @@
 #!/bin/bash
 
-keyName="nando-demo"
+keyName="nando-demo1"
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
@@ -52,7 +52,7 @@ for ip in "$@"; do
 	else
 		echo -n " $ip "
 		let ipcount=$ipcount+1
-		locationParameters+=" $locationParameter ParameterKey=Location$ipcount,ParameterValue=\"$ip/32\" "
+		cfnParameters+=" ParameterKey=Location$ipcount,ParameterValue=\"$ip/32\" "
 	fi
 done
 echo
@@ -95,12 +95,14 @@ if [[ $existingStack == *CREATING_IN_PROGRESS* ]]; then
         exit 666
 fi
 echo
+echo
 echo "Upload Files to S3"
 echo
-s3cmd put jenkins.xml.erb s3://nando-automation-demo --add-header=x-amz-acl:public-read
-s3cmd put installjenkins.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
-s3cmd put installjenkinsjob.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read 
-s3cmd put installjenkinsmodules.pp s3://nando-automation-demo --add-header=x-amz-acl:public-read
+#aws s3 cp jenkins.xml.erb s3://nando-automation-demo
+#aws s3 cp installjenkins.pp s3://nando-automation-demo
+#aws s3 cp installjenkinsjob.pp s3://nando-automation-demo 
+#aws s3 cp installjenkinsmodules.pp s3://nando-automation-demo 
+echo
 echo
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
 if [[ $existingKeypair == *$keyName* ]]; then 
@@ -112,27 +114,20 @@ fi
 echo
 echo "Creating $keyName private key as $keyName.pem ."
 privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
+cfnParameters+=" ParameterKey=DemoName,ParameterValue=$keyName "
 echo
 echo
-
-#echo "create s3 role for jenkins instance:"
-# Create the role and attach the trust policy that enables EC2 to assume this role.
-#aws iam create-role --role-name Test-Role-for-EC2 --assume-role-policy-document file://C:\policies\trustpolicyforec2.json
-# Attach the permissions policy to the role to specify what it is allowed to do.
-#aws iam put-role-policy --role-name Test-Role-for-EC2 --policy-name Permissions-Policy-For-Ec2 --policy-document file://c:\policies\permissionspolicyforec2.json
-# Create the instance profile required by EC2 to contain the role
-#aws iam create-instance-profile --instance-profile-name EC2-ListBucket-S3
-## Finally, add the role to the instance profile
-#aws iam add-role-to-instance-profile --instance-profile-name EC2-ListBucket-S3 --role-name Test-Role-for-EC2
-
 echo
 echo "Launching stack:"
 echo
-aws cloudformation create-stack --capabilities CAPABILITY_IAM --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $locationParameters
+echo $cfnParameters
+echo
+aws cloudformation create-stack --capabilities CAPABILITY_IAM --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
+echo
 complete=0
 seconds=0
 while [ "$complete" -ne 1 ]; do
-	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName)
+	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
 	if [[ $stackStatus == *ROLLBACK* ]]; then
 		echo
 		echo "FAILURE"
@@ -148,24 +143,19 @@ while [ "$complete" -ne 1 ]; do
 		complete=1; 
 	else 
 		sleep 1; 
-		echo -n "."; 
+		if [[ $seconds%10 -eq 0 ]]; then echo -n $seconds; 
+		else echo -n "."; fi
 		let seconds=seconds+1
 	fi
 done
 echo
-
-#echo "Create hosts file:"
-#cp /dev/null hosts
-#asgName=$(aws cloudformation describe-stacks --stack-name $keyName|grep ASG|cut -f4)
-#for instance in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name $asgName|grep INSTANCES|cut -f4); do
-#	aws ec2 describe-instances --instance-id $instance | grep PRIVATEIPADDRESSES | cut -f4 >> hosts
-#done
-
 echo
-echo "write out private key $keyName.pem ."
+echo
+echo "Write out private key $keyName.pem ."
 rm -fv $keyName.pem
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
 chmod -c 0400 $keyName.pem
+echo
 echo
 echo
 echo "$title has deployed in $seconds seconds."

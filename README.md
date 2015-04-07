@@ -110,4 +110,5 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 	- ensure 2 instances with ASG, instead of launching standalone instances
 - rewrite deploy script in python
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
+- update jenkins job to python and boto
 
