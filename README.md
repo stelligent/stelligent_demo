@@ -8,7 +8,7 @@ all-in-one automated demo from single cli command
 
 - configuration management with puppet 
 
-- continuous deployment with jenkins
+- continuous delivery with jenkins
 
 - s3 for static templates, manifests, and encrypted keys
 
