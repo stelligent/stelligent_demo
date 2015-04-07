@@ -1,11 +1,11 @@
 #!/bin/bash
 
-keyName="nando-demo2"
+keyName="nando-demo3"
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
 echo
-echo "$title Launch Script"
+echo "$title $keyName Launch Script"
 echo
 if [ "$1" ==  "delete" ]; then
         echo
@@ -98,10 +98,10 @@ echo
 echo
 echo "Upload Files to S3"
 echo
-#aws s3 cp jenkins.xml.erb s3://nando-automation-demo
-#aws s3 cp installjenkins.pp s3://nando-automation-demo
-#aws s3 cp installjenkinsjob.pp s3://nando-automation-demo 
-#aws s3 cp installjenkinsmodules.pp s3://nando-automation-demo 
+aws s3 cp jenkins.xml.erb s3://nando-automation-demo
+aws s3 cp installjenkins.pp s3://nando-automation-demo
+aws s3 cp installjenkinsjob.pp s3://nando-automation-demo 
+aws s3 cp installjenkinsmodules.pp s3://nando-automation-demo 
 echo
 echo
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 

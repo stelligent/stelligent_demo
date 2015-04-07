@@ -18,7 +18,7 @@
 			"Type" : "String"
 		},
     		"KeyName": {
-      			"Type": "AWS::EC2::KeyPair::KeyName",
+      			"Type": "AWS::EC2::KeyPair::KeyName"
     		},
     		"Location1" : {
       			"Type": "String"
