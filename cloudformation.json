@@ -471,6 +471,7 @@
     		"JenkinsPublicIP" : { "Value" : { "Ref" : "EIPjenkins" } },
     		"JenkinsURL" : { "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "Jenkins", "PublicDnsName" ] }, ":8080" ] ] } },
       		"LoadBalancerDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
-		"LoadBalancerCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "DemoName" }, ".", { "Ref" : "DemoZone" } ] ] } }
+		"LoadBalancerCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "DemoName" }, ".", { "Ref" : "DemoZone" } ] ] } },
+   		"S3BucketURL" : { "Value" : { "Fn::Join" : [ "", [ "https://", { "Fn::GetAtt" : [ "NandoDemoBucket", "DomainName" ] } ] ] } }
   	}
 }
