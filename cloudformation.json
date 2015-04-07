@@ -456,6 +456,15 @@
             					"Effect" : "Allow",
             					"Resource" : { "Fn::Join" : [ "", [ "arn:aws:s3:::", { "Ref" : "NandoDemoBucket" } , "/*" ] ] },
             					"Principal" : "*"
+						"Condition" :  {
+       							"IpAddress" : {
+          							"aws:SourceIp" : [ 
+									{ "Ref" : "Location1" }, 
+									{ "Ref" : "Location2" }, 
+									{ "Ref" : "Location3" } 
+								] 
+							}
+						}
          				} ]
       				},
       				"Bucket" : { "Ref" : "NandoDemoBucket" }
