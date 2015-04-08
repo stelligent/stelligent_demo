@@ -165,7 +165,24 @@ echo
 jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName |grep NandoDemoJenkinsEIP|cut -f3)
 echo "ssh -i $keyName.pem ec2-user@$jenkinsIP"
 echo
-echo
 echo "$title has deployed in $seconds seconds."
+echo
+echo
+echo
+echo "Launching CodeDeploy:"
+commitID=$(git rev-parse --verify HEAD)
+asgName=$(aws cloudformation describe-stacks |grep NandoDemoWebASG|cut -f3)
+
+aws deploy create-application --application-name nando-demo 2> /dev/null
+aws iam create-role --role-name NandoDemoCodeDeployRole --assume-role-policy-document file://codedeploy/NandoDemoCodeDeployRole.json 2> /dev/null
+aws iam put-role-policy --role-name NandoDemoCodeDeployRole --policy-name NandoDemoCodeDeployPolicy --policy-document file://codedeploy/NandoDemoCodeDeployPolicy.json 2> /dev/null
+
+roleArn=$(aws iam get-role --role-name NandoDemoCodeDeployRole --query "Role.Arn" --output text)
+
+aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --service-role-arn $roleArn --auto-scaling-group $asgName
+deployID=$(aws deploy create-deployment --application-name nando-demo  --github-location commitId=$commitID,repository=stelligent/nando_automation_demo --deployment-group-name nando-demo)
+
+aws deploy get-deployment --deployment-id $deployID  --query "deploymentInfo.status" --output text
+
 echo
 echo
