@@ -28,11 +28,11 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 
 # Pipeline Blueprint (COMPLETE)
 
-- deploy-pipeline-1-command (bash script launches all cfn resources except unsupported ec2::create-keypair)
+- deploy-pipeline-1-command (CFN template launches all resources except unsupported EC2::Create-Keypair and CodeDeploy)
 - provision-environment (cloudformation, bash)
 - node-configuration (packages, files, services)
 - poll-version-control (github every minute https://github.com/stelligent/nando_automation_demo)
-- app-deployment: (jenkins, plugins, and jobs installed by puppet with erb templates)
+- app-deployment: (CodeDeploy)
 
 
 
@@ -46,7 +46,6 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 - store-distros: (Nexus, Artifactory, S3)
 - run-unit-tests: (RSpec, JUnit, XUnit)
 - run-static-analysis: (CheckStyle, PMD, Sonar, CodeClimate, JSONLint, ValidateTemplate, ratproxy, Foodcritic)
-- app-deployment: (Chef, Puppet, Ansible, CodeDeploy)
 - run-infrastructure-tests: (ServerSpec, Cucumber)
 - poll-version-control (puppet, jenkins modules)
 
@@ -95,7 +94,7 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 			- gets instagram images and generates html
 			- pushes code and images to staging (pending)
 			- application and security acceptance testing (pending)
-			- push to production via ssh on each ASG instance (to be updated)
+			- push to production with CodeDeploy
 
 
 
@@ -109,5 +108,4 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 - rewrite deploy script in python
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
 - update jenkins jobs to python and boto
-- use codedeploy or otherwise for jenkins deployments, not ssh
 
