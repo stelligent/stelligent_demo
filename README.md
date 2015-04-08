@@ -18,7 +18,7 @@ all-in-one automated demo from single cli command
 
 
 
-This demo launches in an AmazonWebServices VirtualPrivateCloud with one command. One pipeline control box with puppet and jenkins is launched, as well as a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 cname alias.  SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys for demo, while logs and other output are stored securely. 
+This demo launches in an AmazonWebServices VirtualPrivateCloud with one command. One pipeline control box with puppet and jenkins is launched, as well as a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 cname alias. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
 
 The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins delivers http://nando-automation-demo.elasticoperations.com, based on SourceControlManagement of this github repo.  
 
@@ -89,13 +89,13 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 		- adds python instagram functionality
 		- adds git functionality
 		- installs and configures jenkins via puppet
-		- pulls jenkins job templates from S3 and creates jenkins jobs
+		- pulls jenkins job templates from authenticated S3 and creates jenkins jobs
 		- jenkins executes based on SCM
 			- queries aws for private IPs of web AutoScalingGroup
 			- gets instagram images and generates html
-			- pushes code and images to staging
-			- application and security acceptance testing
-			- push to production via ssh on each ASG instance
+			- pushes code and images to staging (pending)
+			- application and security acceptance testing (pending)
+			- push to production via ssh on each ASG instance (to be updated)
 
 
 
