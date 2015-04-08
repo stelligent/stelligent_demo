@@ -2,15 +2,15 @@
 
 
 
-All-in-one automated demo from single cli command.
+All-in-One automated demo from a single cli command.
 
-- Cloud deployment with CloudFormation
+- Cloud Deployment with CloudFormation
 
-- Configuration management with Puppet 
+- Configuration Management with Puppet 
 
-- Continuous delivery with Jenkins and CodeDeploy
+- Continuous Delivery with Jenkins and CodeDeploy
 
-- High availability with ELB and ASG
+- High Availability with ELB and ASG
 
 - S3 for static templates, manifests, encrypted keys, and demo outputs.
 
