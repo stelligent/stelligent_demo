@@ -1,7 +1,7 @@
 #!/bin/bash
 
 asg="nando-demo-20150408165215-NandoDemoWebASG-1FP2BAWBSDD32"
-commitID="b423902310bd4dd46d3704c948815f34b4a0d0e3"
+commitID="c2f1bf25ef1c26b6d61fa577889e0775f4526f53"
 
 #aws deploy create-application --application-name nando-demo
 aws iam create-role --role-name NandoDemoCodeDeployRole --assume-role-policy-document file://codedeploy/NandoDemoCodeDeployRole.json
