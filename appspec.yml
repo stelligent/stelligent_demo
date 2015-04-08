@@ -1,0 +1,18 @@
+version: 0.0
+os: linux
+files:
+  - source: /index.html
+    destination: /var/www/html/
+hooks:
+  BeforeInstall:
+    - location: codedeploy/install_dependencies
+      timeout: 300
+      runas: root
+    - location: codedeploy/start_server
+      timeout: 300
+      runas: root
+  ApplicationStop:
+    - location: codedeploy/stop_server
+      timeout: 300
+      runas: root
+
