@@ -2,16 +2,19 @@
 
 
 
-all-in-one automated demo from single cli command
+All-in-one automated demo from single cli command.
 
-- cloud deployment with cloudformation and auto-scaling
+- Cloud deployment with CloudFormation
 
-- configuration management with puppet 
+- Configuration management with Puppet 
 
-- continuous delivery with jenkins
+- Continuous delivery with Jenkins and CodeDeploy
 
-- s3 for static templates, manifests, and encrypted keys
+- High availability with ELB and ASG
 
+- S3 for static templates, manifests, encrypted keys, and demo outputs.
+
+- IAM and S3 roles and policies for security
 
 
 ==> ./deploy.nando.automation.demo.sh [TrustedIP1] [TrustedIP2] [TrustedIPX]
