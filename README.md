@@ -24,11 +24,11 @@ All-in-One automated demo from a single cli command.
 ```
 
 
-This demo creates and launches in an AmazonWebServices VirtualPrivateCloud with one command. One pipeline control box with puppet and jenkins is launched, as well as a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 cname alias. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
+This demo creates a VirtualPrivateCloud and launches inside it with one command. One pipeline control box with Puppet and Jenkins, and a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 RecordSet. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
 
-The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins delivers http://nando-automation-demo.elasticoperations.com, based on SourceControlManagement of this github repo.  
+The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins continually delivers http://nando-automation-demo.elasticoperations.com, and SourceControlManagement of this github repo executes builds.  
 
-Acceptance tests ensure the images are valid, sized appropriately, tags pass decency tests, and that the image placement makes sense from a UserInterface feng shui perspective. Security tests ensure the application has been deployed securely.
+Acceptance tests ensure the all resources are up and working correctly. Tests ensure Instagram images are valid, sized appropriately, image tags pass decency tests, and that the image placement makes sense from a UserInterface feng shui perspective. Security tests ensure the application has been deployed securely.
 
 
 
