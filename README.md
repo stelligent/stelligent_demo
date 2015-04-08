@@ -104,9 +104,6 @@ Acceptance tests ensure the images are valid, sized appropriately, tags pass dec
 # todo
 
 - push private key for jenkins from cfn paramater to s3 kms
-- 1:1 cfn template to service lifecycle
-	- one template for www's, elb, route53, etc
-	- one template for jenkins, iam, etc
 - add route53 entry for jenkins box via cfn with url as output
 - rewrite deploy script in python
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
