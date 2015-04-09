@@ -94,7 +94,7 @@
  			"Type" : "AWS::EC2::Subnet",
 			"DependsOn" : "NandoDemoVPC",
  			"Properties" : {
-				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" },
+				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" ] },
  				"VpcId" : { "Ref" : "NandoDemoVPC" },
  				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Public", "CIDR" ] },
  				"Tags" : [
@@ -107,7 +107,7 @@
  			"Type" : "AWS::EC2::Subnet",
 			"DependsOn" : "NandoDemoVPC",
  			"Properties" : {
-				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Private1", "AZ" },
+				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Private1", "AZ" ] },
  				"VpcId" : { "Ref" : "NandoDemoVPC" },
  				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private1", "CIDR" ] },
  				"Tags" : [
@@ -120,7 +120,7 @@
  			"Type" : "AWS::EC2::Subnet",
 			"DependsOn" : "NandoDemoVPC",
  			"Properties" : {
-				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Private2", "AZ" },
+				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Private2", "AZ" ] },
  				"VpcId" : { "Ref" : "NandoDemoVPC" },
  				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private2", "CIDR" ] },
  				"Tags" : [
@@ -205,7 +205,7 @@
         			"KeyName" : { "Ref" : "KeyName" },
  				"InstanceType" : { "Ref" : "InstanceType" },
  				"ImageId" : "ami-fb8e9292",
-				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" },
+				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" ] },
             			"IamInstanceProfile": { "Ref": "NandoDemoJenkinsInstanceProfile" },
         			"NetworkInterfaces" : [ { 
           				"NetworkInterfaceId" : {"Ref" : "NandoDemoJenkinsEth0" },
@@ -367,15 +367,15 @@
 			"DependsOn" : [ "NandoDemoWebLaunchConfig", "NandoDemoMysql" ],
       			"Version": "2009-05-15",
       			"Properties": {
-				"AvailabilityZones" : [ { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" } ],
-        			"LaunchConfigurationName": { "Ref": "NandoDemoWebLaunchConfig" },
+				"AvailabilityZones" : [ { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" ] } ],
+        			"LaunchConfigurationName" : { "Ref": "NandoDemoWebLaunchConfig" },
 				"LoadBalancerNames" : [ {"Ref" : "NandoDemoELB" } ],
 				"VPCZoneIdentifier" : [ { "Ref" : "NandoDemoPublicSubnet" } ],
         			"MinSize": "2",
         			"MaxSize": "2",
         			"Tags" : [ {
           				"Key"   : "Name",
-          				"Value" : { "Fn::Join"  : [ "-" , [ { "Ref" : "AWS::StackName" }, "webserver" ]]},
+          				"Value" : { "Fn::Join"  : [ "-" , [ { "Ref" : "AWS::StackName" }, "webserver" ] ] },
           				"PropagateAtLaunch" : "true"
         			} ]
 			}
@@ -664,37 +664,35 @@
 				}
              		}
 		},
-		NandoDemoEBApp" : {
-			"Type" : "AWS::ElasticBeanstalk::Application"
-		},
+		"NandoDemoEBApp" : { "Type" : "AWS::ElasticBeanstalk::Application" },
 		"NandoDemoEBVersion": {
-      			"Type": "AWS::ElasticBeanstalk::ApplicationVersion",
-      			"Properties": {
-        			"ApplicationName": { "Ref": "NandoDemoEBApp" },
-        			"SourceBundle": {
-          				"S3Bucket": { "Fn::Join": [ "-", [ "elasticbeanstalk-samples", { "Ref": "AWS::Region" } ] ] },
-          				"S3Key": "php-sample.zip"
+      			"Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
+      			"Properties" : {
+        			"ApplicationName" : { "Ref": "NandoDemoEBApp" },
+        			"SourceBundle" : {
+          				"S3Bucket" : { "Fn::Join": [ "-", [ "elasticbeanstalk-samples", { "Ref" : "AWS::Region" } ] ] },
+          				"S3Key" : "php-sample.zip"
         			}
       			}
     		},
 		"NandoDemoEBTemplate": {
-      			"Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
-      			"Properties": {
-        			"ApplicationName": { "Ref": "NandoDemoEBApp" },
-        			"OptionSettings": [
-          				{ "Namespace": "aws:autoscaling:asg", "OptionName": "MinSize", "Value": "2" },
-          				{ "Namespace": "aws:autoscaling:asg", "OptionName": "MaxSize", "Value": "4" },
-          				{ "Namespace": "aws:elasticbeanstalk:environment", "OptionName": "EnvironmentType", "Value": "LoadBalanced" }
+      			"Type" : "AWS::ElasticBeanstalk::ConfigurationTemplate",
+      			"Properties" : {
+        			"ApplicationName" : { "Ref": "NandoDemoEBApp" },
+        			"OptionSettings" : [
+          				{ "Namespace" : "aws:autoscaling:asg", "OptionName" : "MinSize", "Value" : "2" },
+          				{ "Namespace" : "aws:autoscaling:asg", "OptionName" : "MaxSize", "Value" : "4" },
+          				{ "Namespace" : "aws:elasticbeanstalk:environment", "OptionName" : "EnvironmentType", "Value" : "LoadBalanced" }
         			],
-        			"SolutionStackName": "64bit Amazon Linux running PHP 5.3"
+        			"SolutionStackName" : "64bit Amazon Linux running PHP 5.3"
       			}
     		},
-    		"NandoDemoEBEnvironment": {
-      			"Type": "AWS::ElasticBeanstalk::Environment",
-      			"Properties": {
-        			"ApplicationName": { "Ref": "NandoDemoEBApp" },
-        			"TemplateName": { "Ref": "NandoDemoEBTemplate" },
-        			"VersionLabel": { "Ref": "NandoDemoVersion" }
+    		"NandoDemoEBEnvironment" : {
+      			"Type" : "AWS::ElasticBeanstalk::Environment",
+      			"Properties" : {
+        			"ApplicationName" : { "Ref" : "NandoDemoEBApp" },
+        			"TemplateName" : { "Ref" : "NandoDemoEBTemplate" },
+        			"VersionLabel" : { "Ref" : "NandoDemoEBVersion" }
       			}
     		}
 	},
