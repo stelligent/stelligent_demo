@@ -10,13 +10,13 @@ All-in-One automated demo from a single cli command.
 
 - Continuous Delivery with [Jenkins](https://jenkins-ci.org/), [CodeDeploy](http://aws.amazon.com/codedeploy/), and [Docker](https://www.docker.com/)
 
-- High Availability with [ELB](http://aws.amazon.com/elasticloadbalancer/) and [ASG](http://aws.amazon.com/autoscalinggroups/)
+- High Availability with [ELB](http://aws.amazon.com/elasticloadbalancers/) and [ASG](http://aws.amazon.com/autoscalinggroup/)
 
 - [S3](http://aws.amazon.com/s3/) for static templates, manifests, encrypted keys, and demo outputs.
 
 - [RDS](http://aws.amazon.com/rds/) for storing image tags and paths
 
-- [IAM](http://aws.amazon.com/iam/) and [S3] roles and policies for security
+- [IAM](http://aws.amazon.com/iam/) and [S3](http://aws.amazon.com/s3/ roles and policies for security
 
 - [ElasticBeanstalk](http://aws.amazon.com/elasticbeanstalk/) for [Docker](https://www.docker.com/) containers 
 
