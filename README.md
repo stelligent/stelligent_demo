@@ -18,6 +18,9 @@ All-in-One automated demo from a single cli command.
 
 - IAM and S3 roles and policies for security
 
+- ElasticBeanstalk for Docker containters 
+
+
 
 ```
 
@@ -26,11 +29,11 @@ All-in-One automated demo from a single cli command.
 ```
 
 
-This demo creates a VirtualPrivateCloud and launches inside it with one command. One pipeline control box with Puppet and Jenkins, and a webserver AutoScalingGroup tied to an ElasticLoadBalancer, resolved by a Route53 RecordSet. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
+This demo creates a VirtualPrivateCloud and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/Php-fpm Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, a private subnet multi-az RDS database, and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, are in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
 
-The web service serves up "Juxtapo-random": two random instagram images juxtaposed for postmodern study.  Jenkins continually delivers http://nando-automation-demo.elasticoperations.com, and SourceControlManagement of this github repo executes builds.  
+http://nando-automation-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). An Instagram image slideshow is then generated and displayed (ElasticBeanstalk and Docker), based on the user's selections.  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the continous delivey pipeline. 
 
-Acceptance tests ensure the all resources are up and working correctly. Tests ensure Instagram images are valid, sized appropriately, image tags pass decency tests, and that the image placement makes sense from a UserInterface feng shui perspective. Security tests ensure the application has been deployed securely.
+Acceptance tests ensure the all resources are up and working correctly. Tests ensure Instagram images are valid, sized appropriately, image tags pass decency tests, and that image placement makes sense from a UserInterface feng shui perspective. Security tests ensure the application has been deployed securely.
 
 
 
