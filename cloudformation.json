@@ -212,7 +212,7 @@
         			"KeyName" : { "Ref" : "KeyName" },
  				"InstanceType" : { "Ref" : "InstanceType" },
  				"ImageId" : "ami-fb8e9292",
-				"AvailabilityZone" : { "Ref" : "AZ" },
+				"AvailabilityZone" : { "Ref" : "PublicAZ" },
             			"IamInstanceProfile": { "Ref": "NandoDemoJenkinsInstanceProfile" },
         			"NetworkInterfaces" : [ { 
           				"NetworkInterfaceId" : {"Ref" : "NandoDemoJenkinsEth0" },
@@ -374,7 +374,7 @@
 			"DependsOn" : "NandoDemoWebLaunchConfig",
       			"Version": "2009-05-15",
       			"Properties": {
-				"AvailabilityZones" : [ { "Ref" : "AZ" } ],
+				"AvailabilityZones" : [ { "Ref" : "PublicAZ" } ],
         			"LaunchConfigurationName": { "Ref": "NandoDemoWebLaunchConfig" },
 				"LoadBalancerNames" : [ {"Ref" : "NandoDemoELB" } ],
 				"VPCZoneIdentifier" : [ { "Ref" : "NandoDemoPublicSubnet" } ],
