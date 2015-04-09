@@ -160,7 +160,7 @@ chmod -c 0400 $keyName.pem
 echo
 s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName|grep -v URL| grep NandoDemoBucket |cut -f3)
 echo "upload index.html to s3 bucket $s3bucket"
-aws s3 cp S3/index.html s3://$s3bucket
+aws s3 cp s3/index.html s3://$s3bucket
 echo
 jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName |grep NandoDemoJenkinsEIP|cut -f3)
 echo "ssh -i $keyName.pem ec2-user@$jenkinsIP"
