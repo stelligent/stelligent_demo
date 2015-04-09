@@ -481,15 +481,16 @@
       			}
     		},
 		"NandoDemoMysql" : {
-    			"Type": "AWS::RDS::DBInstance",
+    			"Type" : "AWS::RDS::DBInstance",
 			"DependsOn" : "NandoDemoMysqlSubnetGroup",
     			"Properties": {
       				"DBName" : { "Ref" : "NandoDemoDBName" },
       				"MasterUsername" : { "Ref" : "NandoDemoDBUser" },
 				"MasterUserPassword": { "Ref" : "NandoDemoDBPass" }, 
       				"Engine" : "MySQL",
-      				"DBInstanceClass"   : "db.t2.micro",
-      				"AllocatedStorage"  : "5", 
+      				"DBInstanceClass" : "db.t2.micro",
+				"MultiAZ" : "true",
+      				"AllocatedStorage" : "5", 
 				"VPCSecurityGroups" : [ { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] } ],
 				"DBSubnetGroupName" : { "Ref" : "NandoDemoMysqlSubnetGroup" }
     			}
