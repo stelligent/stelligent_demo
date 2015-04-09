@@ -395,6 +395,13 @@
         			"AWS::CloudFormation::Init" : {
           				"config" : {
             					"files" : {
+							"/etc/cfn/NandoDemoDBHost" : {
+								"content" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] },
+								"mode" : "000644",
+                                                                "owner" : "root",
+                                                                "group" : "root"
+                                                        },
+
 							"/etc/cfn/NandoDemoDBName" : {
 								"content" : { "Ref" : "NandoDemoDBName" }, 
 								"mode" : "000644",
@@ -675,6 +682,7 @@
       		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
 		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", "nando-automation-demo.", { "Ref" : "NandoDemoZone" } ] ] } },
    		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } },
+		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] },
 		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
 		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
 		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } }
