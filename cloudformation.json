@@ -460,6 +460,7 @@
     		},
 		"NandoDemoMysql" : {
     			"Type": "AWS::RDS::DBInstance",
+			"DependsOn" : "NandoDemoMysqlSubnetGroup",
     			"Properties": {
       				"DBName" : { "Ref" : "NandoDemoDBName" },
       				"MasterUsername" : { "Ref" : "NandoDemoDBUser" },
