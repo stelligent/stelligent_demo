@@ -371,7 +371,7 @@
  		},
 		"NandoDemoWebASG" : {
       			"Type": "AWS::AutoScaling::AutoScalingGroup",
-			"DependsOn" : "NandoDemoWebLaunchConfig",
+			"DependsOn" : [ "NandoDemoWebLaunchConfig", "NandoDemoMysql" ],
       			"Version": "2009-05-15",
       			"Properties": {
 				"AvailabilityZones" : [ { "Ref" : "PublicAZ" } ],
@@ -488,7 +488,7 @@
     		},
 		"NandoDemoMysql" : {
     			"Type" : "AWS::RDS::DBInstance",
-			"DependsOn" : "NandoDemoMysqlSubnetGroup",
+			"DependsOn" : [ "NandoDemoMysqlSubnetGroup" ],
     			"Properties": {
       				"DBName" : { "Ref" : "NandoDemoDBName" },
       				"MasterUsername" : { "Ref" : "NandoDemoDBUser" },
