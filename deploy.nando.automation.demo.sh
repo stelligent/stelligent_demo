@@ -177,6 +177,7 @@ aws iam put-role-policy --role-name NandoDemoCodeDeployRole --policy-name NandoD
 
 roleArn=$(aws iam get-role --role-name NandoDemoCodeDeployRole --query "Role.Arn" --output text)
 asgName=$(aws cloudformation describe-stacks |grep NandoDemoWebASG|cut -f3)
+aws deploy delete-deployment-group --application-name nando-demo --deployment-group-name nando-demo 2> /dev/null
 aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --service-role-arn $roleArn --auto-scaling-group $asgName
 
 commitID=$(git rev-parse --verify HEAD)

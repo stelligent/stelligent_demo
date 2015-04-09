@@ -467,7 +467,8 @@
         						"autoscaling:Describe*",
         						"cloudformation:DescribeStacks",
         						"ec2:Describe*",
-        						"s3:Get*"
+        						"s3:*",
+							"codedeploy:CreateDeployment"
       						],
       						"Effect": "Allow",
       						"Resource": "*"
