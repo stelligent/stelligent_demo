@@ -14,6 +14,8 @@ All-in-One automated demo from a single cli command.
 
 - S3 for static templates, manifests, encrypted keys, and demo outputs.
 
+- RDS for storing image tags and paths
+
 - IAM and S3 roles and policies for security
 
 
@@ -101,6 +103,7 @@ Acceptance tests ensure the all resources are up and working correctly. Tests en
 			- pushes code and images to staging (pending)
 			- application and security acceptance testing (pending)
 			- push to production with CodeDeploy
+	- builds Multi-AZ MySQL RDS for storing image tags and paths
 
 
 
@@ -110,4 +113,5 @@ Acceptance tests ensure the all resources are up and working correctly. Tests en
 - add route53 entry for jenkins box via cfn with url as output
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
 - rewrite deploy script in python
+- ChaosMonkey, ServerSpec, TestKitchen, Cucumber, OWASP ZAP
 
