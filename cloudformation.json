@@ -663,7 +663,40 @@
 					"IndexDocument" : "index.html" 
 				}
              		}
-		}
+		},
+		NandoDemoEBApp" : {
+			"Type" : "AWS::ElasticBeanstalk::Application"
+		},
+		"NandoDemoEBVersion": {
+      			"Type": "AWS::ElasticBeanstalk::ApplicationVersion",
+      			"Properties": {
+        			"ApplicationName": { "Ref": "NandoDemoEBApp" },
+        			"SourceBundle": {
+          				"S3Bucket": { "Fn::Join": [ "-", [ "elasticbeanstalk-samples", { "Ref": "AWS::Region" } ] ] },
+          				"S3Key": "php-sample.zip"
+        			}
+      			}
+    		},
+		"NandoDemoEBTemplate": {
+      			"Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
+      			"Properties": {
+        			"ApplicationName": { "Ref": "NandoDemoEBApp" },
+        			"OptionSettings": [
+          				{ "Namespace": "aws:autoscaling:asg", "OptionName": "MinSize", "Value": "2" },
+          				{ "Namespace": "aws:autoscaling:asg", "OptionName": "MaxSize", "Value": "4" },
+          				{ "Namespace": "aws:elasticbeanstalk:environment", "OptionName": "EnvironmentType", "Value": "LoadBalanced" }
+        			],
+        			"SolutionStackName": "64bit Amazon Linux running PHP 5.3"
+      			}
+    		},
+    		"NandoDemoEBEnvironment": {
+      			"Type": "AWS::ElasticBeanstalk::Environment",
+      			"Properties": {
+        			"ApplicationName": { "Ref": "NandoDemoEBApp" },
+        			"TemplateName": { "Ref": "NandoDemoEBTemplate" },
+        			"VersionLabel": { "Ref": "NandoDemoVersion" }
+      			}
+    		}
 	},
   	"Outputs" : {
 		"NandoDemoName" : { "Value" : { "Ref" : "NandoDemoName" } },
