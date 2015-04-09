@@ -8,7 +8,7 @@ All-in-One automated demo from a single cli command.
 
 - Configuration Management with Puppet 
 
-- Continuous Delivery with Jenkins and CodeDeploy
+- Continuous Delivery with Jenkins, CodeDeploy, and Docker
 
 - High Availability with ELB and ASG
 
@@ -21,6 +21,8 @@ All-in-One automated demo from a single cli command.
 - ElasticBeanstalk for Docker containers 
 
 - ElasticCache for user session data
+
+- Testing via ChaosMonkey, ServerSpec, TestKitchen, Cucumber, and OWASP ZAP 
 
 
 
