@@ -26,6 +26,5 @@
 		}
 	}
 	echo "</tr></table>";
-	phpinfo();
 	echo "</body></html>"
 ?>
