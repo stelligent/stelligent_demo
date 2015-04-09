@@ -296,8 +296,13 @@
                                                 "services" : {
                                                         "sysvinit" : {
 								"jenkins" : { "enabled" : "true", "ensureRunning" : "true" },	
-                                                                "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
-                                                                "files" : [ "/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf" ] }
+                                                                "cfn-hup" : { 
+									"enabled" : "true", "ensureRunning" : "true",
+                                                                	"files" : [ 	
+										"/etc/cfn/cfn-hup.conf", 
+										"/etc/cfn/hooks.d/cfn-auto-reloader.conf" 
+									] 
+								}
                                                		}
                                                 }
                                         }
@@ -331,14 +336,9 @@
    			"Type" : "AWS::AutoScaling::LaunchConfiguration",
 			"DependsOn" : "NandoDemoPublicRouteTableAssociation",
       			"Metadata" : {
-        			"Comment" : "Nando Demo Instance One",
+        			"Comment" : "NandoDemoWebLaunchConfig",
         			"AWS::CloudFormation::Init" : {
           				"config" : {
-            					"packages" : {
-              						"yum" : {
-                						"httpd" : []
-              						}
-            					},
             					"files" : {
               						"/etc/cfn/cfn-hup.conf" : {
                 						"content" : { "Fn::Join" : [ "", [
@@ -365,9 +365,13 @@
             					},
             					"services" : {
               						"sysvinit" : {
-                						"httpd" : { "enabled" : "true", "ensureRunning" : "true" },
-                						"cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
-                              					"files" : [ "/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf" ] }
+                						"cfn-hup" : { 
+									"enabled" : "true", "ensureRunning" : "true",
+                              						"files" : [ 
+										"/etc/cfn/cfn-hup.conf", 
+										"/etc/cfn/hooks.d/cfn-auto-reloader.conf" 
+									] 
+								}
               						}
             					}
           				}

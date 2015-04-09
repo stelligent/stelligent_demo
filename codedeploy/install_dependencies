@@ -1,3 +1,5 @@
 #!/bin/bash
-yum install -y httpd
+yum install -y nginx php-fpm
+sed -i 's|apache|nginx|g' /etc/php-fpm.d/www.conf 
+sed -i 's|127.0.0.1:9000|/var/run/php-fpm/php-fpm.sock|g' /etc/php-fpm.d/www.conf
 
