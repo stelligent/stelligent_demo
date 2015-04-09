@@ -37,7 +37,7 @@ This demo creates a VirtualPrivateCloud and launches inside with one command. On
 
 http://nando-automation-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). Based on the user's selections, an Instagram image slideshow is generated and displayed (Docker).  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the Continuous Delivey Pipeline. 
 
-Acceptance tests ensure the all resources are up and working correctly. Tests ensure Instagram images are valid, sized appropriately, image tags pass decency tests, and that image placement makes sense from a UserInterface feng shui perspective. Security tests ensure the application has been deployed securely.
+Acceptance tests ensure the all resources are up and working correctly, and that the application and environment are secure.
 
 
 
