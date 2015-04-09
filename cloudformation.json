@@ -6,9 +6,17 @@
       			"Type" : "String",
       			"Default" : "t1.micro" 
     		},
-		"AZ" : {
+		"PublicAZ" : {
+			"Type" : "String",
+			"Default" : "us-east-1c"
+		},
+		"PrivateAZ1" : {
 			"Type" : "String",
 			"Default" : "us-east-1d"
+		},
+		"PrivateAZ2" : {
+			"Type" : "String",
+			"Default" : "us-east-1e"
 		},
 		"NandoDemoZone" : {
 			"Type" : "String",
@@ -49,7 +57,8 @@
   		"SubnetConfig" : {
    			"VPC" : { "CIDR" : "10.200.0.0/16" },
    			"Public" : { "CIDR" : "10.200.0.0/24" },
-   			"Private" : { "CIDR" : "10.200.1.0/24" }
+   			"Private1" : { "CIDR" : "10.200.1.0/24" },
+   			"Private2" : { "CIDR" : "10.200.2.0/24" }
   		}
  	}, 
  	"Resources" : {
@@ -92,7 +101,7 @@
  			"Type" : "AWS::EC2::Subnet",
 			"DependsOn" : "NandoDemoVPC",
  			"Properties" : {
-				"AvailabilityZone" : { "Ref" : "AZ" },
+				"AvailabilityZone" : { "Ref" : "PublicAZ" },
  				"VpcId" : { "Ref" : "NandoDemoVPC" },
  				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Public", "CIDR" ] },
  				"Tags" : [
@@ -101,16 +110,29 @@
  				]
  			}
  		}, 
-		"NandoDemoPrivateSubnet" : {
+		"NandoDemoPrivateSubnet1" : {
  			"Type" : "AWS::EC2::Subnet",
 			"DependsOn" : "NandoDemoVPC",
  			"Properties" : {
-				"AvailabilityZone" : { "Ref" : "AZ" },
+				"AvailabilityZone" : { "Ref" : "PrivateAZ1" },
  				"VpcId" : { "Ref" : "NandoDemoVPC" },
- 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private", "CIDR" ] },
+ 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private1", "CIDR" ] },
  				"Tags" : [
  					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
- 					{ "Key" : "Network", "Value" : "Private" }
+ 					{ "Key" : "Network", "Value" : "Private1" }
+ 				]
+ 			}
+ 		}, 
+		"NandoDemoPrivateSubnet2" : {
+ 			"Type" : "AWS::EC2::Subnet",
+			"DependsOn" : "NandoDemoVPC",
+ 			"Properties" : {
+				"AvailabilityZone" : { "Ref" : "PrivateAZ2" },
+ 				"VpcId" : { "Ref" : "NandoDemoVPC" },
+ 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private2", "CIDR" ] },
+ 				"Tags" : [
+ 					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+ 					{ "Key" : "Network", "Value" : "Private2" }
  				]
  			}
  		}, 
@@ -475,7 +497,10 @@
 		"NandoDemoMysqlSubnetGroup" : {
    			"Type" : "AWS::RDS::DBSubnetGroup",
    			"Properties" : { 
-				"SubnetIds" : [ { "Ref" : "NandoDemoPrivateSubnet" } ], 
+				"SubnetIds" : [ 
+					{ "Ref" : "NandoDemoPrivateSubnet1" }, 
+					{ "Ref" : "NandoDemoPrivateSubnet2" } 
+				], 
 				"DBSubnetGroupDescription" : "NandoDemoMysqlSubnetGroup"
 			}
 		}, 
