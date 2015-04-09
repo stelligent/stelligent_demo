@@ -20,6 +20,8 @@ All-in-One automated demo from a single cli command.
 
 - ElasticBeanstalk for Docker containers 
 
+- ElasticCache for user session data
+
 
 
 ```
