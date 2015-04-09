@@ -10,7 +10,7 @@ All-in-One automated demo from a single cli command.
 
 - Continuous Delivery with [Jenkins](https://jenkins-ci.org/), [CodeDeploy](http://aws.amazon.com/codedeploy/), and [Docker](https://www.docker.com/)
 
-- High Availability with [ELB](http://aws.amazon.com/elb/) and [ASG](http://aws.amazon.com/asg/)
+- High Availability with [ELB](http://aws.amazon.com/elasticloadbalancing/) and [ASG](https://aws.amazon.com/autoscaling/)
 
 - [S3](http://aws.amazon.com/s3/) for static templates, manifests, encrypted keys, and demo outputs.
 
