@@ -14,7 +14,7 @@
 	$placeImage2 = rand(1,20);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body>" . date(DATE_RFC2822) . "<br>Connected to " . $dbHost;
-	while ($row = mysqli_fetch_row($result)) { printf ("%s (%s)\n",$row[0]); }
+	while ($row = mysqli_fetch_row($result)) { echo $row[0] . " : "; }
   	mysqli_free_result($result);
 	mysqli_close($conn);
  	echo "<table border=0 width=100%><tr>";
