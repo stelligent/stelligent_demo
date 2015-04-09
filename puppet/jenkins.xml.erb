@@ -42,45 +42,8 @@ os.system(&apos;wget -O image1.jpg %s&apos; % (popular_media[0].images[&apos;thu
 popular_media = api.media_popular(count=1)
 os.system(&apos;wget -O image2.jpg %s&apos; % (popular_media[0].images[&apos;thumbnail&apos;].url) )
 </command>
+
     </hudson.plugins.python.Python>
-    <hudson.tasks.Shell>
-      <command>sshcmd=&quot;ssh -tt -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet&quot;
-scpcmd=&quot;scp -i /var/lib/jenkins/nando-demo.pem -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet&quot;
-
-site=&quot;$(date) &lt;br&gt; &lt;table border=0 width=100%&gt; &lt;tr&gt;&quot;
-
-placeImage1=$[ 1 + $[ RANDOM % 19 ]]
-placeImage2=$[ 1 + $[ RANDOM % 19 ]]
-
-for placeHolder in {0..19}; do 
-	if (( $placeHolder % 5 == 0 )); then site=&quot;$site &lt;/tr&gt;&lt;tr&gt;&quot;; fi
-	if [ $placeHolder -eq $placeImage1 ]; then site=&quot;$site &lt;td width=20% align=center&gt;&lt;img src=image1.jpg&gt;&lt;/td&gt;&quot;
-    elif [ $placeHolder -eq $placeImage2 ]; then site=&quot;$site &lt;td width=20% align=center&gt;&lt;img src=image2.jpg&gt;&lt;/td&gt;&quot;
-	else 
-    	site=&quot;$site &lt;td width=20% align=center&gt;&quot;
-    	for tddata in {0..8}; do
-        	site=&quot;$site $(cat /dev/urandom|tr -dc 0-1|head -c8) $(cat /dev/urandom|tr -dc 0-1|head -c8) &lt;br&gt;&quot;
-        done
-        site=&quot;$site $(cat /dev/urandom|tr -dc 0-1|head -c8) $(cat /dev/urandom|tr -dc 0-1|head -c8) &lt;/td&gt;&quot;
-    fi
-done
-
-site=&quot;$site &lt;/tr&gt;&lt;/table&gt;&quot;
-
-stack=$(cat /var/lib/jenkins/cloudformation-stack-name)
-asgName=$(aws cloudformation describe-stacks --stack-name $stack --region us-east-1 --output text|grep NandoDemoWebASG|cut -f3)
-for instance in $(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name $asgName --region us-east-1 --output text|grep INSTANCES|cut -f4); do
-	instanceIP=$(aws ec2 describe-instances --instance-id $instance --region us-east-1 --output text|grep PRIVATEIPADDRESSES|cut -f4)
-    #$sshcmd ec2-user@$instanceIP &quot;echo \&quot;$site\&quot; | sudo tee /var/www/html/index.html&quot;
-    #$scpcmd image1.jpg ec2-user@$instanceIP:
-    #$sshcmd ec2-user@$instanceIP &quot;sudo mv -v /home/ec2-user/image1.jpg /var/www/html&quot;
-    #$scpcmd image2.jpg ec2-user@$instanceIP:
-    #$sshcmd ec2-user@$instanceIP &quot;sudo mv -v /home/ec2-user/image2.jpg /var/www/html&quot;
-	echo "iterating on $instanceIP"
-done
-
-</command>
-    </hudson.tasks.Shell>
   </builders>
   <publishers/>
   <buildWrappers/>
