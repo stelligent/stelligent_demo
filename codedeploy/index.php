@@ -8,7 +8,7 @@
 	$dbPass = file_get_contents('/etc/cfn/NandoDemoDBPass');
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
-	if (placeImage1 == $placeImage2) { $placeImage2++; }
+	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body>" . date(DATE_RFC2822) . "<br><table border=0 width=100%><tr>";
 	for ($placeHolder = 0; $placeHolder < 20; $placeHolder++) { 
 		if ($placeHolder % 5 == 0) { echo "</tr><tr>"; }
