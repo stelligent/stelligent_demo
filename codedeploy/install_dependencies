@@ -1,5 +1,5 @@
 #!/bin/bash
-yum install -y nginx php-fpm
+yum install -y nginx php-fpm php-mysqli
 service nginx stop
 sed -i 's|apache|nginx|g' /etc/php-fpm.d/www.conf 
 mkdir -p /var/www/html
