@@ -26,5 +26,7 @@
        			echo rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . " " . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . "</td>"; 
 		}
 	}
-	echo "</tr></table></body></html>"
+	echo "</tr></table>";
+	phpinfo();
+	echo "</body></html>"
 ?>
