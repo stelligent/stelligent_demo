@@ -18,7 +18,7 @@ All-in-One automated demo from a single cli command.
 
 - IAM and S3 roles and policies for security
 
-- ElasticBeanstalk for Docker containters 
+- ElasticBeanstalk for Docker containers 
 
 
 
