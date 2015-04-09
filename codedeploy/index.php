@@ -9,7 +9,7 @@
 	$dbHost = file_get_contents('/etc/cfn/NandoDemoDBHost');
 	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
 	if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); } 
-        if (! $result = $mysqli->query("show databases")) { printf("Error: %s\n", $mysqli->error); }
+        if (! $result = $conn->query("show databases")) { printf("Error: %s\n", $mysqli->error); }
 	while ($row = mysqli_fetch_row($result)) {
     		printf ("%s (%s)\n",$row[0],$row[1]);
     	}
