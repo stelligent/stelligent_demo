@@ -3,8 +3,8 @@
  	"Description" : "Nando Automation Demo :: Elastic Beanstalk",                
 	"Resources" : {
 		"NandoDemoEBApp" : { 
-			"Type" : "AWS::ElasticBeanstalk::Application" 
-		   	"Properties" : { "ApplicationName" : "NandoDemoEBApp", }
+			"Type" : "AWS::ElasticBeanstalk::Application", 
+		   	"Properties" : { "ApplicationName" : "NandoDemoEBApp" }
 		},
                 "NandoDemoEBVersion": {
                         "Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
