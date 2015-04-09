@@ -98,12 +98,12 @@ echo
 echo
 echo "Upload Files to S3"
 echo
-aws s3 cp jenkins.xml.erb s3://nando-automation-demo
-aws s3 cp installjenkins.pp s3://nando-automation-demo
-aws s3 cp installjenkinsjob.pp s3://nando-automation-demo 
-aws s3 cp installjenkinsmodules.pp s3://nando-automation-demo 
-aws s3 cp installjenkinsusers.pp s3://nando-automation-demo 
-aws s3 cp installjenkinssecurity.pp s3://nando-automation-demo 
+aws s3 cp puppet/jenkins.xml.erb s3://nando-automation-demo
+aws s3 cp puppet/installjenkins.pp s3://nando-automation-demo
+aws s3 cp puppet/installjenkinsjob.pp s3://nando-automation-demo 
+aws s3 cp puppet/installjenkinsmodules.pp s3://nando-automation-demo 
+aws s3 cp puppet/installjenkinsusers.pp s3://nando-automation-demo 
+aws s3 cp puppet/installjenkinssecurity.pp s3://nando-automation-demo 
 echo
 echo
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
