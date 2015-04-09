@@ -14,39 +14,52 @@
 			"Type" : "String",
 			"Default" : "elasticoperations.com."	
 		},
+      		"NandoDemoDBName" : { 
+			"Type" : "String",
+			"Default" : "NandoDemoDB"
+		},
+      		"NandoDemoDBUser" : {
+			"Type" : "String",
+			"Default" : "NandoDemoDBUser"
+		},
+		"NandoDemoDBPass": { 
+			"Type" : "String",
+			"Default"  : "NandoDemoDBPass" 
+		}, 
 		"NandoDemoName" : {
 			"Type" : "String"
 		},
     		"KeyName": {
-      			"Type": "AWS::EC2::KeyPair::KeyName"
+      			"Type" : "AWS::EC2::KeyPair::KeyName"
     		},
+		"PrivateKey" : {
+    			"Type" : "String"
+  		},
     		"Location1" : {
       			"Type": "String"
     		},
     		"Location2" : {
-      			"Type": "String"
+      			"Type" : "String"
     		},
     		"Location3" : {
-      			"Type": "String"
-    		},
-		"PrivateKey" : {
-    			"Type" : "String"
-  		}
+      			"Type" : "String"
+    		}
   	},
  	"Mappings" : {
   		"SubnetConfig" : {
    			"VPC" : { "CIDR" : "10.200.0.0/16" },
-   			"Public" : { "CIDR" : "10.200.0.0/24" }
+   			"Public" : { "CIDR" : "10.200.0.0/24" },
+   			"Private" : { "CIDR" : "10.200.1.0/24" }
   		}
  	}, 
  	"Resources" : {
     		"NandoDemoJenkinsEth0" : {
       			"Type" : "AWS::EC2::NetworkInterface",
- 			"DependsOn" : "NandoDemoSecurityGroup",
+ 			"DependsOn" : "NandoDemoPublicSecurityGroup",
       			"Properties" : {
         			"Description" : "eth0jenkins",
         			"SubnetId" : { "Ref" : "NandoDemoPublicSubnet" },
-        			"GroupSet" : [ { "Ref" : "NandoDemoSecurityGroup" } ]
+        			"GroupSet" : [ { "Ref" : "NandoDemoPublicSecurityGroup" } ]
       			}
     		},
     		"NandoDemoJenkinsEIP" :  {
@@ -85,6 +98,19 @@
  				"Tags" : [
  					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
  					{ "Key" : "Network", "Value" : "Public" }
+ 				]
+ 			}
+ 		}, 
+		"NandoDemoPrivateSubnet" : {
+ 			"Type" : "AWS::EC2::Subnet",
+			"DependsOn" : "NandoDemoVPC",
+ 			"Properties" : {
+				"AvailabilityZone" : { "Ref" : "AZ" },
+ 				"VpcId" : { "Ref" : "NandoDemoVPC" },
+ 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private", "CIDR" ] },
+ 				"Tags" : [
+ 					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+ 					{ "Key" : "Network", "Value" : "Private" }
  				]
  			}
  		}, 
@@ -139,7 +165,7 @@
           				"Interval" : "5",
           				"Timeout" : "4"
         			},
-				"SecurityGroups" : [ { "Ref" : "NandoDemoSecurityGroup" } ]
+				"SecurityGroups" : [ { "Ref" : "NandoDemoPublicSecurityGroup" } ]
       			}
     		},
                 "NandoDemoCNAME" : {
@@ -340,6 +366,24 @@
         			"AWS::CloudFormation::Init" : {
           				"config" : {
             					"files" : {
+							"/etc/cfn/NandoDemoDBName" : {
+								"content" : { "Ref" : "NandoDemoDBName" }. 
+								"mode" : "000644",
+								"owner" : "root",
+								"group" : "root"
+							},
+							"/etc/cfn/NandoDemoDBUser" : {
+								"content" : { "Ref" : "NandoDemoDBUser" }. 
+								"mode" : "000644",
+								"owner" : "root",
+								"group" : "root"
+							},
+							"/etc/cfn/NandoDemoDBPass" : {
+								"content" : { "Ref" : "NandoDemoDBPass" }. 
+								"mode" : "000644",
+								"owner" : "root",
+								"group" : "root"
+							},
               						"/etc/cfn/cfn-hup.conf" : {
                 						"content" : { "Fn::Join" : [ "", [
                   							"[main]\n",
@@ -383,7 +427,7 @@
  				"ImageId" : "ami-fb8e9292",
 				"AssociatePublicIpAddress" : "true",
             			"IamInstanceProfile": { "Ref": "NandoDemoASGInstanceProfile" },
-				"SecurityGroups": [ { "Ref": "NandoDemoSecurityGroup" } ],
+				"SecurityGroups": [ { "Ref": "NandoDemoPublicSecurityGroup" } ],
         			"UserData"       : { "Fn::Base64" : { "Fn::Join" : [ "", [
              				"#!/bin/bash -xe\n",
              				"yum update -y aws-cfn-bootstrap aws-cli\n",
@@ -407,10 +451,23 @@
         			}
       			}
     		},
-    		"NandoDemoSecurityGroup" : {
+		"NandoDemoMysql" : {
+    			"Type": "AWS::RDS::DBInstance",
+    			"Properties": {
+      				"DBName" : { "Ref" : "NandoDemoDBName" },
+      				"MasterUsername" : { "Ref" : "NandoDemoDBUser" },
+				"MasterUserPassword": { "Ref" : "NandoDemoDBPass" }, 
+      				"Engine" : "MySQL",
+      				"DBInstanceClass"   : "db.t2.micro",
+      				"AllocatedStorage"  : "5", 
+				"VPCSecurityGroups" : [ { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] } ],
+				"DBSubnetGroupName" : { "Ref" : "NandoDemoPrivateSubnet" }
+    			}
+  		},		
+    		"NandoDemoPublicSecurityGroup" : {
       			"Type" : "AWS::EC2::SecurityGroup",
       			"Properties" : {
-        			"GroupDescription" : "nando-demo",
+        			"GroupDescription" : "nando-demo-public",
         			"VpcId" : { "Ref" : "NandoDemoVPC" },
         			"SecurityGroupIngress" : [ 
         				{ "IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0" },
@@ -427,6 +484,20 @@
 				]
       			}
     		},
+		"NanddoDemoPrivateSecurityGroup" : {
+                        "Type" : "AWS::EC2::SecurityGroup",
+                        "Properties" : {
+                                "GroupDescription" : "nando-demo-private",
+                                "VpcId" : { "Ref" : "NandoDemoVPC" },
+				"SecurityGroupIngress" : [{
+        				"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "SourceSecurityGroupName" : 
+						{ "Ref" : "NandoDemoPublicSecurityGroup" },
+                                        "IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "SourceSecurityGroupName" : 
+                                                { "Ref" : "NandoDemoPublicSecurityGroup" },
+
+      				}]
+			}
+		},
 	      	"NandoDemoJenkinsRole": {
          		"Type" : "AWS::IAM::Role",
          		"Properties": {
@@ -553,6 +624,9 @@
     		"NandoDemoJenkinsURL" : { "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoJenkins", "PublicDnsName" ] }, ":8080" ] ] } },
       		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
 		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", "nando-automation-demo.", { "Ref" : "NandoDemoZone" } ] ] } },
-   		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } }
+   		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } },
+		"NandoDemoDBName : { "Value" : { "Ref" : "NandoDemoDBName" } },
+		"NandoDemoDBUser : { "Value" : { "Ref" : "NandoDemoDBUser" } },
+		"NandoDemoDBPass : { "Value" : { "Ref" : "NandoDemoDBPass" } },
   	}
 }
