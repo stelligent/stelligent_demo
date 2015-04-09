@@ -7,13 +7,13 @@
 	$dbUser = file_get_contents('/etc/cfn/NandoDemoDBUser');
 	$dbPass = file_get_contents('/etc/cfn/NandoDemoDBPass');
 	$dbHost = file_get_contents('/etc/cfn/NandoDemoDBHost');
-	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
-	if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); } 
-        if (! $result = $conn->query("show databases")) { printf("Error: %s\n", $mysqli->error); }
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
-	echo "<html><body>" . date(DATE_RFC2822) . "<br>Connected to " . $dbHost;
+	echo "<html><body>" . date(DATE_RFC2822) . "<br>Connecting to " . $dbHost . "<br>";
+	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
+	if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); } 
+        if (! $result = $conn->query("show databases")) { printf("Error: %s\n", $mysqli->error); }
 	while ($row = mysqli_fetch_row($result)) { echo $row[0] . " : "; }
   	mysqli_free_result($result);
 	mysqli_close($conn);
