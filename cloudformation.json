@@ -460,6 +460,7 @@
     		},
 		"NandoDemoMysql" : {
     			"Type": "AWS::RDS::DBInstance",
+			"DependsOn" : "NandoDemoPrivateSubnet",
     			"Properties": {
       				"DBName" : { "Ref" : "NandoDemoDBName" },
       				"MasterUsername" : { "Ref" : "NandoDemoDBUser" },
@@ -495,16 +496,25 @@
                         "Type" : "AWS::EC2::SecurityGroup",
                         "Properties" : {
                                 "GroupDescription" : "nando-demo-private",
-                                "VpcId" : { "Ref" : "NandoDemoVPC" },
-				"SecurityGroupIngress" : [ {
-        				"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "SourceSecurityGroupName" : 
-						{ "Ref" : "NandoDemoPublicSecurityGroup" },
-                                        "IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "SourceSecurityGroupName" : 
-                                                { "Ref" : "NandoDemoPublicSecurityGroup" }
-
-      				} ]
+                                "VpcId" : { "Ref" : "NandoDemoVPC" }
 			}
 		},
+ 		"NandoDemoPrivateSecurityGroupSSH" : {
+      			"Type" : "AWS::EC2::SecurityGroupIngress",
+      			"Properties" : {
+        				"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "SourceSecurityGroupID" : 
+          					{ "Fn::GetAtt": [ "NandoDemoPublicSecurityGroup", "GroupId" ] },
+        				"GroupId": { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] }
+			}
+		},
+ 		"NandoDemoPrivateSecurityGroupMysql" : {
+      			"Type" : "AWS::EC2::SecurityGroupIngress",
+      			"Properties" : {
+                                        "IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "SourceSecurityGroupID" : 
+          					{ "Fn::GetAtt": [ "NandoDemoPublicSecurityGroup", "GroupId" ] },
+                                        "GroupId": { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] }
+                        }
+                },
 	      	"NandoDemoJenkinsRole": {
          		"Type" : "AWS::IAM::Role",
          		"Properties": {
