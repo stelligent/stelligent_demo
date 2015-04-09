@@ -7,7 +7,7 @@
 	$dbUser = file_get_contents('/etc/cfn/NandoDemoDBUser');
 	$dbPass = file_get_contents('/etc/cfn/NandoDemoDBPass');
 	$dbHost = file_get_contents('/etc/cfn/NandoDemoDBHost');
-	$conn = new mysqli($dbHost, $dbName, $$dbUser, $dbPass);
+	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
 	if ($conn->connect_error) { warn("Connection failed: " . $conn->connect_error); } 
 	echo "Connected to " . $dbHost;
 	$placeImage1 = rand(1,20);
