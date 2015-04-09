@@ -20,7 +20,7 @@ All-in-One automated demo from a single cli command.
 
 - [ElasticBeanstalk](http://aws.amazon.com/elasticbeanstalk/) for [Docker](https://www.docker.com/) containers 
 
-- [ElasticCache](http://aws.amazon.com/elasticcache/) for user session data
+- [ElastiCache](http://aws.amazon.com/elasticache/) for user session data
 
 - Testing via [ChaosMonkey], [ServerSpec], [TestKitchen], [Cucumber], and [OWASP ZAP](https://code.google.com/p/zaproxy/) 
 
