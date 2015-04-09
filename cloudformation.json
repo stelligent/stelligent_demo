@@ -496,13 +496,13 @@
                         "Properties" : {
                                 "GroupDescription" : "nando-demo-private",
                                 "VpcId" : { "Ref" : "NandoDemoVPC" },
-				"SecurityGroupIngress" : [{
+				"SecurityGroupIngress" : [ {
         				"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "SourceSecurityGroupName" : 
 						{ "Ref" : "NandoDemoPublicSecurityGroup" },
                                         "IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "SourceSecurityGroupName" : 
-                                                { "Ref" : "NandoDemoPublicSecurityGroup" },
+                                                { "Ref" : "NandoDemoPublicSecurityGroup" }
 
-      				}]
+      				} ]
 			}
 		},
 	      	"NandoDemoJenkinsRole": {
