@@ -474,7 +474,10 @@
   		},		
 		"NandoDemoMysqlSubnetGroup" : {
    			"Type" : "AWS::RDS::DBSubnetGroup",
-   			"Properties" : { "SubnetIds" : [ { "Ref" : "NandoDemoPrivateSubnet" } ] }
+   			"Properties" : { 
+				"SubnetIds" : [ { "Ref" : "NandoDemoPrivateSubnet" } ], 
+				"DBSubnetGroupDescription" : "NandoDemoMysqlSubnetGroup"
+			}
 		}, 
     		"NandoDemoPublicSecurityGroup" : {
       			"Type" : "AWS::EC2::SecurityGroup",
