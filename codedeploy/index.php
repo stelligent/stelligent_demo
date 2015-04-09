@@ -10,15 +10,14 @@
 	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
 	if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); } 
         if (! $result = $conn->query("show databases")) { printf("Error: %s\n", $mysqli->error); }
-	while ($row = mysqli_fetch_row($result)) {
-    		printf ("%s (%s)\n",$row[0],$row[1]);
-    	}
-  	mysqli_free_result($result);
-	mysqli_close($con);
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
-	echo "<html><body>" . date(DATE_RFC2822) . "<br>Connected to " . $dbHost . "<table border=0 width=100%><tr>";
+	echo "<html><body>" . date(DATE_RFC2822) . "<br>Connected to " . $dbHost;
+	while ($row = mysqli_fetch_row($result)) { printf ("%s (%s)\n",$row[0]); }
+  	mysqli_free_result($result);
+	mysqli_close($conn);
+ 	echo "<table border=0 width=100%><tr>";
 	for ($placeHolder = 0; $placeHolder < 20; $placeHolder++) { 
 		if ($placeHolder % 5 == 0) { echo "</tr><tr>"; }
 		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=image1.jpg></td>"; }
