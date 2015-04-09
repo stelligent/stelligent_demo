@@ -4,25 +4,25 @@
 
 All-in-One automated demo from a single cli command.
 
-- Cloud Deployment with CloudFormation
+- Cloud Deployment with [CloudFormation](http://aws.amazon.com/cloudformation/)
 
-- Configuration Management with Puppet 
+- Configuration Management with [Puppet](https://github.com/puppetlabs/puppet)
 
-- Continuous Delivery with Jenkins, CodeDeploy, and Docker
+- Continuous Delivery with [Jenkins](https://jenkins-ci.org/), [CodeDeploy](http://aws.amazon.com/codedeploy/), and [Docker](https://www.docker.com/)
 
-- High Availability with ELB and ASG
+- High Availability with [ELB](http://aws.amazon.com/elasticloadbalancer/) and [ASG](http://aws.amazon.com/autoscalinggroups/)
 
-- S3 for static templates, manifests, encrypted keys, and demo outputs.
+- [S3](http://aws.amazon.com/s3/) for static templates, manifests, encrypted keys, and demo outputs.
 
-- RDS for storing image tags and paths
+- [RDS](http://aws.amazon.com/rds/) for storing image tags and paths
 
-- IAM and S3 roles and policies for security
+- [IAM](http://aws.amazon.com/iam/) and [S3] roles and policies for security
 
-- ElasticBeanstalk for Docker containers 
+- [ElasticBeanstalk](http://aws.amazon.com/elasticbeanstalk/) for [Docker](https://www.docker.com/) containers 
 
-- ElasticCache for user session data
+- [ElasticCache](http://aws.amazon.com/elasticcache/) for user session data
 
-- Testing via ChaosMonkey, ServerSpec, TestKitchen, Cucumber, and OWASP ZAP 
+- Testing via [ChaosMonkey], [ServerSpec], [TestKitchen], [Cucumber], and [OWASP ZAP](https://code.google.com/p/zaproxy/) 
 
 
 
