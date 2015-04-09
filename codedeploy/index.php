@@ -7,9 +7,9 @@
 	$dbUser = file_get_contents('/etc/cfn/NandoDemoDBUser');
 	$dbPass = file_get_contents('/etc/cfn/NandoDemoDBPass');
 	$dbHost = file_get_contents('/etc/cfn/NandoDemoDBHost');
-	#$conn = new mysqli($dbHost, $dbName, $$dbUser, $dbPass);
-	#if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); } 
-	#echo "Connected to " . $dbHost;
+	$conn = new mysqli($dbHost, $dbName, $$dbUser, $dbPass);
+	if ($conn->connect_error) { warn("Connection failed: " . $conn->connect_error); } 
+	echo "Connected to " . $dbHost;
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }

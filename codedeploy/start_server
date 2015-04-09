@@ -1,4 +1,4 @@
 #!/bin/bash
-service nginx start
-service php-fpm start
+service nginx restart
+service php-fpm restart
 
