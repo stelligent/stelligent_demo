@@ -14,9 +14,7 @@
     		printf ("%s (%s)\n",$row[0],$row[1]);
     	}
   	mysqli_free_result($result);
-}
-
-mysqli_close($con);
+	mysqli_close($con);
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
