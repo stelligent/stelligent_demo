@@ -29,9 +29,9 @@ All-in-One automated demo from a single cli command.
 ```
 
 
-This demo creates a VirtualPrivateCloud and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/Php-fpm Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, a private subnet multi-az RDS database, and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, are in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
+This demo creates a VirtualPrivateCloud and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, a private subnet multi-az RDS database, and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, are in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
 
-http://nando-automation-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). An Instagram image slideshow is then generated and displayed (ElasticBeanstalk and Docker), based on the user's selections.  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the continous delivey pipeline. 
+http://nando-automation-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). An Instagram image slideshow is then generated and displayed (Docker), based on the user's selections.  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the Continuous Delivey Pipeline. 
 
 Acceptance tests ensure the all resources are up and working correctly. Tests ensure Instagram images are valid, sized appropriately, image tags pass decency tests, and that image placement makes sense from a UserInterface feng shui perspective. Security tests ensure the application has been deployed securely.
 
@@ -95,18 +95,19 @@ Acceptance tests ensure the all resources are up and working correctly. Tests en
 	- sets up S3 bucket for all logging and demo output
 		- buckey policy restricts access to trusted IPs
 		- website indexing is enabled
+	- builds Multi-AZ MySQL RDS for storing image tags and paths
+	- launches ElasticBeanstalk template for Docker
 	- bootstraps jenkins server via cloud init and authenticated S3
 		- adds python instagram functionality
 		- adds git functionality
 		- installs and configures jenkins via puppet
 		- pulls jenkins job templates from authenticated S3 and creates jenkins jobs
 		- jenkins executes based on SCM
-			- queries aws for private IPs of web AutoScalingGroup
 			- gets instagram images and generates html
 			- pushes code and images to staging (pending)
 			- application and security acceptance testing (pending)
 			- push to production with CodeDeploy
-	- builds Multi-AZ MySQL RDS for storing image tags and paths
+
 
 
 
@@ -117,4 +118,5 @@ Acceptance tests ensure the all resources are up and working correctly. Tests en
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
 - rewrite deploy script in python
 - ChaosMonkey, ServerSpec, TestKitchen, Cucumber, OWASP ZAP
+- ElastiCache for user session data
 
