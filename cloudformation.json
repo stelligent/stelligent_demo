@@ -243,43 +243,50 @@
                                                                         "runas=root\n"
                                                                 ] ] }
                                                         },
-							"/etc/puppet/installjenkins.pp" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkins.pp",
+							"/etc/puppet/installJenkins.pp" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkins.pp",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/installjenkinsjob.pp" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinsjob.pp",
+							"/etc/puppet/installJenkinsJob.pp" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsJob.pp",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-                                                        "/etc/puppet/installjenkinsmodules.pp" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinsmodules.pp",
+                                                        "/etc/puppet/installJenkinsModules.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsModules.pp",
                                                                 "mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
                                                         },
-                                                       "/etc/puppet/installjenkinsusers.pp" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinsusers.pp",
+                                                       "/etc/puppet/installJenkinsUsers.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsUsers.pp",
                                                                 "mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
-                                                       "/etc/puppet/installjenkinssecurity.pp" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installjenkinssecurity.pp",
+                                                       "/etc/puppet/installJenkinsSecurity.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsSecurity.pp",
                                                                 "mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
-							"/etc/puppet/nando-automation-demo.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jenkins.xml.erb",
+							"/etc/puppet/jobGetInstagramImages.xml.erb" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobGetInstagramImages.xml.erb",
+                           					"mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+								"authentication" : "S3AccessCreds"
+							},
+							"/etc/puppet/jobPublishCodeDeploy.xml.erb" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobPublishCodeDeploy.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
@@ -310,14 +317,14 @@
 							"bootstrapG" : { "command" : "yum -y install python-pip" },
 							"bootstrapH" : { "command" : "pip install python-instagram" },
 							"bootstrapJ" : { "command" : "pip install --upgrade awscli" },
-							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installjenkins.pp" },
+							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installJenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
-							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installjenkinsmodules.pp" },
+							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installJenkinsModules.pp" },
  							"installjenkinsD" : { "command" : "sleep 15" },
-							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installjenkinsjob.pp" },
+							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installJenkinsJob.pp" },
 							"installjenkinsF" : { "command" : "/bin/sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp" },
-                                                        "installjenkinsG" : { "command" : "puppet apply /etc/puppet/installjenkinsusers.pp" },
-							"installjenkinsH" : { "command" : "puppet apply /etc/puppet/installjenkinssecurity.pp" }
+                                                        "installjenkinsG" : { "command" : "puppet apply /etc/puppet/installJenkinsUsers.pp" },
+							"installjenkinsH" : { "command" : "puppet apply /etc/puppet/installJenkinsSecurity.pp" }
 						},
                                                 "services" : {
                                                         "sysvinit" : {
@@ -367,19 +374,19 @@
           				"config" : {
             					"files" : {
 							"/etc/cfn/NandoDemoDBName" : {
-								"content" : { "Ref" : "NandoDemoDBName" }. 
+								"content" : { "Ref" : "NandoDemoDBName" }, 
 								"mode" : "000644",
 								"owner" : "root",
 								"group" : "root"
 							},
 							"/etc/cfn/NandoDemoDBUser" : {
-								"content" : { "Ref" : "NandoDemoDBUser" }. 
+								"content" : { "Ref" : "NandoDemoDBUser" },
 								"mode" : "000644",
 								"owner" : "root",
 								"group" : "root"
 							},
 							"/etc/cfn/NandoDemoDBPass" : {
-								"content" : { "Ref" : "NandoDemoDBPass" }. 
+								"content" : { "Ref" : "NandoDemoDBPass" },
 								"mode" : "000644",
 								"owner" : "root",
 								"group" : "root"

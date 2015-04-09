@@ -98,12 +98,13 @@ echo
 echo
 echo "Upload Files to S3"
 echo
-aws s3 cp puppet/jenkins.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/installjenkins.pp s3://nando-automation-demo
-aws s3 cp puppet/installjenkinsjob.pp s3://nando-automation-demo 
-aws s3 cp puppet/installjenkinsmodules.pp s3://nando-automation-demo 
-aws s3 cp puppet/installjenkinsusers.pp s3://nando-automation-demo 
-aws s3 cp puppet/installjenkinssecurity.pp s3://nando-automation-demo 
+aws s3 cp puppet/jobGetInstagramImages.xml.erb s3://nando-automation-demo
+aws s3 cp puppet/jobPublishCodeDeploy.xml.erb s3://nando-automation-demo
+aws s3 cp puppet/installJenkins.pp s3://nando-automation-demo
+aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo 
+aws s3 cp puppet/installJenkinsModules.pp s3://nando-automation-demo 
+aws s3 cp puppet/installJenkinsUsers.pp s3://nando-automation-demo 
+aws s3 cp puppet/installJenkinsSecurity.pp s3://nando-automation-demo 
 echo
 echo
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
@@ -178,6 +179,7 @@ aws iam put-role-policy --role-name NandoDemoCodeDeployRole --policy-name NandoD
 roleArn=$(aws iam get-role --role-name NandoDemoCodeDeployRole --query "Role.Arn" --output text)
 asgName=$(aws cloudformation describe-stacks |grep NandoDemoWebASG|cut -f3)
 aws deploy delete-deployment-group --application-name nando-demo --deployment-group-name nando-demo 2> /dev/null
+sleep 2
 aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --service-role-arn $roleArn --auto-scaling-group $asgName
 
 commitID=$(git rev-parse --verify HEAD)
