@@ -170,7 +170,6 @@ echo
 echo
 echo
 echo "Launching CodeDeploy:"
-commitID=$(git rev-parse --verify HEAD)
 asgName=$(aws cloudformation describe-stacks |grep NandoDemoWebASG|cut -f3)
 
 aws deploy create-application --application-name nando-demo 2> /dev/null
@@ -180,8 +179,9 @@ aws iam put-role-policy --role-name NandoDemoCodeDeployRole --policy-name NandoD
 roleArn=$(aws iam get-role --role-name NandoDemoCodeDeployRole --query "Role.Arn" --output text)
 
 aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --service-role-arn $roleArn --auto-scaling-group $asgName
-deployID=$(aws deploy create-deployment --application-name nando-demo  --github-location commitId=$commitID,repository=stelligent/nando_automation_demo --deployment-group-name nando-demo)
 
+commitID=$(git rev-parse --verify HEAD)
+deployID=$(aws deploy create-deployment --application-name nando-demo  --github-location commitId=$commitID,repository=stelligent/nando_automation_demo --deployment-group-name nando-demo)
 aws deploy get-deployment --deployment-id $deployID  --query "deploymentInfo.status" --output text
 
 echo
