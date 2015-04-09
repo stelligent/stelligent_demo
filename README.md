@@ -16,7 +16,7 @@ All-in-One automated demo from a single cli command.
 
 - [RDS](http://aws.amazon.com/rds/) for storing image tags and paths
 
-- [IAM](http://aws.amazon.com/iam/) and [S3](http://aws.amazon.com/s3/ roles and policies for security
+- [IAM](http://aws.amazon.com/iam/) and [S3](http://aws.amazon.com/s3/) roles and policies for security
 
 - [ElasticBeanstalk](http://aws.amazon.com/elasticbeanstalk/) for [Docker](https://www.docker.com/) containers 
 
