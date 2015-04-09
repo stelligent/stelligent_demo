@@ -108,7 +108,6 @@ Acceptance tests ensure the all resources are up and working correctly. Tests en
 
 - push private key for jenkins from cfn paramater to s3 kms
 - add route53 entry for jenkins box via cfn with url as output
-- rewrite deploy script in python
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
-- update jenkins jobs to python and boto
+- rewrite deploy script in python
 
