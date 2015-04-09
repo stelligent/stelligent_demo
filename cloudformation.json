@@ -460,7 +460,6 @@
     		},
 		"NandoDemoMysql" : {
     			"Type": "AWS::RDS::DBInstance",
-			"DependsOn" : "NandoDemoPrivateSubnet",
     			"Properties": {
       				"DBName" : { "Ref" : "NandoDemoDBName" },
       				"MasterUsername" : { "Ref" : "NandoDemoDBUser" },
@@ -469,9 +468,13 @@
       				"DBInstanceClass"   : "db.t2.micro",
       				"AllocatedStorage"  : "5", 
 				"VPCSecurityGroups" : [ { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] } ],
-				"DBSubnetGroupName" : { "Ref" : "NandoDemoPrivateSubnet" }
+				"DBSubnetGroupName" : { "Ref" : "NandoDemoMysqlSubnetGroup" }
     			}
   		},		
+		"NandoDemoMysqlSubnetGroup" : {
+   			"Type" : "AWS::RDS::DBSubnetGroup",
+   			"Properties" : { "SubnetIds" : [ { "Ref" : "NandoDemoPrivateSubnet" } ] }
+		}, 
     		"NandoDemoPublicSecurityGroup" : {
       			"Type" : "AWS::EC2::SecurityGroup",
       			"Properties" : {
@@ -502,7 +505,7 @@
  		"NandoDemoPrivateSecurityGroupSSH" : {
       			"Type" : "AWS::EC2::SecurityGroupIngress",
       			"Properties" : {
-        				"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "SourceSecurityGroupID" : 
+        				"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "SourceSecurityGroupId" : 
           					{ "Fn::GetAtt": [ "NandoDemoPublicSecurityGroup", "GroupId" ] },
         				"GroupId": { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] }
 			}
@@ -510,7 +513,7 @@
  		"NandoDemoPrivateSecurityGroupMysql" : {
       			"Type" : "AWS::EC2::SecurityGroupIngress",
       			"Properties" : {
-                                        "IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "SourceSecurityGroupID" : 
+                                        "IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "SourceSecurityGroupId" : 
           					{ "Fn::GetAtt": [ "NandoDemoPublicSecurityGroup", "GroupId" ] },
                                         "GroupId": { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] }
                         }
