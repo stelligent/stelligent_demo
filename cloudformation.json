@@ -491,7 +491,7 @@
 				]
       			}
     		},
-		"NanddoDemoPrivateSecurityGroup" : {
+		"NandoDemoPrivateSecurityGroup" : {
                         "Type" : "AWS::EC2::SecurityGroup",
                         "Properties" : {
                                 "GroupDescription" : "nando-demo-private",
@@ -632,8 +632,8 @@
       		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
 		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", "nando-automation-demo.", { "Ref" : "NandoDemoZone" } ] ] } },
    		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } },
-		"NandoDemoDBName : { "Value" : { "Ref" : "NandoDemoDBName" } },
-		"NandoDemoDBUser : { "Value" : { "Ref" : "NandoDemoDBUser" } },
-		"NandoDemoDBPass : { "Value" : { "Ref" : "NandoDemoDBPass" } },
+		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
+		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
+		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } }
   	}
 }
