@@ -1,7 +1,11 @@
 # nando_automation_demo
 
-All-in-One automated demo from a single cli command.
+All-in-One automated demo from a single cli command:
+```
 
+==> ./deploy.nando.automation.demo.sh [TrustedIP1] [TrustedIP2] [TrustedIPX]
+
+```
 ![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-001.png)
 ![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-002.png)
 
@@ -24,14 +28,6 @@ All-in-One automated demo from a single cli command.
 - [ElastiCache](http://aws.amazon.com/elasticache/) for user session data
 
 - Testing via [ChaosMonkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey), [ServerSpec](http://serverspec.org/), [TestKitchen](https://github.com/test-kitchen/test-kitchen), [Cucumber](https://cukes.info/), [OWASP ZAP](https://code.google.com/p/zaproxy/), [CloudCheckr](http://cloudcheckr.com/), [evident.io](https://evident.io/), and [Trusted Advisor](https://aws.amazon.com/premiumsupport/trustedadvisor/).
-
-
-
-```
-
-==> ./deploy.nando.automation.demo.sh [TrustedIP1] [TrustedIP2] [TrustedIPX]
-
-```
 
 
 This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, private subnet Multi-AZ HA RDS databases , and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, sit in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon resource bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
