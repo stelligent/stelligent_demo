@@ -2,10 +2,7 @@
 
 All-in-One automated demo from a single cli command.
 
-
 ![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-001.png)
-
-
 
 - Cloud Deployment with [CloudFormation](http://aws.amazon.com/cloudformation/)
 
