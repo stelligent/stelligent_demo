@@ -43,7 +43,7 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 
 # Pipeline Blueprint (COMPLETE)
 
-- deploy-pipeline-1-command (CFN template launches all resources except unsupported EC2::Create-Keypair and CodeDeploy)
+- deploy-pipeline-1-command (CFN template launches all resources and jobs)
 - provision-environment (cloudformation, bash)
 - node-configuration (packages, files, services)
 - poll-version-control (github every minute https://github.com/stelligent/nando_automation_demo)
