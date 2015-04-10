@@ -1,6 +1,6 @@
 # nando_automation_demo
 
-All-in-One automated demo from a single cli command:
+All-In-One Amazon AWS automated demo from a single cli command:
 
 ```
 ==> ./deploy.nando.automation.demo.sh [TrustedIP1] [TrustedIP2] [TrustedIPX]
