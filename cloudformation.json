@@ -22,24 +22,13 @@
 			"Type" : "String",
 			"Default"  : "NandoDemoDBPass" 
 		}, 
-		"NandoDemoName" : {
-			"Type" : "String"
-		},
-    		"KeyName": {
-      			"Type" : "AWS::EC2::KeyPair::KeyName"
-    		},
-		"PrivateKey" : {
-    			"Type" : "String"
-  		},
-    		"Location1" : {
-      			"Type": "String"
-    		},
-    		"Location2" : {
-      			"Type" : "String"
-    		},
-    		"Location3" : {
-      			"Type" : "String"
-    		}
+    		"KeyName": { "Type" : "AWS::EC2::KeyPair::KeyName" },
+		"NandoDemoName" : { "Type" : "String" },
+		"PrivateKey" : { "Type" : "String" },
+    		"Location1" : { "Type": "String" },
+    		"Location2" : { "Type" : "String" },
+    		"Location3" : { "Type" : "String" },
+    		"Location4" : { "Type" : "String" }
   	},
  	"Mappings" : {
   		"SubnetConfig" : {
@@ -516,12 +505,15 @@
 					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location1" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location2" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location3" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "Location4" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location1" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location2" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location3" } },
+					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location4" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location1" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location2" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location3" } }
+					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location4" } }
 				]
       			}
     		},
@@ -650,7 +642,8 @@
 						"Condition" :  { "IpAddress" : { "aws:SourceIp" : [ 
 							{ "Ref" : "Location1" }, 
 							{ "Ref" : "Location2" }, 
-							{ "Ref" : "Location3" } 
+							{ "Ref" : "Location3" },
+							{ "Ref" : "Location4" } 
 						] } }
          				} ]
       				},
@@ -717,10 +710,10 @@
       		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
 		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", "nando-automation-demo.", { "Ref" : "NandoDemoZone" } ] ] } },
    		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } },
+		"NandoDemoDockerURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ] ] } },
 		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
 		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
 		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } },
-		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] } },
-		"NandoDemoDockerURL" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } }
+		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] } }
   	}
 }
