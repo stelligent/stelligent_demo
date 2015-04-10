@@ -1,10 +1,9 @@
 # nando_automation_demo
 
 All-in-One automated demo from a single cli command:
+
 ```
-
 ==> ./deploy.nando.automation.demo.sh [TrustedIP1] [TrustedIP2] [TrustedIPX]
-
 ```
 ![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-001.png)
 ![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-002.png)
