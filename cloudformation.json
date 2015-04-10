@@ -6,7 +6,7 @@
       			"Type" : "String",
       			"Default" : "t1.micro" 
     		},
-		"NandoDemoZone" : {
+		"NandoDemoZoneName" : {
 			"Type" : "String",
 			"Default" : "elasticoperations.com."	
 		},
@@ -172,21 +172,46 @@
 				"SecurityGroups" : [ { "Ref" : "NandoDemoPublicSecurityGroup" } ]
       			}
     		},
-                "NandoDemoCNAME" : {
+                "NandoDemoELBDNS" : {
                         "Type" : "AWS::Route53::RecordSetGroup",
                         "DependsOn" : "NandoDemoELB",
                         "Properties" : {
-                                "HostedZoneName" : { "Ref" : "NandoDemoZone" },
+                                "HostedZoneName" : { "Ref" : "NandoDemoZoneName" },
                                 "RecordSets" : [ {
-                                        "Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo", { "Ref" : "NandoDemoZone" } ] ] },
-                                        "Type" : "A",
-                                        "AliasTarget" : {
-                                                "HostedZoneId" : { "Fn::GetAtt" : [ "NandoDemoELB", "CanonicalHostedZoneNameID" ] },
-                                                "DNSName" : { "Fn::GetAtt" : [ "NandoDemoELB","CanonicalHostedZoneName" ] }
-                                        }
-                                } ]
+                                       	"Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo", { "Ref" : "NandoDemoZoneName" } ] ] },
+                                       	"Type" : "A",
+                                       	"AliasTarget" : {
+                                               	"HostedZoneId" : { "Fn::GetAtt" : [ "NandoDemoELB","CanonicalHostedZoneNameID" ] }, 
+                                       	       	"DNSName" : { "Fn::GetAtt" : [ "NandoDemoELB","CanonicalHostedZoneName" ] }
+                                       	}
+				} ]
+			}
+		},
+		"NandoDemoDockerDNS" : {
+                        "Type" : "AWS::Route53::RecordSetGroup",
+                        "DependsOn" : "NandoDemoDockerEnvironment",
+                        "Properties" : {
+                                "HostedZoneName" : { "Ref" : "NandoDemoZoneName" },
+                                "RecordSets" : [ {
+					"Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo-docker", { "Ref" : "NandoDemoZoneName" } ] ] },
+                                        "Type" : "CNAME", 
+                                        "ResourceRecords" : [ { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ]
+				} ]
                         }
                 },
+		"NandoDemoJenkinsDNS" : {
+  			"Type" : "AWS::Route53::RecordSetGroup",
+ 			"DependsOn" : "NandoDemoJenkinsEIP",
+  			"Properties" : {
+    				"HostedZoneName" : { "Ref" : "NandoDemoZoneName" },
+    				"RecordSets" : [ {
+      					"Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo-jenkins", { "Ref" : "NandoDemoZoneName" } ] ] },
+      					"Type" : "A",
+      					"TTL" : "900",
+      					"ResourceRecords" : [ { "Ref" : "NandoDemoJenkinsEIP" } ]
+    				} ]
+  			}
+		},
 		"NandoDemoJenkins" : {
  			"Type" : "AWS::EC2::Instance",
 			"DependsOn" : "NandoDemoPublicRouteTableAssociation",
@@ -512,7 +537,7 @@
 					{ "IpProtocol" : "tcp", "FromPort" : "2222", "ToPort" : "2222", "CidrIp" : { "Ref" : "Location4" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location1" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location2" } },
-					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location3" } }
+					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location3" } },
 					{ "IpProtocol" : "tcp", "FromPort" : "8080", "ToPort" : "8080", "CidrIp" : { "Ref" : "Location4" } }
 				]
       			}
@@ -708,9 +733,11 @@
     		"NandoDemoJenkinsEIP" : { "Value" : { "Ref" : "NandoDemoJenkinsEIP" } },
     		"NandoDemoJenkinsURL" : { "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoJenkins", "PublicDnsName" ] }, ":8080" ] ] } },
       		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
-		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", "nando-automation-demo.", { "Ref" : "NandoDemoZone" } ] ] } },
    		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } },
 		"NandoDemoDockerURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ] ] } },
+		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ ".", [ "http://nando-automation-demo", { "Ref" : "NandoDemoZoneName" } ] ] } },
+		"NandoDemoDockerCNAME" : { "Value" : { "Fn::Join" : [ ".", [ "http://nando-automation-demo-docker", { "Ref" : "NandoDemoZoneName" } ] ] } },
+		"NandoDemoJenkinsCNAME" : { "Value" : { "Fn::Join" : [ ".", [ "http://nando-automation-demo-jenkins", { "Ref" : "NandoDemoZoneName" }, ":8080" ] ] } },
 		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
 		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
 		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } },
