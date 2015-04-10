@@ -30,10 +30,7 @@
                                         { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MaxSize", "Value" : "2" },
                                         { "Namespace" : "aws:elasticbeanstalk:environment", "OptionName" : "EnvironmentType", "Value" : "LoadBalanced" }
                                 ],
-                                "SourceConfiguration" : {
-      					"ApplicationName" : { "Ref" : "NandoDemoDockerApp" },
-      					"TemplateName" : { "Ref" : "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0" }
-    				} 
+      				"SolutionStackName" : "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0"
                         }
                 },
                 "NandoDemoDockerEnvironment" : {
