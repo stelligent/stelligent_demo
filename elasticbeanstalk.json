@@ -1,36 +1,36 @@
 {
 	"AWSTemplateFormatVersion" : "2010-09-09",
- 	"Description" : "Nando Automation Demo :: Elastic Beanstalk",                
+ 	"Description" : "Nando Automation Demo :: Docker",                
 	"Resources" : {
-		"NandoDemoEBApp" : { 
+		"NandoDemoDockerApp" : { 
 			"Type" : "AWS::ElasticBeanstalk::Application", 
 		   	"Properties" : { 
-				"ApplicationName" : "NandoDemoEBDocker", 
-				"Description" : "NandoDemoEBDocker"
+				"ApplicationName" : "NandoDemoDockerApp", 
+				"Description" : "NandoDemoDockerApp"
 			}
 		},
-                "NandoDemoEBVersion": {
+                "NandoDemoDockerVersion": {
                         "Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
                         "Properties" : {
-                                "ApplicationName" : { "Ref": "NandoDemoEBApp" },
-				"Description" : "NandoDemoEBDockerVersion",
+                                "ApplicationName" : { "Ref": "NandoDemoDockerApp" },
+				"Description" : "NandoDemoDockerVersion",
                                 "SourceBundle" : {
-                                        "S3Bucket" : { "Fn::Join": [ "-", [ "elasticbeanstalk-samples", { "Ref" : "AWS::Region" } ] ] },
-                                        "S3Key" : "php-sample.zip"
+                                        "S3Bucket" : "nando-automation-demo",
+                                        "S3Key" : "nando-demo.zip"
                                 }
                         }
                 },
-                "NandoDemoEBTemplate": {
+                "NandoDemoDockerTemplate": {
                         "Type" : "AWS::ElasticBeanstalk::ConfigurationTemplate",
                         "Properties" : {
-                                "ApplicationName" : { "Ref": "NandoDemoEBApp" },
-				"Description" : "NandoDemoEBDockerTemplate",
+                                "ApplicationName" : { "Ref": "NandoDemoDockerApp" },
+				"Description" : "NandoDemoDockerTemplate",
                                 "OptionSettings" : [
-                                        { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MinSize", "Value" : "2" },
-                                        { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MaxSize", "Value" : "4" },
+                                        { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MinSize", "Value" : "1" },
+                                        { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MaxSize", "Value" : "2" },
                                         { "Namespace" : "aws:elasticbeanstalk:environment", "OptionName" : "EnvironmentType", "Value" : "LoadBalanced" }
                                 ],
-                                "SolutionStackName" : "64bit Amazon Linux running PHP 5.3"
+                                "SourceConfiguration" : "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0"
                         }
                 },
                 "NandoDemoEBEnvironment" : {
