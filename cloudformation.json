@@ -664,7 +664,49 @@
 					"IndexDocument" : "index.html" 
 				}
              		}
-    		}
+    		},
+		"NandoDemoDockerApp" : { 
+			"Type" : "AWS::ElasticBeanstalk::Application", 
+		   	"Properties" : { 
+				"ApplicationName" : "NandoDemoDockerApp", 
+				"Description" : "NandoDemoDockerApp"
+			}
+		},
+                "NandoDemoDockerVersion": {
+                        "Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
+                        "Properties" : {
+                                "ApplicationName" : { "Ref": "NandoDemoDockerApp" },
+				"Description" : "NandoDemoDockerVersion",
+                                "SourceBundle" : {
+                                        "S3Bucket" : "nando-automation-demo",
+                                        "S3Key" : "nando-demo.zip"
+                                }
+                        }
+                },
+                "NandoDemoDockerTemplate": {
+                        "Type" : "AWS::ElasticBeanstalk::ConfigurationTemplate",
+                        "Properties" : {
+                                "ApplicationName" : { "Ref": "NandoDemoDockerApp" },
+				"Description" : "NandoDemoDockerTemplate",
+                                "OptionSettings" : [
+                                        { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MinSize", "Value" : "1" },
+                                        { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MaxSize", "Value" : "2" },
+                                        { "Namespace" : "aws:elasticbeanstalk:environment", "OptionName" : "EnvironmentType", "Value" : "LoadBalanced" },
+					{ "Namespace" : "aws:autoscaling:launchconfiguration", "OptionName" : "EC2KeyName", "Value" : { "Ref" : "KeyName" } }
+                                ],
+      				"SolutionStackName" : "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0"
+                        }
+                },
+                "NandoDemoDockerEnvironment" : {
+                        "Type" : "AWS::ElasticBeanstalk::Environment",
+                        "Properties" : {
+                                "ApplicationName" : { "Ref" : "NandoDemoDockerApp" },
+				"Description" : "NandoDemoDockerEnvironment",
+                                "TemplateName" : { "Ref" : "NandoDemoDockerTemplate" },
+                                "VersionLabel" : { "Ref" : "NandoDemoDockerVersion" }
+                        }
+                }
+
 	},
   	"Outputs" : {
 		"NandoDemoName" : { "Value" : { "Ref" : "NandoDemoName" } },
@@ -678,6 +720,7 @@
 		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
 		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
 		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } },
-		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] } }
+		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] } },
+		"NandoDemoDockerURL" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } }
   	}
 }

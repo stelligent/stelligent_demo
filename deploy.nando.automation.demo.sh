@@ -105,6 +105,12 @@ aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo
 aws s3 cp puppet/installJenkinsModules.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsUsers.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsSecurity.pp s3://nando-automation-demo 
+cd docker
+rm -fv nando-demo.zip
+zip nando-demo.zip Dockerfile application.py requirements.txt
+aws s3 cp nando-demo.zip s3://nando-automation-demo
+cd ..
+
 echo
 echo
 existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
