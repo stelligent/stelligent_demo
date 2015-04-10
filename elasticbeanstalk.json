@@ -4,12 +4,16 @@
 	"Resources" : {
 		"NandoDemoEBApp" : { 
 			"Type" : "AWS::ElasticBeanstalk::Application", 
-		   	"Properties" : { "ApplicationName" : "NandoDemoEBApp" }
+		   	"Properties" : { 
+				"ApplicationName" : "NandoDemoEBDocker", 
+				"Description" : "NandoDemoEBDocker"
+			}
 		},
                 "NandoDemoEBVersion": {
                         "Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
                         "Properties" : {
                                 "ApplicationName" : { "Ref": "NandoDemoEBApp" },
+				"Description" : "NandoDemoEBDockerVersion",
                                 "SourceBundle" : {
                                         "S3Bucket" : { "Fn::Join": [ "-", [ "elasticbeanstalk-samples", { "Ref" : "AWS::Region" } ] ] },
                                         "S3Key" : "php-sample.zip"
@@ -20,6 +24,7 @@
                         "Type" : "AWS::ElasticBeanstalk::ConfigurationTemplate",
                         "Properties" : {
                                 "ApplicationName" : { "Ref": "NandoDemoEBApp" },
+				"Description" : "NandoDemoEBDockerTemplate",
                                 "OptionSettings" : [
                                         { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MinSize", "Value" : "2" },
                                         { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MaxSize", "Value" : "4" },
@@ -32,6 +37,7 @@
                         "Type" : "AWS::ElasticBeanstalk::Environment",
                         "Properties" : {
                                 "ApplicationName" : { "Ref" : "NandoDemoEBApp" },
+				"Description" : "NandoDemoEBDockerEnvironment",
                                 "TemplateName" : { "Ref" : "NandoDemoEBTemplate" },
                                 "VersionLabel" : { "Ref" : "NandoDemoEBVersion" }
                         }
