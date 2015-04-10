@@ -22,7 +22,8 @@ All-in-One automated demo from a single cli command.
 
 - [ElastiCache](http://aws.amazon.com/elasticache/) for user session data
 
-- Testing via [ChaosMonkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey), [ServerSpec](http://serverspec.org/), [TestKitchen](https://github.com/test-kitchen/test-kitchen), [Cucumber](https://cukes.info/), and [OWASP ZAP](https://code.google.com/p/zaproxy/) 
+- Testing via [ChaosMonkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey), [ServerSpec](http://serverspec.org/), [TestKitchen](https://github.com/test-kitchen/test-kitchen), [Cucumber](https://cukes.info/), [OWASP ZAP](https://code.google.com/p/zaproxy/), CloudCheckr, [evident.io](https://evident.io/), and [Trusted Advisor](https://aws.amazon.com/premiumsupport/trustedadvisor/).
+
 
 
 
