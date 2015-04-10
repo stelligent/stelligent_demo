@@ -1,8 +1,9 @@
 # nando_automation_demo
 
-
-
 All-in-One automated demo from a single cli command.
+
+![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-001.png)
+![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-002.png)
 
 - Cloud Deployment with [CloudFormation](http://aws.amazon.com/cloudformation/)
 
@@ -26,14 +27,12 @@ All-in-One automated demo from a single cli command.
 
 
 
-
 ```
 
 ==> ./deploy.nando.automation.demo.sh [TrustedIP1] [TrustedIP2] [TrustedIPX]
 
 ```
 
-![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-001.png)
 
 This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, private subnet Multi-AZ HA RDS databases , and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, sit in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon resource bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
 
