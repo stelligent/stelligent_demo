@@ -35,7 +35,7 @@ All-in-One automated demo from a single cli command.
 
 ![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-001.png)
 
-This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, a private subnet multi-az RDS database, and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, are in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
+This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, private subnet Multi-AZ HA RDS databases , and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, sit in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon resource bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
 
 http://nando-automation-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). Based on the user's selections, an Instagram image slideshow is generated and displayed (Docker).  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the Continuous Delivey Pipeline. 
 
@@ -102,7 +102,7 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 		- buckey policy restricts access to trusted IPs
 		- website indexing is enabled
 	- builds Multi-AZ MySQL RDS for storing image tags and paths
-	- launches ElasticBeanstalk template for Docker
+	- launches ElasticBeanstalk for Docker
 	- bootstraps jenkins server via cloud init and authenticated S3
 		- adds python instagram functionality
 		- adds git functionality
@@ -120,7 +120,6 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 # todo
 
 - push private key for jenkins from cfn paramater to s3 kms
-- add route53 entry for jenkins box via cfn with url as output
 - change sleep in cfn-init for instance bootstrap to AWS::CloudFormation::WaitCondition
 - rewrite deploy script in python
 - ChaosMonkey, ServerSpec, TestKitchen, Cucumber, OWASP ZAP
