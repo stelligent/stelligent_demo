@@ -1,6 +1,12 @@
 {
 	"AWSTemplateFormatVersion" : "2010-09-09",
  	"Description" : "Nando Automation Demo :: Docker",                
+	"Parameters" : {
+    		"KeyName" : {
+      			"Type" : "AWS::EC2::KeyPair::KeyName",
+			"Default" : "nando-demo-20150409171905"
+    		}
+	},
 	"Resources" : {
 		"NandoDemoDockerApp" : { 
 			"Type" : "AWS::ElasticBeanstalk::Application", 
@@ -28,7 +34,8 @@
                                 "OptionSettings" : [
                                         { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MinSize", "Value" : "1" },
                                         { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MaxSize", "Value" : "2" },
-                                        { "Namespace" : "aws:elasticbeanstalk:environment", "OptionName" : "EnvironmentType", "Value" : "LoadBalanced" }
+                                        { "Namespace" : "aws:elasticbeanstalk:environment", "OptionName" : "EnvironmentType", "Value" : "LoadBalanced" },
+					{ "Namespace" : "aws:autoscaling:launchconfiguration", "OptionName" : "EC2KeyName", "Value" : { "Ref" : "KeyName" } }
                                 ],
       				"SolutionStackName" : "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0"
                         }
