@@ -22,7 +22,7 @@ All-in-One automated demo from a single cli command.
 
 - [ElastiCache](http://aws.amazon.com/elasticache/) for user session data
 
-- Testing via [ChaosMonkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey), [ServerSpec](http://serverspec.org/), [TestKitchen](https://github.com/test-kitchen/test-kitchen), [Cucumber](https://cukes.info/), [OWASP ZAP](https://code.google.com/p/zaproxy/), CloudCheckr, [evident.io](https://evident.io/), and [Trusted Advisor](https://aws.amazon.com/premiumsupport/trustedadvisor/).
+- Testing via [ChaosMonkey](https://github.com/Netflix/SimianArmy/wiki/Chaos-Monkey), [ServerSpec](http://serverspec.org/), [TestKitchen](https://github.com/test-kitchen/test-kitchen), [Cucumber](https://cukes.info/), [OWASP ZAP](https://code.google.com/p/zaproxy/), [CloudCheckr](http://cloudcheckr.com/), [evident.io](https://evident.io/), and [Trusted Advisor](https://aws.amazon.com/premiumsupport/trustedadvisor/).
 
 
 
@@ -33,6 +33,7 @@ All-in-One automated demo from a single cli command.
 
 ```
 
+![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo.png)
 
 This demo creates a VirtualPrivateCloud and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, a private subnet multi-az RDS database, and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, are in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
 
