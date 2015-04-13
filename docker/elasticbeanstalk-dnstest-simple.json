@@ -1,0 +1,23 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+ 	"Description" : "Nando Automation Demo :: Docker",                
+	"Resources" : {
+   		"WebServer": {
+      			"Type": "AWS::EC2::Instance",  
+      			"Properties": {
+        			"ImageId"            : "ami-fb8e9292",
+        			"InstanceType"       : "t1.micro"
+      			}
+    		},
+                "NandoDemoDNSTest" : {
+                        "Type" : "AWS::Route53::RecordSet",
+			"DependsOn" : "WebServer",
+                        "Properties" : {
+                                "HostedZoneName" : "elasticoperations.com.",
+                                "Name" : "cfn-dns-test.elasticoperations.com.",
+                                "Type" : "A",
+				"ResourceRecords" : [ { "Fn::GetAtt" : [ "WebServer", "PublicIp" ]} ]
+                        }
+		}
+	}
+}

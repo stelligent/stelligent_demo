@@ -5,7 +5,12 @@
     		"KeyName" : {
       			"Type" : "AWS::EC2::KeyPair::KeyName",
 			"Default" : "nando-demo-20150409171905"
-    		}
+    		},
+                "NandoDemoZoneName" : {
+                        "Type" : "String",
+                        "Default" : "elasticoperations.com."    
+                }
+
 	},
 	"Resources" : {
 		"NandoDemoDockerApp" : { 
@@ -55,11 +60,17 @@
                         "Properties" : {
                                 "HostedZoneName" : "elasticoperations.com",
                                 "RecordSets" : [ {
-                                        "Name" : "nando-automation-demo-docker.elasticoperations.com.",
+                                        "Name" : { "Ref" : "NandoDemoHostedZone" },
                                         "Type" : "CNAME",
                                         "ResourceRecords" : [ { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ]
                                 } ]
                         }
-                }
+                },
+		"NandoDemoHostedZone" : {
+  			"Type" : "AWS::Route53::HostedZone",
+  			"Properties" : {
+    				"Name" : "elasticoperations.com"
+  			}
+		}
 	}
 }

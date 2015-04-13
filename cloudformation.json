@@ -187,18 +187,6 @@
 				} ]
 			}
 		},
-		"NandoDemoDockerDNS" : {
-                        "Type" : "AWS::Route53::RecordSetGroup",
-                        "DependsOn" : "NandoDemoDockerEnvironment",
-                        "Properties" : {
-                                "HostedZoneName" : { "Ref" : "NandoDemoZoneName" },
-                                "RecordSets" : [ {
-					"Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo-docker", { "Ref" : "NandoDemoZoneName" } ] ] },
-                                        "Type" : "CNAME", 
-                                        "ResourceRecords" : [ { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ]
-				} ]
-                        }
-                },
 		"NandoDemoJenkinsDNS" : {
   			"Type" : "AWS::Route53::RecordSetGroup",
  			"DependsOn" : "NandoDemoJenkinsEIP",
