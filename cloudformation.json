@@ -213,6 +213,19 @@
                                 } ]
                         }
 		},
+                "NandoDemoBucketDNS" : {
+                        "Type" : "AWS::Route53::RecordSetGroup",
+                        "DependsOn" : "NandoDemoBucket",
+                        "Properties" : {
+                                "HostedZoneName" : { "Ref" : "NandoDemoZoneName" },
+                                "RecordSets" : [ {
+                                        "Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo-bucket", { "Ref" : "NandoDemoZoneName" } ] ] },
+                                        "Type" : "CNAME",
+					"TTL" : "900",
+					"ResourceRecords" : [ { "Fn::Join" : [ "", [ { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } ]
+                                } ]
+                        }
+		},
 		"NandoDemoJenkins" : {
  			"Type" : "AWS::EC2::Instance",
 			"DependsOn" : "NandoDemoPublicRouteTableAssociation",
@@ -742,6 +755,7 @@
 		"NandoDemoDockerURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ] ] } },
 		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo.", { "Ref" : "NandoDemoZoneName" } ] ] } },
 		"NandoDemoDockerCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo-docker.", { "Ref" : "NandoDemoZoneName" } ] ] } },
+		"NandoDemoBucketCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo-bucket.", { "Ref" : "NandoDemoZoneName" } ] ] } },
 		"NandoDemoJenkinsCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo-jenkins.", { "Ref" : "NandoDemoZoneName" }, ":8080" ] ] } }
   	}
 }
