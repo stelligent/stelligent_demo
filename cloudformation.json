@@ -200,6 +200,19 @@
     				} ]
   			}
 		},
+                "NandoDemoDockerDNS" : {
+                        "Type" : "AWS::Route53::RecordSetGroup",
+                        "DependsOn" : "NandoDemoDockerEnvironment",
+                        "Properties" : {
+                                "HostedZoneName" : { "Ref" : "NandoDemoZoneName" },
+                                "RecordSets" : [ {
+                                        "Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo-docker", { "Ref" : "NandoDemoZoneName" } ] ] },
+                                        "Type" : "CNAME",
+					"TTL" : "900",
+					"ResourceRecords" : [ { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ]
+                                } ]
+                        }
+		},
 		"NandoDemoJenkins" : {
  			"Type" : "AWS::EC2::Instance",
 			"DependsOn" : "NandoDemoPublicRouteTableAssociation",
@@ -719,16 +732,16 @@
 		"NandoDemoBucket" : { "Value" : { "Ref" : "NandoDemoBucket" } },
 		"NandoDemoWebASG" : { "Value" : { "Ref" : "NandoDemoWebASG" } },
     		"NandoDemoJenkinsEIP" : { "Value" : { "Ref" : "NandoDemoJenkinsEIP" } },
+		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
+		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
+		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } },
+		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] } },
     		"NandoDemoJenkinsURL" : { "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoJenkins", "PublicDnsName" ] }, ":8080" ] ] } },
       		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
    		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } },
 		"NandoDemoDockerURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ] ] } },
-		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ ".", [ "http://nando-automation-demo", { "Ref" : "NandoDemoZoneName" } ] ] } },
-		"NandoDemoDockerCNAME" : { "Value" : { "Fn::Join" : [ ".", [ "http://nando-automation-demo-docker", { "Ref" : "NandoDemoZoneName" } ] ] } },
-		"NandoDemoJenkinsCNAME" : { "Value" : { "Fn::Join" : [ ".", [ "http://nando-automation-demo-jenkins", { "Ref" : "NandoDemoZoneName" }, ":8080" ] ] } },
-		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
-		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
-		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } },
-		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] } }
+		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo.", { "Ref" : "NandoDemoZoneName" } ] ] } },
+		"NandoDemoDockerCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo-docker.", { "Ref" : "NandoDemoZoneName" } ] ] } },
+		"NandoDemoJenkinsCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo-jenkins.", { "Ref" : "NandoDemoZoneName" }, ":8080" ] ] } }
   	}
 }

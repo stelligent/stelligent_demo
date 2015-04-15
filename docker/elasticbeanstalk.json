@@ -53,7 +53,7 @@
                         "Type" : "AWS::Route53::RecordSetGroup",
                         "DependsOn" : "NandoDemoDockerEnvironment",
                         "Properties" : {
-                                "HostedZoneName" : "elasticoperations.com",
+                                "HostedZoneName" : "elasticoperations.com.",
                                 "RecordSets" : [ {
                                         "Name" : "nando-automation-demo-docker.elasticoperations.com.",
                                         "Type" : "CNAME",

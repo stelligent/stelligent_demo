@@ -13,17 +13,17 @@
 
 	},
 	"Resources" : {
-		"NandoDemoDockerApp" : { 
+		"NandoDemoDockerApp2" : { 
 			"Type" : "AWS::ElasticBeanstalk::Application", 
 		   	"Properties" : { 
-				"ApplicationName" : "NandoDemoDockerApp", 
-				"Description" : "NandoDemoDockerApp"
+				"ApplicationName" : "NandoDemoDockerApp2", 
+				"Description" : "NandoDemoDockerApp2"
 			}
 		},
                 "NandoDemoDockerVersion": {
                         "Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
                         "Properties" : {
-                                "ApplicationName" : { "Ref": "NandoDemoDockerApp" },
+                                "ApplicationName" : { "Ref": "NandoDemoDockerApp2" },
 				"Description" : "NandoDemoDockerVersion",
                                 "SourceBundle" : {
                                         "S3Bucket" : "nando-automation-demo",
@@ -34,7 +34,7 @@
                 "NandoDemoDockerTemplate": {
                         "Type" : "AWS::ElasticBeanstalk::ConfigurationTemplate",
                         "Properties" : {
-                                "ApplicationName" : { "Ref": "NandoDemoDockerApp" },
+                                "ApplicationName" : { "Ref": "NandoDemoDockerApp2" },
 				"Description" : "NandoDemoDockerTemplate",
                                 "OptionSettings" : [
                                         { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MinSize", "Value" : "1" },
@@ -48,7 +48,7 @@
                 "NandoDemoDockerEnvironment" : {
                         "Type" : "AWS::ElasticBeanstalk::Environment",
                         "Properties" : {
-                                "ApplicationName" : { "Ref" : "NandoDemoDockerApp" },
+                                "ApplicationName" : { "Ref" : "NandoDemoDockerApp2" },
 				"Description" : "NandoDemoDockerEnvironment",
                                 "TemplateName" : { "Ref" : "NandoDemoDockerTemplate" },
                                 "VersionLabel" : { "Ref" : "NandoDemoDockerVersion" }
@@ -58,19 +58,14 @@
                         "Type" : "AWS::Route53::RecordSetGroup",
                         "DependsOn" : "NandoDemoDockerEnvironment",
                         "Properties" : {
-                                "HostedZoneName" : "elasticoperations.com",
+                                "HostedZoneName" : "elasticoperations.com.",
                                 "RecordSets" : [ {
-                                        "Name" : { "Ref" : "NandoDemoHostedZone" },
+                                        "Name" : "nando-automation-demo-docker.elasticoperations.com.",
                                         "Type" : "CNAME",
-                                        "ResourceRecords" : [ { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ]
+					"TTL" : "900",
+					"ResourceRecords" : [ { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ]
                                 } ]
                         }
-                },
-		"NandoDemoHostedZone" : {
-  			"Type" : "AWS::Route53::HostedZone",
-  			"Properties" : {
-    				"Name" : "elasticoperations.com"
-  			}
 		}
 	}
 }
