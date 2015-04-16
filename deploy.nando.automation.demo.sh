@@ -34,7 +34,7 @@ if [ "$1" ==  "delete" ]; then
         	fi
 	done
 fi
-numLocationsExpected=$(grep "Location.\" :" cloudformation.json |wc -l)
+numLocationsExpected=$(grep "Location.\" :" cloudformation.json | wc -l)
 if [ "$numLocationsExpected" -ne "$#" ]; then
 	echo
 	echo "expected $numLocationsExpected and number provided is $#"
@@ -165,11 +165,11 @@ rm -fv $keyName.pem
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
 chmod -c 0400 $keyName.pem
 echo
-s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName|grep -v URL| grep NandoDemoBucket |cut -f3)
+s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName | grep -v URL | grep -v CNAME | grep NandoDemoBucket | cut -f3)
 echo "upload index.html to s3 bucket $s3bucket"
 aws s3 cp s3/index.html s3://$s3bucket
 echo
-jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName |grep NandoDemoJenkinsEIP|cut -f3)
+jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName | grep NandoDemoJenkinsEIP | cut -f3)
 echo "ssh -i $keyName.pem ec2-user@$jenkinsIP"
 echo
 echo "$title has deployed in $seconds seconds."
@@ -177,20 +177,18 @@ echo
 echo
 echo
 echo "Launching CodeDeploy:"
-
+echo
+echo
 aws deploy create-application --application-name nando-demo 2> /dev/null
 aws iam create-role --role-name NandoDemoCodeDeployRole --assume-role-policy-document file://codedeploy/NandoDemoCodeDeployRole.json 2> /dev/null
 aws iam put-role-policy --role-name NandoDemoCodeDeployRole --policy-name NandoDemoCodeDeployPolicy --policy-document file://codedeploy/NandoDemoCodeDeployPolicy.json 2> /dev/null
-
 roleArn=$(aws iam get-role --role-name NandoDemoCodeDeployRole --query "Role.Arn" --output text)
-asgName=$(aws cloudformation describe-stacks |grep NandoDemoWebASG|cut -f3)
+asgName=$(aws cloudformation describe-stacks | grep NandoDemoWebASG | cut -f3)
 aws deploy delete-deployment-group --application-name nando-demo --deployment-group-name nando-demo 2> /dev/null
 sleep 2
 aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --service-role-arn $roleArn --auto-scaling-group $asgName
-
 commitID=$(git rev-parse --verify HEAD)
 deployID=$(aws deploy create-deployment --application-name nando-demo  --github-location commitId=$commitID,repository=stelligent/nando_automation_demo --deployment-group-name nando-demo)
 aws deploy get-deployment --deployment-id $deployID  --query "deploymentInfo.status" --output text
-
 echo
 echo
