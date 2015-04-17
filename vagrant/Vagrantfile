@@ -2,8 +2,8 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   	config.vm.box = "nando-demo"
   	config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
-  	config.vm.network :forwarded_port, guest: 80, host: 8002
-  	config.vm.network :forwarded_port, guest: 81, host: 8003
+  	config.vm.network :forwarded_port, guest: 80, host: 8010
+  	config.vm.network :forwarded_port, guest: 81, host: 8011
   	config.vm.network :forwarded_port, guest: 8080, host: 8888
   	config.vm.network :private_network, ip: "10.201.0.11"
   	config.vm.synced_folder "../docker", "/vagrant_python_root"
