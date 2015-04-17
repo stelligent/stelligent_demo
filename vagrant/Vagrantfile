@@ -1,0 +1,24 @@
+VAGRANTFILE_API_VERSION = "2"
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  	config.vm.box = "nando-demo"
+  	config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
+  	config.vm.network :forwarded_port, guest: 80, host: 8002
+  	config.vm.network :forwarded_port, guest: 81, host: 8003
+  	config.vm.network :forwarded_port, guest: 8080, host: 8888
+  	config.vm.network :private_network, ip: "10.201.0.11"
+  	config.vm.synced_folder "../docker", "/vagrant_python_root"
+  	config.vm.synced_folder "../codedeploy", "/vagrant_php_root"
+  	config.vm.provider :virtualbox do |vb|
+  		vb.gui = false
+  		vb.customize ["modifyvm", :id, "--memory", "1024"]
+  	end
+  	config.vm.provision :shell do |shellexec|
+    		shellexec.inline = "yum -y update"
+    		shellexec.inline = "rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm"
+		shellexec.inline = "yum -y install puppet"
+  	end
+  	config.vm.provision :puppet do |puppet|
+  		puppet.manifests_path = "../puppet"
+  		puppet.manifest_file  = "vagrant.pp"
+  	end
+end

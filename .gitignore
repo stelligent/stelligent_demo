@@ -1,3 +1,5 @@
 *.pem
 *.zip
 securelocations
+.vagrant/
+puppetmods/

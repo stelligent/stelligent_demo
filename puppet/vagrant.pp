@@ -1,0 +1,5 @@
+node /.*/ {
+	include jenkins
+}
+	
+	
