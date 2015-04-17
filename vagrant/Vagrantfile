@@ -16,6 +16,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     		shellexec.inline = "yum -y update"
     		shellexec.inline = "rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm"
 		shellexec.inline = "yum -y install puppet"
+		shellexec.inline = "mkdir -v /etc/puppet/modules"
+		shellexec.inline = "puppet module install rtyler-jenkins"
+		shellexec.inline = "puppet module install jfryman-nginx"
+		shellexec.inline = "puppet module install puppetlabs-mysql"
   	end
   	config.vm.provision :puppet do |puppet|
   		puppet.manifests_path = "../puppet"

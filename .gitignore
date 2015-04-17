@@ -2,4 +2,3 @@
 *.zip
 securelocations
 .vagrant/
-puppetmods/
