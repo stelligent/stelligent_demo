@@ -41,26 +41,23 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 
 # Pipeline Blueprint (COMPLETE)
 
-- deploy-pipeline-1-command (CFN template launches all resources and jobs)
-- provision-environment (cloudformation, bash)
-- node-configuration (packages, files, services)
-- poll-version-control (github every minute https://github.com/stelligent/nando_automation_demo)
-- app-deployment: (CodeDeploy)
-- configure-local-environment-1-command: (vagrant) 
+- deploy-pipeline-1-command (Bash script launches all jobs and resources)
+- provision-environment (CloudFormation)
+- node-configuration (Packages, Files, Services)
+- poll-version-control (GitHub every minute https://github.com/stelligent/nando_automation_demo)
+- app-deployment: (CodeDeploy and Docker)
+- configure-local-environment-1-command: (Vagrant) 
 
 
 
 # Pipeline Blueprint (PENDING):
 
-- node-configuration: data encryption
-- node-configuration: security hardening
-- node-configuration: test db and local tests
+- node-configuration: (data encryption, security hardening, test db and local tests)
 - run-application-build: (Rake, Maven, Ant, Grunt)
 - store-distros: (Nexus, Artifactory, S3)
 - run-unit-tests: (RSpec, JUnit, XUnit)
 - run-static-analysis: (CheckStyle, PMD, Sonar, CodeClimate, JSONLint, ValidateTemplate, ratproxy, Foodcritic)
 - run-infrastructure-tests: (ServerSpec, Cucumber)
-- poll-version-control (puppet, jenkins modules)
 
 
 
