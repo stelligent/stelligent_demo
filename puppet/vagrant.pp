@@ -1,10 +1,10 @@
 node 'vagrant-centos65.hex7.com' {
 
-	include nginx
 	
-	class { jenkins:
-		lts => true,
-	}
+	Exec { path => "/bin:/sbin:/usr/bin:/usr/sbin" }
+	
+	class { nginx: }
+	class { jenkins: lts => true, }
 
         jenkins::plugin { 'python': }
 	jenkins::plugin { 'credentials': }
@@ -15,13 +15,22 @@ node 'vagrant-centos65.hex7.com' {
 	jenkins::plugin { 'git-client': }
 	jenkins::plugin { 'git': }
 
-	class { jenkins::security:
-		security_model => 'full_control',
+	jenkins::job { 'GetInstagramImages':
+  		config => template("/etc/puppet/manifests/jobGetInstagramImages.xml.erb"),
 	}
+        jenkins::job { 'PublishCodeDeploy':
+                config => template("/etc/puppet/manifests/jobPublishCodeDeploy.xml.erb"),
+        }
 
-  	jenkins::user { 'nando':
-    		email    => 'fernando.pando@stelligent.com',
-    		password => 'changeme123',
-  	}
-
+	class { '::mysql::server':
+  		root_password           => 'nando-demo-mysql-root-password',
+  		remove_default_accounts => true,
+	}
+	
+	mysql::db { 'nando-demo':
+  		user     => 'nando-demo-mysql-user',
+  		password => 'nando-demo-mysql-password',
+  		host     => 'localhost',
+  		grant    => ['SELECT', 'UPDATE'],
+	}
 }
