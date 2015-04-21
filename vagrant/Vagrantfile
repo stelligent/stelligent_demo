@@ -1,6 +1,5 @@
 VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  	config.vm.box = "nando-demo"
   	config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
 	config.vm.define "codedeploy" do |codedeploy|
 		codedeploy.vm.hostname = "nando-demo-codedeploy"
@@ -32,6 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         config.vm.define "jenkins" do |jenkins|
                 jenkins.vm.hostname = "nando-demo-jenkins"
                 jenkins.vm.box = "nando-demo-jenkins"
+                docker.vm.network :private_network, ip: "10.201.0.13"
   		jenkins.vm.network :forwarded_port, guest: 8080, host: 8888
 		jenkins.vm.provision :shell, :inline => <<-SHELL
     			yum -y update
