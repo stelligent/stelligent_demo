@@ -35,7 +35,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 docker.vm.provision :shell, :inline => <<-SHELL
                         yum -y update
 			yum -y install docker-io
-			yum -y install device-mapper-event-libs
 			service docker start
 			cd /vagrant_docker && docker run -d -p 80:8011 amazon/aws-eb-python:3.4.2-onbuild-3.5.1 /bin/bash
                 SHELL
