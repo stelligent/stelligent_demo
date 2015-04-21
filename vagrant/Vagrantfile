@@ -6,45 +6,52 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		codedeploy.vm.box = "nando-demo-codedeploy"
   		codedeploy.vm.network :private_network, ip: "10.201.0.11"
   		codedeploy.vm.network :forwarded_port, guest: 80, host: 8010
+  		codedeploy.vm.synced_folder "../codedeploy", "/vagrant_codedeploy"
+  		codedeploy.vm.synced_folder "../puppet", "/etc/puppet/manifests"
   		codedeploy.vm.provider :virtualbox do |vb|
   			vb.customize ["modifyvm", :id, "--memory", "1024"]
   		end
-  		codedeploy.vm.synced_folder "../codedeploy", "/vagrant_php_root"
         	codedeploy.vm.provision :shell, :inline => <<-SHELL
-                	yum -y update
-			yum -y install nginx php-fpm 
+                	#yum -y update
+			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
+                        yum -y install puppet
+                        puppet module install jfryman-nginx
 		SHELL
+                codedeploy.vm.provision :puppet do |puppet|
+                        puppet.manifests_path = "../puppet"
+                        puppet.manifest_file  = "vagrant-codedeploy.pp"
+                end
+		
 	end
 	config.vm.define "docker" do |docker|
 		docker.vm.hostname = "nando-demo-docker"
                 docker.vm.box = "nando-demo-docker"
                 docker.vm.network :private_network, ip: "10.201.0.12"
                 docker.vm.network :forwarded_port, guest: 80, host: 8011
+  		docker.vm.synced_folder "../docker", "/vagrant_docker"
                 docker.vm.provider :virtualbox do |vb|
                         vb.customize ["modifyvm", :id, "--memory", "1024"]
                 end
-  		docker.vm.synced_folder "../docker", "/vagrant_python_root"
                 docker.vm.provision :shell, :inline => <<-SHELL
-                        yum -y update
+                        #yum -y update
+			yum -y install docker
                 SHELL
 	end
         config.vm.define "jenkins" do |jenkins|
                 jenkins.vm.hostname = "nando-demo-jenkins"
                 jenkins.vm.box = "nando-demo-jenkins"
-                docker.vm.network :private_network, ip: "10.201.0.13"
+                jenkins.vm.network :private_network, ip: "10.201.0.13"
   		jenkins.vm.network :forwarded_port, guest: 8080, host: 8888
+  		jenkins.vm.synced_folder "../puppet", "/etc/puppet/manifests"
 		jenkins.vm.provision :shell, :inline => <<-SHELL
-    			yum -y update
+    			#yum -y update
     			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
 			yum -y install puppet
 			puppet module install rtyler-jenkins
-			puppet module install jfryman-nginx
-			puppet module install puppetlabs-mysql
   		SHELL
-  		jenkins.vm.synced_folder "../puppet", "/etc/puppet/manifests"
   		jenkins.vm.provision :puppet do |puppet|
   			puppet.manifests_path = "../puppet"
-  			puppet.manifest_file  = "vagrant.pp"
+  			puppet.manifest_file  = "vagrant-jenkins.pp"
 		end
   	end
         config.vm.define "mysql" do |mysql|
@@ -52,12 +59,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 mysql.vm.box = "nando-demo-mysql"
                 mysql.vm.network :private_network, ip: "10.201.0.14"
                 mysql.vm.network :forwarded_port, guest: 3306, host: 3306
+  		mysql.vm.synced_folder "../puppet", "/etc/puppet/manifests"
                 mysql.vm.provider :virtualbox do |vb|
                         vb.customize ["modifyvm", :id, "--memory", "1024"]
                 end
                 mysql.vm.provision :shell, :inline => <<-SHELL
-                        yum -y update
+                        #yum -y update
+                        rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
+                        yum -y install puppet
+                        puppet module install puppetlabs-mysql
                 SHELL
+                mysql.vm.provision :puppet do |puppet|
+                        puppet.manifests_path = "../puppet"
+                        puppet.manifest_file  = "vagrant-mysql.pp"
+                end
         end
-
 end
