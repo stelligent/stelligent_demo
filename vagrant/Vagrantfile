@@ -12,7 +12,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   			vb.customize ["modifyvm", :id, "--memory", "1024"]
   		end
         	codedeploy.vm.provision :shell, :inline => <<-SHELL
-                	#yum -y update
+                	yum -y update
 			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
                         yum -y install puppet
                         puppet module install jfryman-nginx
@@ -33,8 +33,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                         vb.customize ["modifyvm", :id, "--memory", "1024"]
                 end
                 docker.vm.provision :shell, :inline => <<-SHELL
-                        #yum -y update
-			yum -y install docker
+                        yum -y update
+			yum -y install docker-io
+			yum -y install device-mapper-event-libs
+			service docker start
+			cd /vagrant_docker && docker run -d -p 80:8011 amazon/aws-eb-python:3.4.2-onbuild-3.5.1 /bin/bash
                 SHELL
 	end
         config.vm.define "jenkins" do |jenkins|
@@ -44,7 +47,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   		jenkins.vm.network :forwarded_port, guest: 8080, host: 8888
   		jenkins.vm.synced_folder "../puppet", "/etc/puppet/manifests"
 		jenkins.vm.provision :shell, :inline => <<-SHELL
-    			#yum -y update
+    			yum -y update
     			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
 			yum -y install puppet
 			puppet module install rtyler-jenkins
@@ -64,7 +67,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                         vb.customize ["modifyvm", :id, "--memory", "1024"]
                 end
                 mysql.vm.provision :shell, :inline => <<-SHELL
-                        #yum -y update
+                        yum -y update
                         rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
                         yum -y install puppet
                         puppet module install puppetlabs-mysql
