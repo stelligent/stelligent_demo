@@ -47,4 +47,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   			puppet.manifest_file  = "vagrant.pp"
 		end
   	end
+        config.vm.define "mysql" do |mysql|
+                mysql.vm.hostname = "nando-demo-mysql"
+                mysql.vm.box = "nando-demo-mysql"
+                mysql.vm.network :private_network, ip: "10.201.0.14"
+                mysql.vm.network :forwarded_port, guest: 3306, host: 3306
+                mysql.vm.provider :virtualbox do |vb|
+                        vb.customize ["modifyvm", :id, "--memory", "1024"]
+                end
+                mysql.vm.provision :shell, :inline => <<-SHELL
+                        yum -y update
+                SHELL
+        end
+
 end
