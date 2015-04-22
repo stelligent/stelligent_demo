@@ -11,6 +11,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   		codedeploy.vm.provider :virtualbox do |vb|
   			vb.customize ["modifyvm", :id, "--memory", "1024"]
   		end
+		codedeploy.vm.provision :hosts
         	codedeploy.vm.provision :shell, :inline => <<-SHELL
                 	yum -y update
 			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
@@ -41,6 +42,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 jenkins.vm.network :private_network, ip: "10.201.0.13"
   		jenkins.vm.network :forwarded_port, guest: 8080, host: 8010
   		jenkins.vm.synced_folder "../puppet", "/etc/puppet/manifests"
+                jenkins.vm.provider :virtualbox do |vb|
+                        vb.customize ["modifyvm", :id, "--memory", "1024"]
+                end
+		jenkins.vm.provision :hosts
 		jenkins.vm.provision :shell, :inline => <<-SHELL
     			yum -y update
     			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
@@ -61,11 +66,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 mysql.vm.provider :virtualbox do |vb|
                         vb.customize ["modifyvm", :id, "--memory", "1024"]
                 end
+		mysql.vm.provision :hosts
                 mysql.vm.provision :shell, :inline => <<-SHELL
                         yum -y update
                         rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
                         yum -y install puppet
                         puppet module install puppetlabs-mysql
+			rpm -i http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
                 SHELL
                 mysql.vm.provision :puppet do |puppet|
                         puppet.manifests_path = "../puppet"

@@ -3,10 +3,10 @@
 	ini_set('display_startup_errors',1);
 	error_reporting(-1);
 	date_default_timezone_set('America/New_York');
-	$dbName = file_get_contents('/etc/cfn/NandoDemoDBName');
-	$dbUser = file_get_contents('/etc/cfn/NandoDemoDBUser');
-	$dbPass = file_get_contents('/etc/cfn/NandoDemoDBPass');
-	$dbHost = file_get_contents('/etc/cfn/NandoDemoDBHost');
+	$dbName = trim(file_get_contents('/etc/cfn/NandoDemoDBName'));
+	$dbUser = trim(file_get_contents('/etc/cfn/NandoDemoDBUser'));
+	$dbPass = trim(file_get_contents('/etc/cfn/NandoDemoDBPass'));
+	$dbHost = trim(file_get_contents('/etc/cfn/NandoDemoDBHost'));
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }

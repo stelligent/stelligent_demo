@@ -5,14 +5,19 @@ node /^nando-demo-mysql.*/ {
 	class { '::mysql::server':
   		#root_password    => 'mysql-root-password',
 		remove_default_accounts => true,
-  		override_options => { 'mysqld' => { 'max_connections' => '1024' } },
+  		override_options => { 
+			'mysqld' => { 
+				'max_connections' => '1024',
+				'bind_address' => '0.0.0.0' 
+			} 
+		},
 	}
 	
 	mysql::db { 'nando-demo':
 		user		=> "nando-demo-user",
 		password	=> "nando-demo-pass",
   		host     => '%',
-  		grant    => ['SELECT', 'UPDATE'],
+  		grant    => ['SELECT', 'UPDATE']
 	}
 }
 
