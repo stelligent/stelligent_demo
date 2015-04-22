@@ -1,4 +1,7 @@
 node /^nando-demo-mysql.*/ {
+  		
+	$u = file("/vagrant/mysql/NandoDemoDBUser")
+	$p = file("/vagrant/mysql/NandoDemoDBPass")
 
 	Exec { path => "/bin:/sbin:/usr/bin:/usr/sbin" }
 	
@@ -9,9 +12,10 @@ node /^nando-demo-mysql.*/ {
 	}
 	
 	mysql::db { 'nando-demo':
-  		user     => 'mysql-user',
-  		password => 'mysql-password',
-  		host     => 'localhost',
+  		user     => $u,
+  		password => $p,
+  		host     => '*',
   		grant    => ['SELECT', 'UPDATE'],
 	}
 }
+

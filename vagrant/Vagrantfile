@@ -5,8 +5,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		codedeploy.vm.hostname = "nando-demo-codedeploy"
 		codedeploy.vm.box = "nando-demo-codedeploy"
   		codedeploy.vm.network :private_network, ip: "10.201.0.11"
-  		codedeploy.vm.network :forwarded_port, guest: 80, host: 8010
-  		codedeploy.vm.synced_folder "../codedeploy", "/vagrant_codedeploy"
+  		codedeploy.vm.network :forwarded_port, guest: 80, host: 8012
+  		codedeploy.vm.synced_folder "../codedeploy", "/var/www/html", owner: "nginx"
   		codedeploy.vm.synced_folder "../puppet", "/etc/puppet/manifests"
   		codedeploy.vm.provider :virtualbox do |vb|
   			vb.customize ["modifyvm", :id, "--memory", "1024"]
@@ -16,6 +16,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
                         yum -y install puppet
                         puppet module install jfryman-nginx
+			puppet module install Slashbunny-phpfpm
+			chmod -c 755 /var/www/html
 		SHELL
                 codedeploy.vm.provision :puppet do |puppet|
                         puppet.manifests_path = "../puppet"
@@ -37,7 +39,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 jenkins.vm.hostname = "nando-demo-jenkins"
                 jenkins.vm.box = "nando-demo-jenkins"
                 jenkins.vm.network :private_network, ip: "10.201.0.13"
-  		jenkins.vm.network :forwarded_port, guest: 8080, host: 8888
+  		jenkins.vm.network :forwarded_port, guest: 8080, host: 8010
   		jenkins.vm.synced_folder "../puppet", "/etc/puppet/manifests"
 		jenkins.vm.provision :shell, :inline => <<-SHELL
     			yum -y update
@@ -54,7 +56,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 mysql.vm.hostname = "nando-demo-mysql"
                 mysql.vm.box = "nando-demo-mysql"
                 mysql.vm.network :private_network, ip: "10.201.0.14"
-                mysql.vm.network :forwarded_port, guest: 3306, host: 3306
+                mysql.vm.network :forwarded_port, guest: 3306, host: 8013
   		mysql.vm.synced_folder "../puppet", "/etc/puppet/manifests"
                 mysql.vm.provider :virtualbox do |vb|
                         vb.customize ["modifyvm", :id, "--memory", "1024"]
