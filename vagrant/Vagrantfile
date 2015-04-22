@@ -21,23 +21,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                         puppet.manifests_path = "../puppet"
                         puppet.manifest_file  = "vagrant-codedeploy.pp"
                 end
-		
 	end
 	config.vm.define "docker" do |docker|
+		config.vm.provision "docker"
 		docker.vm.hostname = "nando-demo-docker"
-                docker.vm.box = "nando-demo-docker"
                 docker.vm.network :private_network, ip: "10.201.0.12"
-                docker.vm.network :forwarded_port, guest: 80, host: 8011
-  		docker.vm.synced_folder "../docker", "/vagrant_docker"
-                docker.vm.provider :virtualbox do |vb|
-                        vb.customize ["modifyvm", :id, "--memory", "1024"]
-                end
-                docker.vm.provision :shell, :inline => <<-SHELL
-                        yum -y update
-			yum -y install docker-io
-			service docker start
-			cd /vagrant_docker && docker run -d -p 80:8011 amazon/aws-eb-python:3.4.2-onbuild-3.5.1 /bin/bash
-                SHELL
+		docker.vm.synced_folder '.', '/vagrant', disabled: true
+  		docker.vm.provider "docker" do |container|
+    			container.build_dir = "../docker"
+    			container.ports = ['8011:8080']
+			container.has_ssh = false
+  		end
 	end
         config.vm.define "jenkins" do |jenkins|
                 jenkins.vm.hostname = "nando-demo-jenkins"
