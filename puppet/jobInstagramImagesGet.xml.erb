@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>nando-automation-demo</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>H/5 * * * *</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.python.Python plugin="python@1.2">
+      <command>import os, re
+from pprint import pprint
+from inspect import getmembers
+from instagram.client import InstagramAPI
+debug = 0
+
+with open (&quot;/var/lib/jenkins/.instagram.client.id&quot;, &quot;r&quot;) as envId:
+    	clientId = re.sub(r&apos;\W+&apos;, &apos;&apos;, envId.read())
+
+with open (&quot;/var/lib/jenkins/.instagram.client.secret&quot;, &quot;r&quot;) as envSecret:
+    	clientSecret = re.sub(r&apos;\W+&apos;, &apos;&apos;, envSecret.read())
+
+api = InstagramAPI(client_id=clientId,client_secret=clientSecret)
+popular_media = api.media_popular(count=2)
+for media in popular_media:
+	os.system(&apos;wget -O %s.jpg %s&apos; % (media.id, media.images[&apos;thumbnail&apos;].url) )
+	if debug == 1: pprint(getmembers(media))
+
+
+</command>
+    </hudson.plugins.python.Python>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
