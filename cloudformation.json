@@ -395,8 +395,8 @@
 							"bootstrapB" : { "command" : "yum -y install puppet python-pip python-devel" },
 							"bootstrapC" : { "command" : "mkdir -pv /etc/puppet/modules /var/lib/jenkins" },
 							"bootstrapD" : { "command" : "puppet module install rtyler/jenkins" },
-							"bootstrapE" : { "command" : "sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp" },
-							"bootstrapF" : { "command" : "sed -i s|java|/usr/bin/java|g /etc/puppet/modules/jenkins/manifests/cli.pp" },
+							"bootstrapE" : { "command" : "sed -i 's|RedHat|Linux|g' /etc/puppet/modules/java/manifests/params.pp" },
+							"bootstrapF" : { "command" : "sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp" },
 							"bootstrapG" : { "command" : "pip install --upgrade awscli awsebcli python-instagram" },
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/manifests/installJenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
@@ -408,7 +408,10 @@
 						},
                                                 "services" : {
                                                         "sysvinit" : {
-								"jenkins" : { "enabled" : "true", "ensureRunning" : "true" },	
+								"jenkins" : { 
+									"enabled" : "true", 
+									"ensureRunning" : "true" 
+								},	
                                                                 "cfn-hup" : { 
 									"enabled" : "true", "ensureRunning" : "true",
                                                                 	"files" : [ 	
