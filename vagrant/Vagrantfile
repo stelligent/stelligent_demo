@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   		codedeploy.vm.network :forwarded_port, guest: 80, host: 8012
   		codedeploy.vm.synced_folder "../codedeploy", "/var/www/html"
   		codedeploy.vm.synced_folder "../puppet", "/etc/puppet/manifests"
-		codedeploy.vm.synced_folder '.', '/vagrant', disabled: true
+		codedeploy.vm.synced_folder '.', '/vagrant', disabled: false
                 codedeploy.vm.provider :virtualbox do |vb|
                         vb.customize ["modifyvm", :id, "--memory", "384"]
                 end
