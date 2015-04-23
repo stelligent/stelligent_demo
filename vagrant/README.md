@@ -10,10 +10,10 @@ build development enviroment
 
 launches four VMs:
 
-1) codedeploy php environment (virtualbox)
-2) mysql database (virtualbox)
-3) jenkins box (virtualbox)
-4) python flask environment (docker)
+1) jenkins box (virtualbox) :: tcp/8010
+2) codedeploy php environment (virtualbox) :: tcp/8011
+3) python flask environment (docker) :: tcp/8012
+4) mysql database (virtualbox) :: tcp/8013
 
 
 requires:
