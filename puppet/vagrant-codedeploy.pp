@@ -3,7 +3,9 @@ node /^nando-demo-codedeploy.*/ {
 	
 	Exec { path => "/bin:/sbin:/usr/bin:/usr/sbin" }
 
-	filebucket { 'puppet': path => /tmp }
+	File { backup => puppet }
+
+	filebucket { puppet: server => localhost }
 
 	file { "/etc/cfn": ensure => "directory" }
 
