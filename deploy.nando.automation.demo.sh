@@ -129,6 +129,9 @@ echo "Creating $keyName private key as $keyName.pem ."
 privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
 cfnParameters+=" ParameterKey=NandoDemoName,ParameterValue=$keyName ParameterKey=KeyName,ParameterValue=$keyName "
 echo
+instagramId=$(env|grep INSTAGRAM_CLIENT_ID |cut -f2 -d=)
+instagramSecret=$(env|grep INSTAGRAM_CLIENT_SECRET |cut -f2 -d=)
+cfnParameters+=" ParameterKey=InstagramId,ParameterValue=$instagramId ParameterKey=InstagramSecret,ParameterValue=$instagramSecret "
 echo
 echo
 echo "Launching stack:"
