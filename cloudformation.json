@@ -244,7 +244,6 @@
 				"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           				"#!/bin/bash\n",
           				"yum update -y aws-cfn-bootstrap\n",
-					"mkdir -vp /etc/puppet/manifests\n",
              				"/opt/aws/bin/cfn-init -v ",
              				"         --stack ", { "Ref" : "AWS::StackName" },
              				"         --resource NandoDemoJenkins ",
@@ -325,21 +324,21 @@
                                                                 "authentication" : "S3AccessCreds"
                                                         },
 							"/etc/puppet/manifests/jobInstagramImageGet.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesGet.xml.erb",
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImageGet.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
 							"/etc/puppet/manifests/jobInstagramImageTest.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesTest.xml.erb",
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImageTest.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
 							"/etc/puppet/manifests/jobInstagramImageSave.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesSave.xml.erb",
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImageSave.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
@@ -397,15 +396,15 @@
 							"bootstrapC" : { "command" : "mkdir -pv /etc/puppet/modules /var/lib/jenkins" },
 							"bootstrapD" : { "command" : "puppet module install rtyler/jenkins" },
 							"bootstrapE" : { "command" : "sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp" },
-							"bootstrapF" : { "command" : "pip install --upgrade awscli awsebcli python-instagram" },
+							"bootstrapF" : { "command" : "sed -i s|java|/usr/bin/java|g /etc/puppet/modules/jenkins/manifests/cli.pp" },
+							"bootstrapG" : { "command" : "pip install --upgrade awscli awsebcli python-instagram" },
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/manifests/installJenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsModules.pp" },
  							"installjenkinsD" : { "command" : "sleep 15" },
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsJob.pp" },
-							"installjenkinsF" : { "command" : "/bin/sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp" },
-                                                        "installjenkinsG" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsUsers.pp" },
-							"installjenkinsH" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp" }
+                                                        "installjenkinsF" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsUsers.pp" },
+							"installjenkinsG" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp" }
 						},
                                                 "services" : {
                                                         "sysvinit" : {
