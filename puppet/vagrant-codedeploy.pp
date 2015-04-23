@@ -88,4 +88,9 @@ node /^nando-demo-codedeploy.*/ {
     		ensure 	=> installed,
 		require	=> Class['phpfpm']
 	} 
+
+	exec { 'chowndocroot':
+		command	=> "chown -c nginx /var/www/html",
+		require => Class['nginx']
+	}
 }
