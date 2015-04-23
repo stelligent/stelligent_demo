@@ -8,5 +8,6 @@ node /.*internal$/ {
 	jenkins::plugin { 'scm-api': }
 	jenkins::plugin { 'git-client': }
 	jenkins::plugin { 'git': }
+	jenkins::plugin { 'parameterized-trigger': }
 }
 
