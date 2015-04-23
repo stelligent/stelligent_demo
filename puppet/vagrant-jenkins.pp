@@ -13,6 +13,10 @@ node /^nando-demo-jenkins.*/ {
 	jenkins::plugin { 'git-client': }
 	jenkins::plugin { 'git': }
 	jenkins::plugin { 'parameterized-trigger': }
+	jenkins::plugin { 'maven': }
+	jenkins::plugin { 'promoted-builds': }
+	jenkins::plugin { 'job-dsl': }
+
 
 	jenkins::job { 'InstagramImageGet':
   		config => template("/etc/puppet/manifests/jobInstagramImageGet.xml.erb"),

@@ -286,77 +286,77 @@
                                                                         "runas=root\n"
                                                                 ] ] }
                                                         },
-							"/etc/puppet/installJenkins.pp" : {
+							"/etc/puppet/manifests/installJenkins.pp" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkins.pp",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/installJenkinsJob.pp" : {
+							"/etc/puppet/manifests/installJenkinsJob.pp" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsJob.pp",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-                                                        "/etc/puppet/installJenkinsModules.pp" : {
+                                                        "/etc/puppet/manifests/installJenkinsModules.pp" : {
                                                                 "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsModules.pp",
                                                                 "mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
                                                         },
-                                                       "/etc/puppet/installJenkinsUsers.pp" : {
+                                                       "/etc/puppet/manifests/installJenkinsUsers.pp" : {
                                                                 "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsUsers.pp",
                                                                 "mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
-                                                       "/etc/puppet/installJenkinsSecurity.pp" : {
+                                                       "/etc/puppet/manifests/installJenkinsSecurity.pp" : {
                                                                 "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsSecurity.pp",
                                                                 "mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
-							"/etc/puppet/jobInstagramImageGet.xml.erb" : {
+							"/etc/puppet/manifests/jobInstagramImageGet.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesGet.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/jobInstagramImageTest.xml.erb" : {
+							"/etc/puppet/manifests/jobInstagramImageTest.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesTest.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/jobInstagramImageSave.xml.erb" : {
+							"/etc/puppet/manifests/jobInstagramImageSave.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesSave.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/jobDeployStage.xml.erb" : {
+							"/etc/puppet/manifests/jobDeployStage.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobDeployStage.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/jobDeployStageTests.xml.erb" : {
+							"/etc/puppet/manifests/jobDeployStageTests.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobDeployStageTests.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/jobDeployProduction.xml.erb" : {
+							"/etc/puppet/manifests/jobDeployProduction.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobDeployProduction.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
@@ -385,14 +385,14 @@
 							"bootstrapD" : { "command" : "puppet module install rtyler/jenkins" },
 							"bootstrapE" : { "command" : "sed -i s/RedHat/Linux/g /etc/puppet/modules/java/manifests/params.pp" },
 							"bootstrapF" : { "command" : "pip install --upgrade awscli awsebcli python-instagram" },
-							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/installJenkins.pp" },
+							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/manifests/installJenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
-							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/installJenkinsModules.pp" },
+							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsModules.pp" },
  							"installjenkinsD" : { "command" : "sleep 15" },
-							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/installJenkinsJob.pp" },
+							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsJob.pp" },
 							"installjenkinsF" : { "command" : "/bin/sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp" },
-                                                        "installjenkinsG" : { "command" : "puppet apply /etc/puppet/installJenkinsUsers.pp" },
-							"installjenkinsH" : { "command" : "puppet apply /etc/puppet/installJenkinsSecurity.pp" }
+                                                        "installjenkinsG" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsUsers.pp" },
+							"installjenkinsH" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp" }
 						},
                                                 "services" : {
                                                         "sysvinit" : {
