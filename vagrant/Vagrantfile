@@ -9,6 +9,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   		codedeploy.vm.synced_folder "../codedeploy", "/var/www/html", owner: "nginx"
   		codedeploy.vm.synced_folder "../puppet", "/etc/puppet/manifests"
 		codedeploy.vm.synced_folder '.', '/vagrant', disabled: true
+                jenkins.vm.provider :virtualbox do |vb|
+                        vb.customize ["modifyvm", :id, "--memory", "384"]
+                end
 		codedeploy.vm.provision :hosts
         	codedeploy.vm.provision :shell, :inline => <<-SHELL
                 	yum -y update
@@ -68,6 +71,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 mysql.vm.network :forwarded_port, guest: 3306, host: 8013
   		mysql.vm.synced_folder "../puppet", "/etc/puppet/manifests"
 		mysql.vm.synced_folder '.', '/vagrant', disabled: true
+                jenkins.vm.provider :virtualbox do |vb|
+                        vb.customize ["modifyvm", :id, "--memory", "768"]
+                end
 		mysql.vm.provision :hosts
                 mysql.vm.provision :shell, :inline => <<-SHELL
                         yum -y update

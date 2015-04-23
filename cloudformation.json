@@ -423,11 +423,6 @@
                                                 }
                                         }
                                 }
-      			},
-      			"CreationPolicy" : {
-        			"ResourceSignal" : {
-          				"Timeout" : "PT10M"
-        			}
       			}
  		},
 		"NandoDemoWebASG" : {
