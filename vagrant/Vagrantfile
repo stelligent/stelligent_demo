@@ -9,7 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   		codedeploy.vm.synced_folder "../codedeploy", "/var/www/html", owner: "nginx"
   		codedeploy.vm.synced_folder "../puppet", "/etc/puppet/manifests"
 		codedeploy.vm.synced_folder '.', '/vagrant', disabled: true
-                jenkins.vm.provider :virtualbox do |vb|
+                codedeploy.vm.provider :virtualbox do |vb|
                         vb.customize ["modifyvm", :id, "--memory", "384"]
                 end
 		codedeploy.vm.provision :hosts
@@ -26,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 end
 	end
 	config.vm.define "docker" do |docker|
-		config.vm.provision "docker"
+		docker.vm.provision "docker"
 		docker.vm.hostname = "nando-demo-docker"
                 docker.vm.network :private_network, ip: "10.201.0.12"
 		docker.vm.synced_folder '.', '/vagrant', disabled: true
@@ -71,7 +71,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 mysql.vm.network :forwarded_port, guest: 3306, host: 8013
   		mysql.vm.synced_folder "../puppet", "/etc/puppet/manifests"
 		mysql.vm.synced_folder '.', '/vagrant', disabled: true
-                jenkins.vm.provider :virtualbox do |vb|
+                mysql.vm.provider :virtualbox do |vb|
                         vb.customize ["modifyvm", :id, "--memory", "768"]
                 end
 		mysql.vm.provision :hosts

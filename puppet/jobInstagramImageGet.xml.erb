@@ -3,7 +3,22 @@
   <actions/>
   <description>nando-automation-demo</description>
   <keepDependencies>false</keepDependencies>
-  <properties/>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>imageKey</name>
+          <description></description>
+          <defaultValue>default</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>imageTags</name>
+          <description></description>
+          <defaultValue>default</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
@@ -15,6 +30,7 @@
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
+  <customWorkspace>/var/lib/jenkins/images</customWorkspace>
   <builders>
     <hudson.plugins.python.Python plugin="python@1.2">
       <command>import os, re
@@ -30,8 +46,9 @@ with open (&quot;/var/lib/jenkins/.instagram.client.secret&quot;, &quot;r&quot;)
     	clientSecret = re.sub(r&apos;\W+&apos;, &apos;&apos;, envSecret.read())
 
 api = InstagramAPI(client_id=clientId,client_secret=clientSecret)
-popular_media = api.media_popular(count=2)
+popular_media = api.media_popular(count=1)
 for media in popular_media:
+        imageFile = media.id + &quot;.jpg&quot;
 	os.system(&apos;wget -O %s.jpg %s&apos; % (media.id, media.images[&apos;thumbnail&apos;].url) )
 	if debug == 1: pprint(getmembers(media))
 
@@ -39,6 +56,19 @@ for media in popular_media:
 </command>
     </hudson.plugins.python.Python>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.26">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+          </configs>
+          <projects>InstagramImageTest</projects>
+          <condition>SUCCESS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
+  </publishers>
   <buildWrappers/>
 </project>

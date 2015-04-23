@@ -16,6 +16,7 @@ node /^nando-demo-jenkins.*/ {
 	jenkins::plugin { 'maven': }
 	jenkins::plugin { 'promoted-builds': }
 	jenkins::plugin { 'job-dsl': }
+	jenkins::plugin { 'build-flow-plugin': }
 
 
 	jenkins::job { 'InstagramImageGet':
