@@ -82,7 +82,10 @@ node /^nando-demo-codedeploy.*/ {
 
 	class { 'phpfpm': }
 
-	phpfpm::pool { 'www': user   => 'nginx' }
+	phpfpm::pool { 'www': 
+		user   	=> 'nginx', 
+		require	=> Class['nginx']
+	}
 
 	package { 'php-mysql':
     		ensure 	=> installed,
