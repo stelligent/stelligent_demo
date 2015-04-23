@@ -11,5 +11,6 @@ node /.*internal$/ {
 	jenkins::plugin { 'parameterized-trigger': }
 	jenkins::plugin { 'promoted-builds': }
 	jenkins::plugin { 'job-dsl': }
+	jenkins::plugin { 'build-flow-plugin': }
 }
 

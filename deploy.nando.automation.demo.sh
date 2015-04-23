@@ -106,7 +106,7 @@ aws s3 cp puppet/jobInstagramImageSave.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/jobInstagramImageTest.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/installJenkins.pp s3://nando-automation-demo
 aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo 
-aws s3 cp puppet/installJenkinsModules.pp s3://nando-automation-demo 
+aws s3 cp puppet/installJenkinsPlugins.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsUsers.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsSecurity.pp s3://nando-automation-demo 
 cd docker

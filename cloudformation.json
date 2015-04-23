@@ -302,8 +302,8 @@
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-                                                        "/etc/puppet/manifests/installJenkinsModules.pp" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsModules.pp",
+                                                        "/etc/puppet/manifests/installJenkinsPlugins.pp" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsPlugins.pp",
                                                                 "mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
@@ -400,7 +400,7 @@
 							"bootstrapG" : { "command" : "pip install --upgrade awscli awsebcli python-instagram" },
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/manifests/installJenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
-							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsModules.pp" },
+							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp" },
  							"installjenkinsD" : { "command" : "sleep 15" },
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsJob.pp" },
  							"installjenkinsD" : { "command" : "sleep 15" },
