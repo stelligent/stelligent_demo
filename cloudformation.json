@@ -321,21 +321,21 @@
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
-							"/etc/puppet/jobInstagramImagesGet.xml.erb" : {
+							"/etc/puppet/jobInstagramImageGet.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesGet.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/jobInstagramImagesTest.xml.erb" : {
+							"/etc/puppet/jobInstagramImageTest.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesTest.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/jobInstagramImagesSave.xml.erb" : {
+							"/etc/puppet/jobInstagramImageSave.xml.erb" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImagesSave.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",

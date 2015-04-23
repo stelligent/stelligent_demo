@@ -1,13 +1,13 @@
 node /.*internal$/ {
    	include jenkins
-	jenkins::job { 'InstagramImagesGet':
-  		config => template("/etc/puppet/jobInstagramImagesGet.xml.erb"),
+	jenkins::job { 'InstagramImageGet':
+  		config => template("/etc/puppet/jobInstagramImageGet.xml.erb"),
 	}
-	jenkins::job { 'InstagramImagesTest':
-  		config => template("/etc/puppet/jobInstagramImagesTest.xml.erb"),
+	jenkins::job { 'InstagramImageTest':
+  		config => template("/etc/puppet/jobInstagramImageTest.xml.erb"),
 	}
-	jenkins::job { 'InstagramImagesSave':
-  		config => template("/etc/puppet/jobInstagramImagesSave.xml.erb"),
+	jenkins::job { 'InstagramImageSave':
+  		config => template("/etc/puppet/jobInstagramImageSave.xml.erb"),
 	}
         jenkins::job { 'DeployStage':
                 config => template("/etc/puppet/jobDeployStage.xml.erb"),
