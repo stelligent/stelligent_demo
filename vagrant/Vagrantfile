@@ -8,9 +8,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   		codedeploy.vm.network :forwarded_port, guest: 80, host: 8012
   		codedeploy.vm.synced_folder "../codedeploy", "/var/www/html", owner: "nginx"
   		codedeploy.vm.synced_folder "../puppet", "/etc/puppet/manifests"
-  		codedeploy.vm.provider :virtualbox do |vb|
-  			vb.customize ["modifyvm", :id, "--memory", "1024"]
-  		end
 		codedeploy.vm.provision :hosts
         	codedeploy.vm.provision :shell, :inline => <<-SHELL
                 	yum -y update
@@ -18,7 +15,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                         yum -y install puppet
                         puppet module install jfryman-nginx
 			puppet module install Slashbunny-phpfpm
-			chmod -c 755 /var/www/html
 		SHELL
                 codedeploy.vm.provision :puppet do |puppet|
                         puppet.manifests_path = "../puppet"
@@ -69,9 +65,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 mysql.vm.network :private_network, ip: "10.201.0.14"
                 mysql.vm.network :forwarded_port, guest: 3306, host: 8013
   		mysql.vm.synced_folder "../puppet", "/etc/puppet/manifests"
-                mysql.vm.provider :virtualbox do |vb|
-                        vb.customize ["modifyvm", :id, "--memory", "1024"]
-                end
 		mysql.vm.provision :hosts
                 mysql.vm.provision :shell, :inline => <<-SHELL
                         yum -y update
