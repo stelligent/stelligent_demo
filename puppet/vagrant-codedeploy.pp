@@ -3,7 +3,13 @@ node /^nando-demo-codedeploy.*/ {
 	
 	Exec { path => "/bin:/sbin:/usr/bin:/usr/sbin" }
 
+	filebucket { 'puppet': path	=> false }
+
 	file { "/etc/cfn": ensure => "directory" }
+
+	class { 'phpfpm': }
+
+	class { 'nginx': }
 
 	file { "NandoDemoDBName":
 		path	=> "/etc/cfn/NandoDemoDBName",
@@ -49,14 +55,7 @@ node /^nando-demo-codedeploy.*/ {
                 owner   => "nginx",
                 require => [ File['/etc/cfn'], Class['nginx'] ]
         }
-
-	filebucket { '': 
-		path	=> "/tmp",
-		server => "localhost"; 
-	}
 	
-	class { 'nginx': }
-
   	nginx::resource::vhost { "nando-automation-demo":
     		ensure                => present,
     		listen_port           => 80,
@@ -80,7 +79,6 @@ node /^nando-demo-codedeploy.*/ {
 		}
      	}
 
-	class { 'phpfpm': }
 
 	phpfpm::pool { 'www': 
 		user   	=> 'nginx', 
