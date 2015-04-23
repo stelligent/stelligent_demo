@@ -28,8 +28,8 @@
     		"Location1" : { "Type": "String" },
     		"Location2" : { "Type" : "String" },
     		"Location3" : { "Type" : "String" },
-    		"Location4" : { "Type" : "String" }
-    		"InstagramId" : { "Type" : "String" }
+    		"Location4" : { "Type" : "String" },
+    		"InstagramId" : { "Type" : "String" },
     		"InstagramSecret" : { "Type" : "String" }
   	},
  	"Mappings" : {
@@ -370,25 +370,25 @@
 								"content" : { "Ref" : "InstagramId" },
 								"mode" : "000400",
                                                                 "owner" : "root",
-                                                                "group" : "root",
+                                                                "group" : "root"
 							},
 							"/var/lib/jenkins/.instagram.client.secret" : {
 								"content" : { "Ref" : "InstagramSecret" },
 								"mode" : "000400",
                                                                 "owner" : "root",
-                                                                "group" : "root",
+                                                                "group" : "root"
 							},
 							"/var/lib/jenkins/nando-demo.pem" : {
 								"content" : { "Ref" : "PrivateKey" },
 								"mode" : "000400",
                                                                 "owner" : "root",
-                                                                "group" : "root",
+                                                                "group" : "root"
 							},
 							"/var/lib/jenkins/cloudformation-stack-name" : {
 								"content" : { "Ref" : "AWS::StackName" },
 								"mode" : "000400",
                                                                 "owner" : "root",
-                                                                "group" : "root",
+                                                                "group" : "root"
 							}
                                                 },
 						"commands" : {

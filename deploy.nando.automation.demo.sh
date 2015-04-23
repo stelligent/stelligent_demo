@@ -131,6 +131,13 @@ cfnParameters+=" ParameterKey=NandoDemoName,ParameterValue=$keyName ParameterKey
 echo
 instagramId=$(env|grep INSTAGRAM_CLIENT_ID |cut -f2 -d=)
 instagramSecret=$(env|grep INSTAGRAM_CLIENT_SECRET |cut -f2 -d=)
+if [ -z "$instagramId" ] || [ -z "$instagramSecret" ]; then 
+	echo 
+	echo "you must set INSTAGRAM_CLIENT_ID and INSTAGRAM_CLIENT_SECRET environment variables."
+	echo
+	echo
+	exit
+fi
 cfnParameters+=" ParameterKey=InstagramId,ParameterValue=$instagramId ParameterKey=InstagramSecret,ParameterValue=$instagramSecret "
 echo
 echo
