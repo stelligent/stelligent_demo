@@ -403,6 +403,7 @@
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsModules.pp" },
  							"installjenkinsD" : { "command" : "sleep 15" },
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsJob.pp" },
+ 							"installjenkinsD" : { "command" : "sleep 15" },
                                                         "installjenkinsF" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsUsers.pp" },
 							"installjenkinsG" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp" }
 						},
