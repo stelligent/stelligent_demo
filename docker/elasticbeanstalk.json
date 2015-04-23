@@ -57,6 +57,7 @@
                                 "RecordSets" : [ {
                                         "Name" : "nando-automation-demo-docker.elasticoperations.com.",
                                         "Type" : "CNAME",
+					"TTL" : "900",
                                         "ResourceRecords" : [ { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ]
                                 } ]
                         }
