@@ -46,12 +46,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                         vb.customize ["modifyvm", :id, "--memory", "1024"]
                 end
 		jenkins.vm.provision :hosts
-		jenkins.vm.provision :shell, :inline => <<-SHELL
-    			yum -y update
-    			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
-			yum -y install puppet
-			puppet module install rtyler-jenkins
-  		SHELL
+		jenkins.vm.provision :shell, 
+			:args =>  "#{ENV['INSTAGRAM_CLIENT_ID']}, #{ENV['INSTAGRAM_CLIENT_SECRET']}", 
+			:inline => <<-SHELL
+    				yum -y update
+    				rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
+				yum -y install puppet python-pip python-devel
+				puppet module install rtyler-jenkins
+                        	pip install python-instagram
+                        	pip install awscli
+				mkdir -pv /var/lib/jenkins
+				echo $1 > /var/lib/jenkins/.instagram.client.id
+				echo $2 > /var/lib/jenkins/.instagram.client.secret
+  			SHELL
   		jenkins.vm.provision :puppet do |puppet|
   			puppet.manifests_path = "../puppet"
   			puppet.manifest_file  = "vagrant-jenkins.pp"
