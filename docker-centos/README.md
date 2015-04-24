@@ -5,7 +5,7 @@ docker-amazon: official amazon eb python container running ubuntu
 docker-centos: official centos 6.5 latest
 
 ```
-==> docker run -d -p 8011:8011 $(docker build . | awk '{print $NF} )
+==> docker run -d -p 8011:8011 $(docker build . | awk '{print $NF}' )
 ```
 
 notes:
