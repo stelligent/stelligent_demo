@@ -1,7 +1,7 @@
 FROM centos:6
 MAINTAINER The CentOS Project <cloud-ops@centos.org> - ami_creator
 
-RUN yum -y update 
+#RUN yum -y update 
 RUN yum -y install epel-release
 RUN yum -y install sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel gcc zlib-devel bzip2-devel openssl-devel ncurses-devel wget tar curl
 ADD . /var/www
