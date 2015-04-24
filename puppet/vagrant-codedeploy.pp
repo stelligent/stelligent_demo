@@ -92,11 +92,11 @@ node /^nando-demo-codedeploy.*/ {
 		require	=> Class['phpfpm']
 	} 
 
-	exec { 'chowndocroot':
-		command	=> "chown -c nginx /var/www/html",
-		require => Class['nginx']
-	}
-	exec { 'chmoddocroot':
-		command	=> "chmod -c 0755 /var/www/html",
-	}
+	#exec { 'chowndocroot':
+	#	command	=> "chown -c nginx /var/www/html",
+	#	require => Class['nginx']
+	#}
+	#exec { 'chmoddocroot':
+	#	command	=> "chmod -c 0755 /var/www/html",
+	#}
 }
