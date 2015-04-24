@@ -1,0 +1,91 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  	config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
+	config.vm.define "codedeploy" do |codedeploy|
+		codedeploy.vm.hostname = "nando-demo-codedeploy"
+		codedeploy.vm.box = "nando-demo-codedeploy"
+  		codedeploy.vm.network :private_network, ip: "10.201.0.11"
+  		codedeploy.vm.network :forwarded_port, guest: 80, host: 8012
+  		codedeploy.vm.synced_folder "../codedeploy", "/var/www/html"
+  		codedeploy.vm.synced_folder "../puppet", "/etc/puppet/manifests"
+		codedeploy.vm.synced_folder '.', '/vagrant', disabled: false
+                codedeploy.vm.provider :virtualbox do |vb|
+                        vb.customize ["modifyvm", :id, "--memory", "384"]
+                end
+		codedeploy.vm.provision :hosts
+        	codedeploy.vm.provision :shell, :inline => <<-SHELL
+                	yum -y update
+			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
+                        yum -y install puppet
+                        puppet module install jfryman-nginx
+			puppet module install Slashbunny-phpfpm
+		SHELL
+                codedeploy.vm.provision :puppet do |puppet|
+                        puppet.manifests_path = "../puppet"
+                        puppet.manifest_file  = "vagrant-codedeploy.pp"
+                end
+	end
+        config.vm.define "mysql" do |mysql|
+                mysql.vm.hostname = "nando-demo-mysql"
+                mysql.vm.box = "nando-demo-mysql"
+                mysql.vm.network :private_network, ip: "10.201.0.14"
+                mysql.vm.network :forwarded_port, guest: 3306, host: 8013
+  		mysql.vm.synced_folder "../puppet", "/etc/puppet/manifests"
+		mysql.vm.synced_folder '.', '/vagrant', disabled: true
+                mysql.vm.provider :virtualbox do |vb|
+                        vb.customize ["modifyvm", :id, "--memory", "768"]
+                end
+		mysql.vm.provision :hosts
+                mysql.vm.provision :shell, :inline => <<-SHELL
+                        yum -y update
+                        rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
+                        yum -y install puppet
+                        puppet module install puppetlabs-mysql
+			rpm -i http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
+                SHELL
+                mysql.vm.provision :puppet do |puppet|
+                        puppet.manifests_path = "../puppet"
+                        puppet.manifest_file  = "vagrant-mysql.pp"
+                end
+        end
+        config.vm.define "jenkins" do |jenkins|
+                jenkins.vm.hostname = "nando-demo-jenkins"
+                jenkins.vm.box = "nando-demo-jenkins"
+                jenkins.vm.network :private_network, ip: "10.201.0.13"
+  		jenkins.vm.network :forwarded_port, guest: 8080, host: 8010
+  		jenkins.vm.synced_folder "../puppet", "/etc/puppet/manifests"
+		jenkins.vm.synced_folder '.', '/vagrant', disabled: true
+                jenkins.vm.provider :virtualbox do |vb|
+                        vb.customize ["modifyvm", :id, "--memory", "1024"]
+                end
+		jenkins.vm.provision :hosts
+		jenkins.vm.provision :shell, 
+			:args =>  "#{ENV['INSTAGRAM_CLIENT_ID']}, #{ENV['INSTAGRAM_CLIENT_SECRET']}", 
+			:inline => <<-SHELL
+    				yum -y update
+    				rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
+				yum -y install puppet python-pip python-devel
+				puppet module install rtyler-jenkins
+                        	pip install python-instagram awscli
+				mkdir -pv /var/lib/jenkins
+				echo $1 > /var/lib/jenkins/.instagram.client.id
+				echo $2 > /var/lib/jenkins/.instagram.client.secret
+  			SHELL
+  		jenkins.vm.provision :puppet do |puppet|
+  			puppet.manifests_path = "../puppet"
+  			puppet.manifest_file  = "vagrant-jenkins.pp"
+		end
+  	end
+	config.vm.define "docker" do |docker|
+		docker.vm.provision "docker"
+                docker.vm.network :private_network, ip: "10.201.0.12"
+		docker.vm.synced_folder '.', '/vagrant', disabled: true
+  		docker.vm.provider "docker" do |container|
+    			container.build_dir = "../docker"
+    			container.ports = ['8011:8080']
+			container.has_ssh = true
+			container.remains_running = true
+  		end
+	end
+end
