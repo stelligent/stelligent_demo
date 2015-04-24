@@ -12,6 +12,9 @@ RUN cd Python-2.7.9 && ./configure --prefix=/usr/local && make && make altinstal
 RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python2.7
 RUN pip2.7 install -r requirements.txt
 RUN service sshd restart
+CMD  while true; do echo hellodocker; done
+
+#CMD bundle exec rake db:create && bundle exec rake db:migrate && bundle exec rails server
 
 EXPOSE 22
 EXPOSE 8080
