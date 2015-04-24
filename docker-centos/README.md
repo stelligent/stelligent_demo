@@ -4,6 +4,9 @@ elastic beanstalk auto-scales this container
 docker-amazon: official amazon eb python container running ubuntu
 docker-centos: official centos 6.5 latest
 
+```
+==> docker build -t [container-name] . && docker run -d -p 8011:8011 [container-name]
+```
 
 notes:
 
