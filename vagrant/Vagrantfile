@@ -14,7 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 end
 		codedeploy.vm.provision :hosts
         	codedeploy.vm.provision :shell, :inline => <<-SHELL
-                	#yum -y update
+                	yum -y update
 			rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
                         yum -y install puppet
                         puppet module install jfryman-nginx
@@ -37,7 +37,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 end
 		mysql.vm.provision :hosts
                 mysql.vm.provision :shell, :inline => <<-SHELL
-                        #yum -y update
+                        yum -y update
                         rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
                         yum -y install puppet
                         puppet module install puppetlabs-mysql
@@ -62,7 +62,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		jenkins.vm.provision :shell, 
 			:args =>  "#{ENV['INSTAGRAM_CLIENT_ID']}, #{ENV['INSTAGRAM_CLIENT_SECRET']}", 
 			:inline => <<-SHELL
-    				#yum -y update
+    				yum -y update
     				rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
 				yum -y install puppet python-pip python-devel
 				puppet module install rtyler-jenkins
@@ -84,7 +84,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     			container.build_dir = "../docker"
     			container.ports = ['8011:8080']
 			container.has_ssh = true
-			container.remains_running = false
+			container.remains_running = true
   		end
 	end
 end
