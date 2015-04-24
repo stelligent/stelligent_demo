@@ -46,7 +46,7 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 - node-configuration (Packages, Files, Services)
 - poll-version-control (GitHub every minute https://github.com/stelligent/nando_automation_demo)
 - app-deployment: (CodeDeploy and Docker)
-- configure-local-environment-1-command: (Vagrant) 
+- configure-local-environment-1-command: (Vagrant and Docker) 
 
 
 
