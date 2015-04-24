@@ -1,10 +1,9 @@
 build development enviroment
 
 ```
-==> ./vagrant.sh
+==> vagrant up
 ```
 
-("vagrant up" will not work, due to multiple providers in use)
 
 
 
