@@ -78,14 +78,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
 	config.vm.define "docker" do |docker|
 		docker.vm.provision "docker"
-		docker.vm.hostname = "nando-demo-docker"
                 docker.vm.network :private_network, ip: "10.201.0.12"
 		docker.vm.synced_folder '.', '/vagrant', disabled: true
-		docker.ssh.insert_key = false
   		docker.vm.provider "docker" do |container|
     			container.build_dir = "../docker"
     			container.ports = ['8011:8080']
-			container.has_ssh = false
+			container.has_ssh = true
+			container.remains_running = false
   		end
 	end
 end
