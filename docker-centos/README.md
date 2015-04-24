@@ -12,6 +12,6 @@ notes:
 
 - docker on linux requires "docker" group membership for user
 - docker on osx requires boot2docker and helper script for port redirection
-	==> sudo boot2docker init
-	==> sudo boot2docker run
-	==> sudo boot2docker ssh -vnNTL 8011:localhost:8011
+	- sudo boot2docker init
+	- sudo boot2docker run
+	- sudo boot2docker ssh -vnNTL 8011:localhost:8011
