@@ -11,5 +11,5 @@ RUN cd Python-2.7.9 && ./configure --prefix=/usr/local && make && make altinstal
 RUN curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | python2.7
 RUN pip2.7 install -r requirements.txt
 RUN service sshd restart
-CMD gunicorn application:app 
-EXPOSE 8000
+CMD gunicorn -b 0.0.0.0:8011 application:app 
+EXPOSE 8011
