@@ -1,8 +1,7 @@
-docker container for python flask slideshow
-elastic beanstalk auto-scales this container
+Docker container for Python Flask slideshow. Elastic Beanstalk auto-scales this container.
 
-docker-amazon: official amazon eb python container running ubuntu
-docker-centos: official centos 6.5 latest
+- docker-amazon: official amazon eb python container running ubuntu
+- docker-centos: official centos 6.5 latest
 
 ```
 ==> docker run -d -p 8011:8011 $(docker build . | tail -1 | awk '{print $NF}')
