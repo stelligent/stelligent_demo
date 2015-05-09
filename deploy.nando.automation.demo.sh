@@ -102,9 +102,9 @@ aws s3 cp jenkins/seed.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobCodeDeployProduction.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobCodeDeployStageTests.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobCodeDeployStage.xml.erb s3://nando-automation-demo
-aws s3 cp jenkins/jobDockerDeployProduction.xml.erb s3://nando-automation-demo
-aws s3 cp jenkins/jobDockerDeployStageTests.xml.erb s3://nando-automation-demo
-aws s3 cp jenkins/jobDockerDeployStage.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobDockerProduction.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobDockerStageTests.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobDockerStage.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobInstagramImageGet.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobInstagramImageSave.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobInstagramImageTest.xml.erb s3://nando-automation-demo
@@ -113,9 +113,12 @@ aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo
 aws s3 cp puppet/installJenkinsPlugins.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsUsers.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsSecurity.pp s3://nando-automation-demo 
+echo
+echo
+echo "Upload Docker to S3"
 cd docker
 rm -fv nando-demo.zip
-zip nando-demo.zip Dockerfile application.py requirements.txt
+zip nando-demo.zip Dockerfile application.py requirements.txt  # Dockerrun.aws.json .ebextensions
 aws s3 cp nando-demo.zip s3://nando-automation-demo
 cd ..
 
