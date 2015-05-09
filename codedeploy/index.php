@@ -7,7 +7,6 @@
 	$dbUser = trim(file_get_contents('/etc/cfn/NandoDemoDBUser'));
 	$dbPass = trim(file_get_contents('/etc/cfn/NandoDemoDBPass'));
 	$dbHost = trim(file_get_contents('/etc/cfn/NandoDemoDBHost'));
-	echo $dbHost;
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
