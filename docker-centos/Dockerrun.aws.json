@@ -1,0 +1,11 @@
+{
+	"AWSEBDockerrunVersion": "1",
+	"Volumes": [
+		{
+			"ContainerDirectory": "/",
+			"HostDirectory": "/var/app"
+		
+		}
+	].
+	"Logging": "/var/log/dockerapp.log"
+}
