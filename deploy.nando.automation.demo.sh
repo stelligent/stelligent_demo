@@ -177,7 +177,16 @@ echo
 echo "Write out private key $keyName.pem ."
 rm -fv $keyName.pem
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
-chmod -c 0400 $keyName.pem
+
+
+
+# if osx
+chmod -v 0400 $keyName.pem
+# if linux
+#chmod -c 0400 $keyName.pem
+
+
+
 echo
 s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName | grep -v URL | grep -v CNAME | grep NandoDemoBucket | cut -f3)
 echo "upload index.html to s3 bucket $s3bucket"

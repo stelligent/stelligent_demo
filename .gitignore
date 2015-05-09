@@ -1,4 +1,4 @@
 *.pem
 *.zip
-securelocations
+trustedips
 .vagrant/
