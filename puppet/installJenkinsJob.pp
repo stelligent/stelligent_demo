@@ -18,5 +18,4 @@ node /.*internal$/ {
         jenkins::job { 'DeployProduction':
                 config => template("/etc/puppet/manifests/jobDeployProduction.xml.erb"),
         }
-
 }
