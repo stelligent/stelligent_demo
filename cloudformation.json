@@ -398,7 +398,7 @@
 							"bootstrapE" : { "command" : "sed -i 's|RedHat|Linux|g' /etc/puppet/modules/java/manifests/params.pp" },
 							"bootstrapF" : { "command" : "sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp" },
 							"bootstrapG" : { "command" : "pip install --upgrade awscli awsebcli python-instagram" },
-							"bootstrapHpuppetmodHACK" : { "command" : "sed -i 's/include\ jenkins::cli/include\ jenkins::cli\ninclude\ jenkins::cli::reload/' /etc/puppet/modules/jenkins/manifests/job/present.pp" }
+							"bootstrapHpuppetmodbrokenHACK" : { "command" : "sed -i 's/include\ jenkins::cli/include\ jenkins::cli\ninclude\ jenkins::cli::reload/' /etc/puppet/modules/jenkins/manifests/job/present.pp" }
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/manifests/installJenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp" },
