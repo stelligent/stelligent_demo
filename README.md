@@ -134,3 +134,4 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 - ChaosMonkey, ServerSpec, TestKitchen, Cucumber, OWASP ZAP
 - ElastiCache for user session data
 - replace ElasticBeanstalk with ElasticContainerService in CloudFormation for Docker
+- replace xml erb jenkins templates with single seed and dsl job definitions
