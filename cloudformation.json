@@ -302,6 +302,13 @@
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
+							"/etc/puppet/manifests/installJenkinsJobSeed.pp" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsJob.pp",
+                           					"mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+								"authentication" : "S3AccessCreds"
+							},
                                                         "/etc/puppet/manifests/installJenkinsPlugins.pp" : {
                                                                 "source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsPlugins.pp",
                                                                 "mode" : "000400",
@@ -431,9 +438,11 @@
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp" },
  							"installjenkinsD" : { "command" : "sleep 15" },
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsJob.pp" },
- 							"installjenkinsD" : { "command" : "sleep 15" },
-                                                        "installjenkinsF" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsUsers.pp" },
-							"installjenkinsG" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp" }
+ 							"installjenkinsF" : { "command" : "sleep 15" },
+							"installjenkinsG" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsJobSeed.pp" },
+ 							"installjenkinsH" : { "command" : "sleep 15" },
+                                                        "installjenkinsI" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsUsers.pp" },
+							"installjenkinsJ" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp" }
 						},
                                                 "services" : {
                                                         "sysvinit" : {
