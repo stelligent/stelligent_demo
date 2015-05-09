@@ -344,27 +344,55 @@
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/manifests/jobDeployStage.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobDeployStage.xml.erb",
+							"/etc/puppet/manifests/jobCodeDeployStage.xml.erb" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobCodeDeployStage.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/manifests/jobDeployStageTests.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobDeployStageTests.xml.erb",
+							"/etc/puppet/manifests/jobCodeDeployStageTests.xml.erb" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobCodeDeployStageTests.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/manifests/jobDeployProduction.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobDeployProduction.xml.erb",
+							"/etc/puppet/manifests/jobCodeDeployProduction.xml.erb" : {
+								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobCodeDeployProduction.xml.erb",
                            					"mode" : "000400",
                                                                 "owner" : "root",
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
+                                                        "/etc/puppet/manifests/jobDockerStage.xml.erb" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDockerStage.xml.erb",
+                                                                "mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+                                                                "authentication" : "S3AccessCreds"
+                                                        },
+                                                        "/etc/puppet/manifests/jobDockerStageTests.xml.erb" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDockerStageTests.xml.erb",
+                                                                "mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+                                                                "authentication" : "S3AccessCreds"
+                                                        },
+                                                        "/etc/puppet/manifests/jobDockerProduction.xml.erb" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDockerProduction.xml.erb",
+                                                                "mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+                                                                "authentication" : "S3AccessCreds"
+                                                        },
+                                                        "/etc/puppet/manifests/jobDumpXML.xml.erb" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDumpXML.xml.erb",
+                                                                "mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+                                                                "authentication" : "S3AccessCreds"
+                                                        },
 							"/var/lib/jenkins/.instagram.client.id" : {
 								"content" : { "Ref" : "InstagramId" },
 								"mode" : "000400",

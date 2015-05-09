@@ -9,13 +9,25 @@ node /.*internal$/ {
 	jenkins::job { 'InstagramImageSave':
   		config => template("/etc/puppet/manifests/jobInstagramImageSave.xml.erb"),
 	}
-        jenkins::job { 'DeployStage':
-                config => template("/etc/puppet/manifests/jobDeployStage.xml.erb"),
+        jenkins::job { 'CodeDeployStage':
+                config => template("/etc/puppet/manifests/jobCodeDeployStage.xml.erb"),
         }
-        jenkins::job { 'DeployStageTests':
-                config => template("/etc/puppet/manifests/jobDeployStageTests.xml.erb"),
+        jenkins::job { 'CodeDeployStageTests':
+                config => template("/etc/puppet/manifests/jobCodeDeployStageTests.xml.erb"),
         }
-        jenkins::job { 'DeployProduction':
-                config => template("/etc/puppet/manifests/jobDeployProduction.xml.erb"),
+        jenkins::job { 'CodeDeployProduction':
+                config => template("/etc/puppet/manifests/jobCodeDeployProduction.xml.erb"),
+        }
+        jenkins::job { 'DockerStage':
+                config => template("/etc/puppet/manifests/jobDockerStage.xml.erb"),
+        }
+        jenkins::job { 'DockerStageTests':
+                config => template("/etc/puppet/manifests/jobDockerStageTests.xml.erb"),
+        }
+        jenkins::job { 'DockerProduction':
+                config => template("/etc/puppet/manifests/jobDockerProduction.xml.erb"),
+        }
+        jenkins::job { 'dumpXML':
+                config => template("/etc/puppet/manifests/jobDumpXML.xml.erb"),
         }
 }
