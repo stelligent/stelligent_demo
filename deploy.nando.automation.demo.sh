@@ -206,7 +206,7 @@ aws deploy create-application --application-name nando-demo 2> /dev/null
 aws iam create-role --role-name NandoDemoCodeDeployRole --assume-role-policy-document file://codedeploy/NandoDemoCodeDeployRole.json 2> /dev/null
 aws iam put-role-policy --role-name NandoDemoCodeDeployRole --policy-name NandoDemoCodeDeployPolicy --policy-document file://codedeploy/NandoDemoCodeDeployPolicy.json 2> /dev/null
 roleArn=$(aws iam get-role --role-name NandoDemoCodeDeployRole --query "Role.Arn" --output text)
-asgName=$(aws cloudformation describe-stacks | grep NandoDemoWebASG | cut -f3)
+asgName=$(aws cloudformation describe-stacks | grep NandoDemoWebASG | cut -f3 | head -1)
 aws deploy delete-deployment-group --application-name nando-demo --deployment-group-name nando-demo 2> /dev/null
 sleep 2
 aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --service-role-arn $roleArn --auto-scaling-group $asgName
