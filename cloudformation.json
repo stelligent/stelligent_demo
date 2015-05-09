@@ -655,8 +655,7 @@
         						"cloudformation:DescribeStacks",
         						"ec2:Describe*",
         						"s3:*",
-							"codedeploy:CreateDeployment",
-							"codedeploy:GetDeploymentConfig"
+							"codedeploy:*",
       						],
       						"Effect": "Allow",
       						"Resource": "*"
