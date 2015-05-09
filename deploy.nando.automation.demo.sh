@@ -105,9 +105,9 @@ aws s3 cp jenkins/jobCodeDeployStage.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobDockerDeployProduction.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobDockerDeployStageTests.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobDockerDeployStage.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobInstagramImageGet.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobInstagramImageSave.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobInstagramImageTest.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobInstagramImageGet.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobInstagramImageSave.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobInstagramImageTest.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/installJenkins.pp s3://nando-automation-demo
 aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsPlugins.pp s3://nando-automation-demo 
@@ -219,3 +219,6 @@ deployID=$(aws deploy create-deployment --application-name nando-demo  --github-
 aws deploy get-deployment --deployment-id $deployID  --query "deploymentInfo.status" --output text
 echo
 echo
+
+
+# delete s3 conf files
