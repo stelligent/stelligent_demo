@@ -395,10 +395,9 @@
 							"bootstrapB" : { "command" : "yum -y install puppet python-pip python-devel" },
 							"bootstrapG" : { "command" : "pip install --upgrade awscli awsebcli python-instagram" },
 							"bootstrapC" : { "command" : "mkdir -pv /etc/puppet/modules /var/lib/jenkins" },
-							"bootstrapD" : { "command" : "puppet module install rtyler/jenkins" },
+							"bootstrapD" : { "command" : "puppet module install rtyler/jenkins --version 1.3.0" },
 							"bootstrapHACK1" : { "command" : "sed -i 's|RedHat|Linux|g' /etc/puppet/modules/java/manifests/params.pp" },
 							"bootstrapHACK2" : { "command" : "sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp" },
-							"bootstrapHACK3" : { "command" : "sed -i 's|include\\ jenkins::cli|include\\ jenkins::cli\\ninclude\\ jenkins::cli::reload|' /etc/puppet/modules/jenkins/manifests/job/present.pp" },
 							"installjenkinsA" : { "command" : "puppet apply /etc/puppet/manifests/installJenkins.pp" },
  							"installjenkinsB" : { "command" : "sleep 30" },
 							"installjenkinsC" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp" },
@@ -656,7 +655,8 @@
         						"cloudformation:DescribeStacks",
         						"ec2:Describe*",
         						"s3:*",
-							"codedeploy:CreateDeployment"
+							"codedeploy:CreateDeployment",
+							"codedeploy:GetDeploymentConfig"
       						],
       						"Effect": "Allow",
       						"Resource": "*"
