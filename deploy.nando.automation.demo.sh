@@ -98,12 +98,13 @@ echo
 echo
 echo "Upload Files to S3"
 echo
-aws s3 cp puppet/jobCodeDeployProduction.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobCodeDeployStageTests.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobCodeDeployStage.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobDockerDeployProduction.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobDockerDeployStageTests.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobDockerDeployStage.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/seed.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobCodeDeployProduction.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobCodeDeployStageTests.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobCodeDeployStage.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobDockerDeployProduction.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobDockerDeployStageTests.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobDockerDeployStage.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/jobInstagramImageGet.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/jobInstagramImageSave.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/jobInstagramImageTest.xml.erb s3://nando-automation-demo
