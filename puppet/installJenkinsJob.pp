@@ -9,14 +9,7 @@ node /.*internal$/ {
 	jenkins::job { 'InstagramImageSave':
   		config => template("/etc/puppet/manifests/jobInstagramImageSave.xml.erb"),
 	}
-        jenkins::job { 'DeployStage':
-                config => template("/etc/puppet/manifests/jobDeployStage.xml.erb"),
+        jenkins::job { 'seed':
+                config => template("/etc/puppet/manifests/seed.xml.erb"),
         }
-        jenkins::job { 'DeployStageTests':
-                config => template("/etc/puppet/manifests/jobDeployStageTests.xml.erb"),
-        }
-        jenkins::job { 'DeployProduction':
-                config => template("/etc/puppet/manifests/jobDeployProduction.xml.erb"),
-        }
-
 }

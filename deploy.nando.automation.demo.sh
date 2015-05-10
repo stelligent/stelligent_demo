@@ -1,13 +1,14 @@
 #!/bin/bash
 
 keyName="nando-demo-$(date +%Y%m%d%H%M%S)"
+echo keyName > cloudformation.stack.name
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
 echo
 echo "$title $keyName Launch Script"
 echo
-if [ "$1" ==  "delete" ]; then
+if [ "$1" ==  "destroy" ]; then
         echo
         echo "DELETE MODE.  Deleting stack: \"$keyName\"."
         echo
@@ -18,8 +19,9 @@ if [ "$1" ==  "delete" ]; then
 	complete=0
 	seconds=0
 	while true; do
-        	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
-        	if [[ $stackStatus == *DELETE_IN_PROGRESS* ]]; then
+		stackName=$(cat cloudformation.stack.name)
+        	stackStatus=$(aws cloudformation describe-stacks --stack-name $stackName 2> /dev/null)
+        	if [[ $stackStatus == *DELETE* ]]; then
                 	echo -n ".";
                 	sleep 1;
                 	let seconds=seconds+1
@@ -98,20 +100,21 @@ echo
 echo
 echo "Upload Files to S3"
 echo
-aws s3 cp puppet/jobDeployProduction.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobDeployStageTests.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobDeployStage.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobInstagramImageGet.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobInstagramImageSave.xml.erb s3://nando-automation-demo
-aws s3 cp puppet/jobInstagramImageTest.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/seed.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobInstagramImageGet.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobInstagramImageSave.xml.erb s3://nando-automation-demo
+aws s3 cp jenkins/jobInstagramImageTest.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/installJenkins.pp s3://nando-automation-demo
 aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsPlugins.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsUsers.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsSecurity.pp s3://nando-automation-demo 
+echo
+echo
+echo "Upload Docker to S3"
 cd docker
 rm -fv nando-demo.zip
-zip nando-demo.zip Dockerfile application.py requirements.txt
+zip nando-demo.zip Dockerfile application.py requirements.txt  # Dockerrun.aws.json .ebextensions
 aws s3 cp nando-demo.zip s3://nando-automation-demo
 cd ..
 
@@ -177,7 +180,16 @@ echo
 echo "Write out private key $keyName.pem ."
 rm -fv $keyName.pem
 aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
-chmod -c 0400 $keyName.pem
+
+
+
+# if osx
+chmod -v 0400 $keyName.pem
+# if linux
+#chmod -c 0400 $keyName.pem
+
+
+
 echo
 s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName | grep -v URL | grep -v CNAME | grep NandoDemoBucket | cut -f3)
 echo "upload index.html to s3 bucket $s3bucket"
@@ -197,7 +209,7 @@ aws deploy create-application --application-name nando-demo 2> /dev/null
 aws iam create-role --role-name NandoDemoCodeDeployRole --assume-role-policy-document file://codedeploy/NandoDemoCodeDeployRole.json 2> /dev/null
 aws iam put-role-policy --role-name NandoDemoCodeDeployRole --policy-name NandoDemoCodeDeployPolicy --policy-document file://codedeploy/NandoDemoCodeDeployPolicy.json 2> /dev/null
 roleArn=$(aws iam get-role --role-name NandoDemoCodeDeployRole --query "Role.Arn" --output text)
-asgName=$(aws cloudformation describe-stacks | grep NandoDemoWebASG | cut -f3)
+asgName=$(aws cloudformation describe-stacks | grep NandoDemoWebASG | cut -f3 | head -1)
 aws deploy delete-deployment-group --application-name nando-demo --deployment-group-name nando-demo 2> /dev/null
 sleep 2
 aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --service-role-arn $roleArn --auto-scaling-group $asgName
@@ -206,3 +218,6 @@ deployID=$(aws deploy create-deployment --application-name nando-demo  --github-
 aws deploy get-deployment --deployment-id $deployID  --query "deploymentInfo.status" --output text
 echo
 echo
+
+
+# delete s3 conf files

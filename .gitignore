@@ -2,3 +2,4 @@
 *.zip
 trustedips
 .vagrant/
+cloudformation.stack.name

@@ -31,9 +31,17 @@ All-In-One Amazon AWS automated demo from a single cli command:
 - [Vagrant](https://docs.vagrantup.com/v2/) for Developer Environments.
 
 
-This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and launches inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, private subnet Multi-AZ HA RDS databases , and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, sit in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon resource bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
+This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and deploys inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, private subnet Multi-AZ HA RDS databases , and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, sit in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon resource bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
+
+homepage screenshot:
+
+[![Demo CountPages alpha](http://share.gifyoutube.com/KzB6Gb.gi)](https://www.youtube.com/watch?v=ek1j272iAmc)
 
 http://nando-automation-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). Based on the user's selections, an Instagram image slideshow is generated and displayed (Docker).  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the Continuous Delivey Pipeline. 
+
+Jenkins jobs running Video:
+
+[![Demo CountPages alpha](http://share.gifyoutube.com/KzB6Gb.gif)](https://www.youtube.com/watch?v=ek1j272iAmc)
 
 Acceptance tests ensure the all resources are up and working correctly, and that the application and environment are secure.
 
@@ -125,4 +133,5 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 - rewrite deploy script in python
 - ChaosMonkey, ServerSpec, TestKitchen, Cucumber, OWASP ZAP
 - ElastiCache for user session data
-
+- replace ElasticBeanstalk with ElasticContainerService in CloudFormation for Docker
+- replace xml erb jenkins templates with single seed and dsl job definitions
