@@ -30,4 +30,7 @@ node /.*internal$/ {
         jenkins::job { 'dumpXML':
                 config => template("/etc/puppet/manifests/jobDumpXML.xml.erb"),
         }
+        jenkins::job { 'seed':
+                config => template("/etc/puppet/manifests/seed.xml.erb"),
+        }
 }

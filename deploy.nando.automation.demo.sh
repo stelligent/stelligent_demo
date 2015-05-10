@@ -1,13 +1,14 @@
 #!/bin/bash
 
 keyName="nando-demo-$(date +%Y%m%d%H%M%S)"
+echo keyName > cloudformation.stack.name
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
 echo
 echo "$title $keyName Launch Script"
 echo
-if [ "$1" ==  "delete" ]; then
+if [ "$1" ==  "destroy" ]; then
         echo
         echo "DELETE MODE.  Deleting stack: \"$keyName\"."
         echo
@@ -18,8 +19,9 @@ if [ "$1" ==  "delete" ]; then
 	complete=0
 	seconds=0
 	while true; do
-        	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
-        	if [[ $stackStatus == *DELETE_IN_PROGRESS* ]]; then
+		stackName=$(cat cloudformation.stack.name)
+        	stackStatus=$(aws cloudformation describe-stacks --stack-name $stackName 2> /dev/null)
+        	if [[ $stackStatus == *DELETE* ]]; then
                 	echo -n ".";
                 	sleep 1;
                 	let seconds=seconds+1
