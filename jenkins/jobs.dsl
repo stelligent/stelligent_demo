@@ -5,6 +5,12 @@ freeStyleJob ('dumpXML') {
 	}
 }
 
+freeStyleJob ('CodeDeployProduction') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+}
+
 freeStyleJob ('CodeDeployStage') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
@@ -15,14 +21,14 @@ freeStyleJob ('CodeDeployStage') {
             		trigger("CodeDeployStageTests", 'SUCCESS', true)
         	}		
 	}
-	publishers {
-		downstream('CodeDeployStageTests', thresholdName = 'SUCCESS')
-	}
 }
 
-freeStyleJob ('CodeDeployProduction') {
+freeStyleJob ('CodeDeployStageTests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
+	        downstreamParameterized {
+            		trigger("CodeDeployProduction", 'SUCCESS', true)
+        	}		
 	}
 }
 
@@ -32,20 +38,21 @@ freeStyleJob ('DockerProduction') {
 	}
 }
 
-freeStyleJob ('CodeDeployStageTests') {
+freeStyleJob ('DockerStage') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
+	        downstreamParameterized {
+            		trigger("DockerStageTests", 'SUCCESS', true)
+        	}		
 	}
 }
 
 freeStyleJob ('DockerStageTests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
+	        downstreamParameterized {
+            		trigger("DockerProduction", 'SUCCESS', true)
+        	}		
 	}
 }
 
-freeStyleJob ('DockerStage') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-}
