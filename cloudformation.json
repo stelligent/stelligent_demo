@@ -397,8 +397,6 @@
  							"installjenkinsD" : { "command" : "sleep 15" },
 							"installjenkinsE" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsJob.pp" },
  							"installjenkinsF" : { "command" : "sleep 15" },
-							"installjenkinsG" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsJobSeed.pp" },
- 							"installjenkinsH" : { "command" : "sleep 15" },
                                                         "installjenkinsI" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsUsers.pp" },
 							"installjenkinsJ" : { "command" : "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp" }
 						},
