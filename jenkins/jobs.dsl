@@ -6,7 +6,7 @@ freeStyleJob ('dumpXML') {
 
 freeStyleJob ('CodeDeployStage') {
 	steps {
-		shell('commitID=$(git rev-parse --verify HEAD')
+		shell('commitID=$(git rev-parse --verify HEAD)')
 		shell('echo $commitID')
 		shell('deployID=$(aws deploy create-deployment --application-name nando-demo --region us-east-1 --github-location commitId=$commitID,repository=stelligent/nando_automation_demo --deployment-group-name nando-demo)')
 		shell('aws deploy get-deployment --deployment-id $deployID  --query deploymentInfo.status --output text')
