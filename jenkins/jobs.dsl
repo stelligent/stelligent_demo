@@ -9,6 +9,9 @@ freeStyleJob ('CodeDeployProduction') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
+	steps {
+		shell('sleep 360')
+	}
 }
 
 freeStyleJob ('CodeDeployStage') {
@@ -26,6 +29,9 @@ freeStyleJob ('CodeDeployStage') {
 freeStyleJob ('CodeDeployStageTests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 30')
 	        downstreamParameterized {
             		trigger("CodeDeployProduction", 'SUCCESS', true)
         	}		
@@ -36,11 +42,17 @@ freeStyleJob ('DockerProduction') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
+	steps {
+		shell('sleep 360')
+	}
 }
 
 freeStyleJob ('DockerStage') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 30')
 	        downstreamParameterized {
             		trigger("DockerStageTests", 'SUCCESS', true)
         	}		
@@ -50,7 +62,10 @@ freeStyleJob ('DockerStage') {
 freeStyleJob ('DockerStageTests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
-	        downstreamParameterized {
+	}
+	steps
+		shell('sleep 30')
+        	downstreamParameterized {
             		trigger("DockerProduction", 'SUCCESS', true)
         	}		
 	}
