@@ -5,6 +5,9 @@ freeStyleJob ('dumpXML') {
 }
 
 freeStyleJob ('CodeDeployStage') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
 	steps {
 		shell('commitID=$(git rev-parse --verify HEAD)')
 		shell('echo $commitID')
@@ -14,16 +17,31 @@ freeStyleJob ('CodeDeployStage') {
 }
 
 freeStyleJob ('CodeDeployProduction') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
 }
 
 freeStyleJob ('DockerProduction') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
 }
 
 freeStyleJob ('CodeDeployStageTests') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
 }
 
 freeStyleJob ('DockerStageTests') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
 }
 
 freeStyleJob ('DockerStage') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
 }
