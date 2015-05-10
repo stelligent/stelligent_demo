@@ -4,23 +4,23 @@ freeStyleJob ('dumpXML') {
 	}
 }
 
-freeStyleJob ('DeployCodeDeploy') {
+freeStyleJob ('CodeDeployStage') {
 	steps {
 		shell('commitID=$(git rev-parse --verify HEAD && deployID=$(aws deploy create-deployment --application-name nando-demo --region us-east-1 --github-location commitId=$commitID,repository=stelligent/nando_automation_demo --deployment-group-name nando-demo) && aws deploy get-deployment --deployment-id $deployID  --query "deploymentInfo.status" --output text')
 	}
 }
 
-freeStyleJob ('DeployCodeDeployProduction') {
+freeStyleJob ('CodeDeployProduction') {
 }
 
-freeStyleJob ('DeployDockerProduction') {
+freeStyleJob ('DockerProduction') {
 }
 
-freeStyleJob ('DeployCodeDeployStageTests') {
+freeStyleJob ('CodeDeployStageTests') {
 }
 
-freeStyleJob ('DeployDockerStageTests') {
+freeStyleJob ('DockerStageTests') {
 }
 
-freeStyleJob ('DeployDockerStage') {
+freeStyleJob ('DockerStage') {
 }
