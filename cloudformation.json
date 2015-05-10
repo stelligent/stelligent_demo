@@ -351,48 +351,6 @@
                                                                 "group" : "root",
 								"authentication" : "S3AccessCreds"
 							},
-							"/etc/puppet/manifests/jobCodeDeployStage.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobCodeDeployStage.xml.erb",
-                           					"mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-								"authentication" : "S3AccessCreds"
-							},
-							"/etc/puppet/manifests/jobCodeDeployStageTests.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobCodeDeployStageTests.xml.erb",
-                           					"mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-								"authentication" : "S3AccessCreds"
-							},
-							"/etc/puppet/manifests/jobCodeDeployProduction.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobCodeDeployProduction.xml.erb",
-                           					"mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-								"authentication" : "S3AccessCreds"
-							},
-                                                        "/etc/puppet/manifests/jobDockerStage.xml.erb" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDockerStage.xml.erb",
-                                                                "mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-                                                                "authentication" : "S3AccessCreds"
-                                                        },
-                                                        "/etc/puppet/manifests/jobDockerStageTests.xml.erb" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDockerStageTests.xml.erb",
-                                                                "mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-                                                                "authentication" : "S3AccessCreds"
-                                                        },
-                                                        "/etc/puppet/manifests/jobDockerProduction.xml.erb" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDockerProduction.xml.erb",
-                                                                "mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-                                                                "authentication" : "S3AccessCreds"
-                                                        },
                                                         "/etc/puppet/manifests/seed.xml.erb" : {
                                                                 "source" : "http://nando-automation-demo.s3.amazonaws.com/seed.xml.erb",
                                                                 "mode" : "000400",
