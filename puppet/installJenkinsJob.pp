@@ -27,9 +27,6 @@ node /.*internal$/ {
         jenkins::job { 'DockerProduction':
                 config => template("/etc/puppet/manifests/jobDockerProduction.xml.erb"),
         }
-        jenkins::job { 'dumpXML':
-                config => template("/etc/puppet/manifests/jobDumpXML.xml.erb"),
-        }
         jenkins::job { 'seed':
                 config => template("/etc/puppet/manifests/seed.xml.erb"),
         }

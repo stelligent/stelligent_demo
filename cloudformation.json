@@ -400,13 +400,6 @@
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
-                                                        "/etc/puppet/manifests/jobDumpXML.xml.erb" : {
-                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDumpXML.xml.erb",
-                                                                "mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-                                                                "authentication" : "S3AccessCreds"
-                                                        },
 							"/var/lib/jenkins/.instagram.client.id" : {
 								"content" : { "Ref" : "InstagramId" },
 								"mode" : "000400",

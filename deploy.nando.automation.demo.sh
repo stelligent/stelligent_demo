@@ -101,7 +101,6 @@ echo
 echo "Upload Files to S3"
 echo
 aws s3 cp jenkins/seed.xml.erb s3://nando-automation-demo
-aws s3 cp jenkins/jobDumpXML.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobCodeDeployProduction.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobCodeDeployStageTests.xml.erb s3://nando-automation-demo
 aws s3 cp jenkins/jobCodeDeployStage.xml.erb s3://nando-automation-demo
