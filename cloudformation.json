@@ -393,6 +393,13 @@
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
+                                                        "/etc/puppet/manifests/seed.xml.erb" : {
+                                                                "source" : "http://nando-automation-demo.s3.amazonaws.com/seed.xml.erb",
+                                                                "mode" : "000400",
+                                                                "owner" : "root",
+                                                                "group" : "root",
+                                                                "authentication" : "S3AccessCreds"
+                                                        },
                                                         "/etc/puppet/manifests/jobDumpXML.xml.erb" : {
                                                                 "source" : "http://nando-automation-demo.s3.amazonaws.com/jobDumpXML.xml.erb",
                                                                 "mode" : "000400",
