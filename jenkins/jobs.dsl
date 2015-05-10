@@ -63,7 +63,7 @@ freeStyleJob ('DockerStageTests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
-	steps
+	steps {
 		shell('sleep 30')
         	downstreamParameterized {
             		trigger("DockerProduction", 'SUCCESS', true)
