@@ -20,6 +20,7 @@ freeStyleJob ('CodeDeployStage') {
 	}
 	steps {
 		shell('commitID=$(git rev-parse --verify HEAD) && aws deploy create-deployment --output text --application-name nando-demo --region us-east-1 --github-location commitId=$commitID,repository="stelligent/nando_automation_demo" --deployment-group-name nando-demo')
+		shell('sleep 30')
 	        downstreamParameterized {
             		trigger("CodeDeployStageTests", 'SUCCESS', true)
         	}		
