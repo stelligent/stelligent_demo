@@ -7,10 +7,10 @@ freeStyleJob ('InstagramImageGet') {
         }
         steps {
 		customWorkspace('instagram')
-                shell('python instagram.image.get.py')
+                shell('python instagram/instagram.image.get.py')
         }
 	publishers {
-                downstream('InstgramImageTest', 'SUCCESS', true)
+                downstream('InstgramImageTest', 'SUCCESS')
 	}
 }
 freeStyleJob ('InstagramImageTest') {
@@ -19,10 +19,10 @@ freeStyleJob ('InstagramImageTest') {
         }
         steps {
                 customWorkspace('instagram')
-                shell('python instagram.image.test.py')
+                shell('python instagram/instagram.image.test.py')
         }
 	publishers {
-                downstream('InstagramImageSave', 'SUCCESS', true)
+                downstream('InstagramImageSave', 'SUCCESS')
 	}
 }
 freeStyleJob ('InstagramImageSave') {
@@ -31,7 +31,7 @@ freeStyleJob ('InstagramImageSave') {
         }
         steps {
                 customWorkspace('instagram')
-                shell('python instagram.image.save.py')
+                shell('python instagram/instagram.image.save.py')
         }
 }
 freeStyleJob ('dumpXML') {
@@ -58,11 +58,12 @@ freeStyleJob ('CodeDeployStage') {
 		scm('* * * * *')
 	}
 	steps {
-		shell('commitID=$(git rev-parse --verify HEAD) && aws deploy create-deployment --output text --application-name nando-demo --region us-east-1 --github-location commitId=$commitID,repository="stelligent/nando_automation_demo" --deployment-group-name nando-demo')
+		#shell('commitID=$(git rev-parse --verify HEAD) && aws deploy create-deployment --output text --application-name nando-demo --region us-east-1 --github-location commitId=$commitID,repository="stelligent/nando_automation_demo" --deployment-group-name nando-demo')
+		shell('bash codedeploy/codedeploy.sh')
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('CodeDeployStageTests', 'SUCCESS', true)
+                downstream('CodeDeployStageTests', 'SUCCESS')
 	}
 }
 
@@ -74,7 +75,7 @@ freeStyleJob ('CodeDeployStageTests') {
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('CodeDeployProduction', 'SUCCESS', true)
+                downstream('CodeDeployProduction', 'SUCCESS')
 	}
 }
 
@@ -98,7 +99,7 @@ freeStyleJob ('DockerStage') {
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('DockerStageTests', 'SUCCESS', true)
+                downstream('DockerStageTests', 'SUCCESS')
 	}
 }
 
@@ -110,7 +111,7 @@ freeStyleJob ('DockerStageTests') {
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('DockerStageTests', 'SUCCESS', true)
+                downstream('DockerStageTests', 'SUCCESS')
 	}
 }
 
