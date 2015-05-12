@@ -1,3 +1,39 @@
+freeStyleJob ('getImage') {
+	scm {
+                git('https://github.com/stelligent/nando_automation_demo')
+        }
+        triggers {
+                cron('*/5 * * * *')
+        }
+        steps {
+		customWorkspace('instagram')
+                shell('python instagram.image.get.py')
+                downstreamParameterized {
+                        trigger("testImage", 'SUCCESS', true)
+                }
+        }
+}
+freeStyleJob ('testImage') {
+        scm {
+                git('https://github.com/stelligent/nando_automation_demo')
+        }
+        steps {
+                customWorkspace('instagram')
+                shell('python instagram.image.test.py')
+                downstreamParameterized {
+                        trigger("testImage", 'SUCCESS', true)
+                }
+        }
+}
+freeStyleJob ('saveImage') {
+        scm {
+                git('https://github.com/stelligent/nando_automation_demo')
+        }
+        steps {
+                customWorkspace('instagram')
+                shell('python instagram.image.save.py')
+        }
+}
 freeStyleJob ('dumpXML') {
 	steps {
 		shell('echo && echo seed && cat /var/lib/jenkins/jobs/seed/config.xml && echo && echo')
