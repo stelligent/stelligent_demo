@@ -1,8 +1,8 @@
 #!/bin/bash
 
-aws s3 cp s3://nando-automation-demo/cloudformation-stack-name .
+aws s3 cp s3://nando-automation-demo/cloudformation.stack.name .
 echo
-stackName=$(< cloudformation-stack-name)
+stackName=$(< cloudformation.stack.name)
 echo $stackName
 echo
 rm -fv nando-demo.zip
