@@ -10,7 +10,7 @@ freeStyleJob ('InstagramImageGet') {
                 shell('python instagram.image.get.py')
         }
 	publishers {
-                downstream('testImage', 'SUCCESS')
+                downstream('InstgramImageTest', 'SUCCESS')
 	}
 }
 freeStyleJob ('InstagramImageTest') {
@@ -22,7 +22,7 @@ freeStyleJob ('InstagramImageTest') {
                 shell('python instagram.image.test.py')
         }
 	publishers {
-                downstream('saveImage', 'SUCCESS')
+                downstream('InstagramImageSave', 'SUCCESS')
 	}
 }
 freeStyleJob ('InstagramImageSave') {
