@@ -13,6 +13,6 @@ zip nando-demo.zip Dockerfile application.py requirements.txt
 echo
 aws s3 cp nando-demo.zip s3://nando-automation-demo
 echo
-/usr/local/bin/eb init -i NandoDemoDockerApp -r us-east-1 -p docker 
+/usr/local/bin/eb init -i NandoDemoDockerApp -r us-east-1 -p docker -k $stackName
 echo
 /usr/local/bin/eb deploy
