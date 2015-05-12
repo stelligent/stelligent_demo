@@ -372,7 +372,7 @@
                                                 },
 						"commands" : {
 							"bootstrapA" : { "command" : "yum -y update" },
-							"bootstrapB" : { "command" : "yum -y install git puppet python-pip python-devel gcc zlib-devel" },
+							"bootstrapB" : { "command" : "yum -y install git puppet python-pip python-devel gcc zlib-devel openssl-devel" },
 							"bootstrapC" : { "command" : "wget -nv https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz" },
 							"bootstrapD" : { "command" : "tar fxz Python-2.7.9.tgz" },
 							"bootstrapE" : { "command" : "cd Python-2.7.9 && ./configure --prefix=/usr/local && make && make altinstall" },
@@ -639,7 +639,8 @@
         						"cloudformation:DescribeStacks",
         						"ec2:Describe*",
         						"s3:*",
-							"codedeploy:*"
+							"codedeploy:*",
+							"elasticbeanstalk:*"
       						],
       						"Effect": "Allow",
       						"Resource": "*"
