@@ -106,6 +106,7 @@ aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo
 aws s3 cp puppet/installJenkinsPlugins.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsUsers.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsSecurity.pp s3://nando-automation-demo 
+aws s3 cp puppet/cloudformation.stack.name s3://nando-automation-demo
 echo
 echo
 echo "Upload Docker to S3"
@@ -145,7 +146,7 @@ echo "Launching stack:"
 echo
 echo $cfnParameters
 echo
-aws cloudformation create-stack --capabilities CAPABILITY_IAM --stack-name $keyName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
+aws cloudformation create-stack --capabilities CAPABILITY_IAM --stack-name $stackName --template-body $cfnFile --parameters "ParameterKey=PrivateKey,ParameterValue=$privateKeyValue" $cfnParameters
 echo
 complete=0
 seconds=0
