@@ -7,7 +7,7 @@ freeStyleJob ('InstagramImageGet') {
         }
         steps {
 		customWorkspace('instagram')
-                shell('python instagram/instagram.image.get.py')
+                shell('/usr/local/bin/python2.7 instagram/instagram.image.get.py')
         }
 	publishers {
                 downstream('InstgramImageTest', 'SUCCESS')
