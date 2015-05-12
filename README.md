@@ -145,3 +145,4 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 - Make CloudFormation work in multiple regions and AZs
 - Consider using m3 default instance types
 - Rename CloudFormation and other resources to Stelligent
+- Purpose of restricting endpoints?
