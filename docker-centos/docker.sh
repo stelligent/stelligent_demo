@@ -5,7 +5,7 @@ echo
 stackName=$(< cloudformation.stack.name)
 echo $stackName
 echo
-aws cloudformation describe-stacks --stack-name $stackName|grep PrivateKey -A22|cut -f3 > ~/.ssh/$stackName.pem
+aws cloudformation describe-stacks --region us-east-1 --stack-name $stackName|grep PrivateKey -A22|cut -f3 > ~/.ssh/$stackName.pem
 echo
 rm -fv nando-demo.zip
 echo
