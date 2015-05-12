@@ -138,7 +138,10 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 
 # questions
 
-- Use delivery pipeline plugin?
+- Use [delivery pipeline](https://wiki.jenkins-ci.org/display/JENKINS/Delivery+Pipeline+Plugin) plugin?
 - Diagram of the stages and activities in the deployment pipeline?
 - Deployment time?
-- Use [Dashing](http://dashing.io/) dashboard  to show metrics? (Jonny has a CFN template)
+- Use [Dashing](http://dashing.io/) dashboard  to show metrics? (Jonny has a CFN template)?
+- Make CloudFormation work in multiple regions and AZs
+- Consider using m3 default instance types
+- Rename CloudFormation and other resources to Stelligent
