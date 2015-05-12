@@ -2,13 +2,17 @@
 	"AWSTemplateFormatVersion" : "2010-09-09",
  	"Description" : "Nando Automation Demo",
   	"Parameters" : {
-    		"InstanceType" : {
+    		"InstanceTypeASG" : {
       			"Type" : "String",
-      			"Default" : "t2.micro" 
+      			"Default" : "m1.micro" 
+    		},
+    		"InstanceTypeJenkins" : {
+      			"Type" : "String",
+      			"Default" : "m1.small" 
     		},
 		"InstanceAMI" : {
 			"Type" : "String",
- 			"Default" : "ami-c2a818aa"
+ 			"Default" : "ami-fb8e9292"
 		},
 		"NandoDemoZoneName" : {
 			"Type" : "String",
@@ -237,7 +241,7 @@
 			"DependsOn" : "NandoDemoPublicRouteTableAssociation",
  			"Properties" : {
         			"KeyName" : { "Ref" : "KeyName" },
- 				"InstanceType" : "t2.small",
+ 				"InstanceType" : { "Ref" : "InstanceTypeJenkins" },
  				"ImageId" : { "Ref" : "InstanceAMI" },
 				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" ] },
             			"IamInstanceProfile": { "Ref": "NandoDemoJenkinsInstanceProfile" },
