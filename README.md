@@ -147,5 +147,6 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 - Use [Dashing](http://dashing.io/) dashboard  to show metrics? (Jonny has a CFN template)?
 - Make CloudFormation work in multiple regions and AZs
 - Consider using m3 default instance types
+- Are you doing any encryption (in transit or at rest?)?
 - Rename CloudFormation and other resources to Stelligent
-- Purpose of restricting endpoints?
+- Purpose of restricting IP endpoints in command?
