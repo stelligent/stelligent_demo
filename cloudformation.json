@@ -377,7 +377,7 @@
 							"bootstrapD" : { "command" : "tar fxz Python-2.7.9.tgz" },
 							"bootstrapE" : { "command" : "cd Python-2.7.9 && ./configure --prefix=/usr/local && make && make altinstall" },
 							"bootstrapF" : { "command" : "wget -nv https://bootstrap.pypa.io/get-pip.py && python2.7 get-pip.py" },
-							"bootstrapG" : { "command" : "pip2.7 install --upgrade awscli awsebcli python-instagram" },
+							"bootstrapG" : { "command" : "/usr/local/bin/pip2.7 install --upgrade awscli awsebcli python-instagram" },
 							"bootstrapH" : { "command" : "mkdir -pv /etc/puppet/modules /var/lib/jenkins" },
 							"bootstrapI" : { "command" : "puppet module install rtyler/jenkins --version 1.3.0" },
 							"bootstrapJ" : { "command" : "sed -i 's|RedHat|Linux|g' /etc/puppet/modules/java/manifests/params.pp" },
