@@ -68,7 +68,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     				yum -y update
     				rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
 				yum -y install puppet python-pip python-devel
-				puppet module install rtyler-jenkins
+				puppet module install rtyler-jenkins --version 1.3.0
                         	pip install python-instagram awscli
 				mkdir -pv /var/lib/jenkins
 				echo $1 > /var/lib/jenkins/.instagram.client.id
