@@ -4,7 +4,7 @@
   	"Parameters" : {
     		"InstanceTypeASG" : {
       			"Type" : "String",
-      			"Default" : "m1.micro" 
+      			"Default" : "t1.micro" 
     		},
     		"InstanceTypeJenkins" : {
       			"Type" : "String",
@@ -764,6 +764,7 @@
 		"NandoDemoCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo.", { "Ref" : "NandoDemoZoneName" } ] ] } },
 		"NandoDemoDockerCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo-docker.", { "Ref" : "NandoDemoZoneName" } ] ] } },
 		"NandoDemoBucketCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo-bucket.", { "Ref" : "NandoDemoZoneName" } ] ] } },
+		"NandoDemoBucketURL" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } },
 		"NandoDemoJenkinsCNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://nando-automation-demo-jenkins.", { "Ref" : "NandoDemoZoneName" }, ":8080" ] ] } }
   	}
 }
