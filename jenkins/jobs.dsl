@@ -10,7 +10,7 @@ freeStyleJob ('CodeDeployProduction') {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
 	steps {
-		shell('sleep 360')
+		shell('sleep 10')
 	}
 }
 
@@ -18,9 +18,12 @@ freeStyleJob ('CodeDeployStage') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
+	triggers {
+		cron('* * * * *')
+	}
 	steps {
 		shell('commitID=$(git rev-parse --verify HEAD) && aws deploy create-deployment --output text --application-name nando-demo --region us-east-1 --github-location commitId=$commitID,repository="stelligent/nando_automation_demo" --deployment-group-name nando-demo')
-		shell('sleep 30')
+		shell('sleep 10')
 	        downstreamParameterized {
             		trigger("CodeDeployStageTests", 'SUCCESS', true)
         	}		
@@ -32,7 +35,7 @@ freeStyleJob ('CodeDeployStageTests') {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
 	steps {
-		shell('sleep 30')
+		shell('sleep 10')
 	        downstreamParameterized {
             		trigger("CodeDeployProduction", 'SUCCESS', true)
         	}		
@@ -44,7 +47,7 @@ freeStyleJob ('DockerProduction') {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
 	steps {
-		shell('sleep 360')
+		shell('sleep 10')
 	}
 }
 
@@ -52,8 +55,11 @@ freeStyleJob ('DockerStage') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
+	triggers {
+		cron('* * * * *')
+	}
 	steps {
-		shell('sleep 30')
+		shell('sleep 10')
 	        downstreamParameterized {
             		trigger("DockerStageTests", 'SUCCESS', true)
         	}		
@@ -65,7 +71,7 @@ freeStyleJob ('DockerStageTests') {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
 	steps {
-		shell('sleep 30')
+		shell('sleep 10')
         	downstreamParameterized {
             		trigger("DockerProduction", 'SUCCESS', true)
         	}		
