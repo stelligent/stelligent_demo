@@ -1,4 +1,4 @@
-freeStyleJob ('getImage') {
+freeStyleJob ('InstagramImageGet') {
 	scm {
                 git('https://github.com/stelligent/nando_automation_demo')
         }
@@ -13,7 +13,7 @@ freeStyleJob ('getImage') {
                 downstream('testImage', 'SUCCESS')
 	}
 }
-freeStyleJob ('testImage') {
+freeStyleJob ('InstagramImageTest') {
         scm {
                 git('https://github.com/stelligent/nando_automation_demo')
         }
@@ -25,7 +25,7 @@ freeStyleJob ('testImage') {
                 downstream('saveImage', 'SUCCESS')
 	}
 }
-freeStyleJob ('saveImage') {
+freeStyleJob ('InstagramImageSave') {
         scm {
                 git('https://github.com/stelligent/nando_automation_demo')
         }
