@@ -1,20 +1,18 @@
 #!/bin/bash
 
-keyName="nando-demo-$(date +%Y%m%d%H%M%S)"
-echo $keyName > cloudformation.stack.name
-stackName=$(cat cloudformation.stack.name)
+stackName="nando-demo-$(date +%Y%m%d%H%M%S)"
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
 echo
-echo "$title $keyName Launch Script"
+echo "$title $stackName Launch Script"
 echo
 if [ "$1" ==  "destroy" ]; then
         echo
-        echo "DELETE MODE.  Deleting stack: \"$keyName\"."
+        echo "DELETE MODE.  Deleting stack: \"$stackName\"."
         echo
-        aws cloudformation delete-stack --stack-name $keyName
-        echo "waiting on delete stack $keyName ."
+        aws cloudformation delete-stack --stack-name $stackName
+        echo "waiting on delete stack $stackName ."
 	sleep 5
         echo
 	complete=0
@@ -29,7 +27,7 @@ if [ "$1" ==  "destroy" ]; then
                 	echo
                 	echo $stackStatus
                 	echo
-			echo "Stack $keyName deleted in $seconds seconds"
+			echo "Stack $stackName deleted in $seconds seconds"
 			echo
 			echo
 			exit
@@ -59,10 +57,10 @@ for ip in "$@"; do
 done
 echo
 echo
-existingStack=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
+existingStack=$(aws cloudformation describe-stacks --stack-name $stackName 2> /dev/null)
 if [[ $existingStack == *CREATE_COMPLETE* ]]; then 
 	echo
-	echo "Stack \"$keyName\" exists. Please delete manually before executing this script."
+	echo "Stack \"$stackName\" exists. Please delete manually before executing this script."
 	echo
 	echo $existingStack
 	echo
@@ -71,7 +69,7 @@ if [[ $existingStack == *CREATE_COMPLETE* ]]; then
 fi
 if [[ $existingStack == *ROLLBACK* ]]; then
         echo
-        echo "Stack \"$keyName\" is in Rollback Mode. Please delete manually before executing this script."
+        echo "Stack \"$stackName\" is in Rollback Mode. Please delete manually before executing this script."
         echo
 	echo $existingStack
 	echo
@@ -80,7 +78,7 @@ if [[ $existingStack == *ROLLBACK* ]]; then
 fi
 if [[ $existingStack == *DELETE_IN_PROGRESS* ]]; then 
 	echo
-	echo "Stack \"$keyName\" is deleting.  Please wait until deletion is complete before running this script."
+	echo "Stack \"$stackName\" is deleting.  Please wait until deletion is complete before running this script."
 	echo
 	echo $existingStack
 	echo
@@ -89,7 +87,7 @@ if [[ $existingStack == *DELETE_IN_PROGRESS* ]]; then
 fi
 if [[ $existingStack == *CREATING_IN_PROGRESS* ]]; then
         echo
-        echo "Stack \"$keyName\" is creating.  Please wait until creation is complete or delete stack before running this script."
+        echo "Stack \"$stackName\" is creating.  Please wait until creation is complete or delete stack before running this script."
         echo
 	echo $existingStack
 	echo
@@ -118,17 +116,20 @@ cd ..
 
 echo
 echo
-existingKeypair=$(aws ec2 describe-key-pairs --key-name $keyName 2> /dev/null) 
-if [[ $existingKeypair == *$keyName* ]]; then 
+existingKeypair=$(aws ec2 describe-key-pairs --key-name $stackName 2> /dev/null) 
+if [[ $existingKeypair == *$stackName* ]]; then 
 	echo
-	echo "Deleting existing $keyName keypair: $existingKeypair"; 
-	aws ec2 delete-key-pair --key-name $keyName
+	echo "Deleting existing $stackName keypair: $existingKeypair"; 
+	aws ec2 delete-key-pair --key-name $stackName
 	echo
 fi
 echo
-echo "Creating $keyName private key as $keyName.pem ."
-privateKeyValue=$(aws ec2 create-key-pair --key-name $keyName --query 'KeyMaterial' --output text)
-cfnParameters+=" ParameterKey=NandoDemoName,ParameterValue=$keyName ParameterKey=KeyName,ParameterValue=$keyName "
+echo "Creating $stackName private key as $stackName.pem ."
+privateKeyValue=$(aws ec2 create-key-pair --key-name $stackName --query 'KeyMaterial' --output text)
+echo $privateKeyValue > $stackName.pem
+chmod 0400 $stackName.pem
+
+cfnParameters+=" ParameterKey=NandoDemoName,ParameterValue=$stackName ParameterKey=KeyName,ParameterValue=$stackName "
 echo
 instagramId=$(env|grep INSTAGRAM_CLIENT_ID |cut -f2 -d=)
 instagramSecret=$(env|grep INSTAGRAM_CLIENT_SECRET |cut -f2 -d=)
@@ -151,7 +152,7 @@ echo
 complete=0
 seconds=0
 while [ "$complete" -ne 1 ]; do
-	stackStatus=$(aws cloudformation describe-stacks --stack-name $keyName 2> /dev/null)
+	stackStatus=$(aws cloudformation describe-stacks --stack-name $stackName 2> /dev/null)
 	if [[ $stackStatus == *ROLLBACK* ]]; then
 		echo
 		echo "FAILURE"
@@ -175,26 +176,26 @@ done
 echo
 echo
 echo
-echo "Write out private key $keyName.pem ."
-rm -fv $keyName.pem
-aws cloudformation describe-stacks --stack-name $keyName|grep PrivateKey -A22|cut -f3 > $keyName.pem
+echo "Write out private key $stackName.pem ."
+rm -fv $stackName.pem
+aws cloudformation describe-stacks --stack-name $stackName|grep PrivateKey -A22|cut -f3 > $stackName.pem
 
 
 
 # if osx
-chmod -v 0400 $keyName.pem
+chmod -v 0400 $stackName.pem
 # if linux
-#chmod -c 0400 $keyName.pem
+#chmod -c 0400 $stackName.pem
 
 
 
 echo
-s3bucket=$(aws cloudformation describe-stacks --stack-name $keyName | grep -v URL | grep -v CNAME | grep NandoDemoBucket | cut -f3)
+s3bucket=$(aws cloudformation describe-stacks --stack-name $stackName | grep -v URL | grep -v CNAME | grep NandoDemoBucket | cut -f3)
 echo "upload index.html to s3 bucket $s3bucket"
 aws s3 cp s3/index.html s3://$s3bucket
 echo
-jenkinsIP=$(aws cloudformation describe-stacks --stack-name $keyName | grep NandoDemoJenkinsEIP | cut -f3)
-echo "ssh -i $keyName.pem ec2-user@$jenkinsIP"
+jenkinsIP=$(aws cloudformation describe-stacks --stack-name $stackName | grep NandoDemoJenkinsEIP | cut -f3)
+echo "ssh -i $stackName.pem ec2-user@$jenkinsIP"
 echo
 echo "$title has deployed in $seconds seconds."
 echo
