@@ -1,4 +1,4 @@
-import glob
+import glob, os
 debug = 0
 
 for image in glob.glob('*.jpg'):
