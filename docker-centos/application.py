@@ -1,11 +1,12 @@
+import time
 from flask import Flask
 from werkzeug.contrib.fixers import ProxyFix
-app = Flask(__name__)
 
+app = Flask(__name__)
 @app.route('/')
 
 def hello_world():
-    return 'nando-automation-demo via docker!!'
+    return "nando-automation-demo via docker int(time.time())"
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
