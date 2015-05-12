@@ -408,7 +408,7 @@
  		},
 		"NandoDemoWebASG" : {
       			"Type": "AWS::AutoScaling::AutoScalingGroup",
-			"DependsOn" : [ "NandoDemoWebLaunchConfig", "NandoDemoMysql" ],
+			"DependsOn" : [ "NandoDemoWebLaunchConfig" ],
       			"Version": "2009-05-15",
       			"Properties": {
 				"AvailabilityZones" : [ { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" ] } ],
