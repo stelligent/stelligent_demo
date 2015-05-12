@@ -4,8 +4,12 @@
   	"Parameters" : {
     		"InstanceType" : {
       			"Type" : "String",
-      			"Default" : "t1.micro" 
+      			"Default" : "t2.micro" 
     		},
+		"InstanceAMI" : {
+			"Type" : "String",
+ 			"Default" : "ami-c2a818aa"
+		},
 		"NandoDemoZoneName" : {
 			"Type" : "String",
 			"Default" : "elasticoperations.com."	
@@ -233,8 +237,8 @@
 			"DependsOn" : "NandoDemoPublicRouteTableAssociation",
  			"Properties" : {
         			"KeyName" : { "Ref" : "KeyName" },
- 				"InstanceType" : { "Ref" : "InstanceType" },
- 				"ImageId" : "ami-fb8e9292",
+ 				"InstanceType" : "t2.small",
+ 				"ImageId" : { "Ref" : "InstanceAMI" },
 				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" ] },
             			"IamInstanceProfile": { "Ref": "NandoDemoJenkinsInstanceProfile" },
         			"NetworkInterfaces" : [ { 
@@ -488,7 +492,7 @@
       			"Properties" : {
         			"KeyName" : { "Ref" : "KeyName" },
         			"InstanceType" : { "Ref" : "InstanceType" },
- 				"ImageId" : "ami-fb8e9292",
+ 				"ImageId" : { "Ref" : "InstanceAMI" },
 				"AssociatePublicIpAddress" : "true",
             			"IamInstanceProfile": { "Ref": "NandoDemoASGInstanceProfile" },
 				"SecurityGroups": [ { "Ref": "NandoDemoPublicSecurityGroup" } ],
