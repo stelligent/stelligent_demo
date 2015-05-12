@@ -5,12 +5,14 @@ echo
 stackName=$(< cloudformation.stack.name)
 echo $stackName
 echo
+aws cloudformation describe-stacks --stack-name $stackName|grep PrivateKey -A22|cut -f3 > ~/.ssh/$stackName.pem
+echo
 rm -fv nando-demo.zip
 echo
 zip nando-demo.zip Dockerfile application.py requirements.txt
 echo
 aws s3 cp nando-demo.zip s3://nando-automation-demo
 echo
-/usr/local/bin/eb init -i NandoDemoDockerApp -r us-east-1 -p docker -k ../nando-demo-20150512005231.pem 
+/usr/local/bin/eb init -i NandoDemoDockerApp -r us-east-1 -p docker 
 echo
 /usr/local/bin/eb deploy
