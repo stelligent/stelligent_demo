@@ -8,8 +8,10 @@ freeStyleJob ('getImage') {
         steps {
 		customWorkspace('instagram')
                 shell('python instagram.image.get.py')
-                downstream('testImage', 'SUCCESS')
         }
+	publishers {
+                downstream('testImage', 'SUCCESS')
+	}
 }
 freeStyleJob ('testImage') {
         scm {
@@ -18,8 +20,10 @@ freeStyleJob ('testImage') {
         steps {
                 customWorkspace('instagram')
                 shell('python instagram.image.test.py')
-                downstream('saveImage', 'SUCCESS')
         }
+	publishers {
+                downstream('saveImage', 'SUCCESS')
+	}
 }
 freeStyleJob ('saveImage') {
         scm {
