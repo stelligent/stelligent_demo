@@ -229,7 +229,7 @@
                         "Properties" : {
                                 "HostedZoneName" : { "Ref" : "NandoDemoZoneName" },
                                 "RecordSets" : [ {
-                                        "Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo-bucket", { "Ref" : "NandoDemoZoneName" } ] ] },
+                                        "Name" : { "Fn::Join" : [ "", [ "nando-automation-demo-bucket.", { "Ref" : "NandoDemoZoneName" } ] ] },
                                         "Type" : "CNAME",
 					"TTL" : "900",
 					"ResourceRecords" : [ { "Fn::Join" : [ "", [ { "Ref" : "NandoDemoBucket" }, ".s3-website-us-east-1.amazonaws.com" ] ] } ]
@@ -304,13 +304,6 @@
 								"authentication" : "S3AccessCreds"
 							},
 							"/etc/puppet/manifests/installJenkinsJob.pp" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsJob.pp",
-                           					"mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-								"authentication" : "S3AccessCreds"
-							},
-							"/etc/puppet/manifests/installJenkinsJobSeed.pp" : {
 								"source" : "http://nando-automation-demo.s3.amazonaws.com/installJenkinsJob.pp",
                            					"mode" : "000400",
                                                                 "owner" : "root",
