@@ -110,7 +110,7 @@ freeStyleJob ('DockerStageTests') {
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('DockerStageTests', 'SUCCESS')
+                downstream('DockerProduction', 'SUCCESS')
 	}
 }
 
