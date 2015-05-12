@@ -10,7 +10,7 @@ freeStyleJob ('InstagramImageGet') {
                 shell('/usr/local/bin/python2.7 instagram/instagram.image.get.py')
         }
 	publishers {
-                downstream('InstgramImageTest', 'SUCCESS')
+                downstream('InstagramImageTest', 'SUCCESS')
 	}
 }
 freeStyleJob ('InstagramImageTest') {
