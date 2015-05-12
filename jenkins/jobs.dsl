@@ -95,7 +95,7 @@ freeStyleJob ('DockerStage') {
 		scm('* * * * *')
 	}
 	steps {
-		shell('bash docker/docker.sh')
+		shell('cd docker && bash docker.sh')
 		shell('sleep 10')
 	}
 	publishers {
