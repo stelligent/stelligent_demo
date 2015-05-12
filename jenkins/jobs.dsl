@@ -115,3 +115,5 @@ freeStyleJob ('DockerStageTests') {
 	}
 }
 
+freeStyleJob ('tester') {
+}
