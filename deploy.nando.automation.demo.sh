@@ -1,7 +1,8 @@
 #!/bin/bash
 
 keyName="nando-demo-$(date +%Y%m%d%H%M%S)"
-echo keyName > cloudformation.stack.name
+echo $keyName > cloudformation.stack.name
+stackName=$(cat cloudformation.stack.name)
 cfnFile="file://cloudformation.json"
 title="Nando Automation Demo"
 clear
@@ -19,7 +20,6 @@ if [ "$1" ==  "destroy" ]; then
 	complete=0
 	seconds=0
 	while true; do
-		stackName=$(cat cloudformation.stack.name)
         	stackStatus=$(aws cloudformation describe-stacks --stack-name $stackName 2> /dev/null)
         	if [[ $stackStatus == *DELETE* ]]; then
                 	echo -n ".";
@@ -100,13 +100,13 @@ echo
 echo
 echo "Upload Files to S3"
 echo
+aws s3 cp cloudformation.stack.name s3://nando-automation-demo
 aws s3 cp jenkins/seed.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/installJenkins.pp s3://nando-automation-demo
 aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsPlugins.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsUsers.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsSecurity.pp s3://nando-automation-demo 
-aws s3 cp puppet/cloudformation.stack.name s3://nando-automation-demo
 echo
 echo
 echo "Upload Docker to S3"
