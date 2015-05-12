@@ -56,6 +56,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 jenkins.vm.network :private_network, ip: "10.201.0.13"
   		jenkins.vm.network :forwarded_port, guest: 8080, host: 8010
   		jenkins.vm.synced_folder "../puppet", "/etc/puppet/manifests"
+  		jenkins.vm.synced_folder "../jenkins", "/etc/puppet/templates"
 		jenkins.vm.synced_folder '.', '/vagrant', disabled: true
                 jenkins.vm.provider :virtualbox do |vb|
                         vb.customize ["modifyvm", :id, "--memory", "1024"]
