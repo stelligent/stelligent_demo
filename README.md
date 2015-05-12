@@ -141,6 +141,8 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 - Use [delivery pipeline](https://wiki.jenkins-ci.org/display/JENKINS/Delivery+Pipeline+Plugin) plugin?
 - Diagram of the stages and activities in the deployment pipeline?
 - Deployment time?
+- How do you get feedback after running the ```deploy.nando.automation.demo.sh``` script? For example, the URL of the working application?
+- Is the Jenkins launch a separate command or is it embededed in the ```deploy.nando.automation.demo.sh``` script
 - Use [Dashing](http://dashing.io/) dashboard  to show metrics? (Jonny has a CFN template)?
 - Make CloudFormation work in multiple regions and AZs
 - Consider using m3 default instance types
