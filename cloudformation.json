@@ -330,27 +330,6 @@
                                                                 "group" : "root",
                                                                 "authentication" : "S3AccessCreds"
                                                         },
-							"/etc/puppet/manifests/jobInstagramImageGet.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImageGet.xml.erb",
-                           					"mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-								"authentication" : "S3AccessCreds"
-							},
-							"/etc/puppet/manifests/jobInstagramImageTest.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImageTest.xml.erb",
-                           					"mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-								"authentication" : "S3AccessCreds"
-							},
-							"/etc/puppet/manifests/jobInstagramImageSave.xml.erb" : {
-								"source" : "http://nando-automation-demo.s3.amazonaws.com/jobInstagramImageSave.xml.erb",
-                           					"mode" : "000400",
-                                                                "owner" : "root",
-                                                                "group" : "root",
-								"authentication" : "S3AccessCreds"
-							},
                                                         "/etc/puppet/manifests/seed.xml.erb" : {
                                                                 "source" : "http://nando-automation-demo.s3.amazonaws.com/seed.xml.erb",
                                                                 "mode" : "000400",

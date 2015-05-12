@@ -17,16 +17,6 @@ node /^nando-demo-jenkins.*/ {
 	jenkins::plugin { 'job-dsl': }
 	jenkins::plugin { 'build-flow-plugin': }
 
-
-	jenkins::job { 'InstagramImageGet':
-  		config => template("/etc/puppet/templates/jobInstagramImageGet.xml.erb"),
-	}
-	jenkins::job { 'InstagramImageTest':
-  		config => template("/etc/puppet/templates/jobInstagramImageTest.xml.erb"),
-	}
-	jenkins::job { 'InstagramImageSave':
-  		config => template("/etc/puppet/templates/jobInstagramImageSave.xml.erb"),
-	}
         jenkins::job { 'seed':
                 config => template("/etc/puppet/templates/seed.xml.erb"),
         }

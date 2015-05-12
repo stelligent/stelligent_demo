@@ -101,9 +101,6 @@ echo
 echo "Upload Files to S3"
 echo
 aws s3 cp jenkins/seed.xml.erb s3://nando-automation-demo
-aws s3 cp jenkins/jobInstagramImageGet.xml.erb s3://nando-automation-demo
-aws s3 cp jenkins/jobInstagramImageSave.xml.erb s3://nando-automation-demo
-aws s3 cp jenkins/jobInstagramImageTest.xml.erb s3://nando-automation-demo
 aws s3 cp puppet/installJenkins.pp s3://nando-automation-demo
 aws s3 cp puppet/installJenkinsJob.pp s3://nando-automation-demo 
 aws s3 cp puppet/installJenkinsPlugins.pp s3://nando-automation-demo 
