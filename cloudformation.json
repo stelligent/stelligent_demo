@@ -4,7 +4,7 @@
   	"Parameters" : {
     		"InstanceTypeASG" : {
       			"Type" : "String",
-      			"Default" : "t1.small" 
+      			"Default" : "m1.small" 
     		},
     		"InstanceTypeJenkins" : {
       			"Type" : "String",
