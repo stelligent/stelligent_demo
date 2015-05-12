@@ -10,7 +10,7 @@ freeStyleJob ('InstagramImageGet') {
                 shell('python instagram.image.get.py')
         }
 	publishers {
-                downstream('InstgramImageTest', 'SUCCESS')
+                downstream('InstgramImageTest', 'SUCCESS', true)
 	}
 }
 freeStyleJob ('InstagramImageTest') {
@@ -22,7 +22,7 @@ freeStyleJob ('InstagramImageTest') {
                 shell('python instagram.image.test.py')
         }
 	publishers {
-                downstream('InstagramImageSave', 'SUCCESS')
+                downstream('InstagramImageSave', 'SUCCESS', true)
 	}
 }
 freeStyleJob ('InstagramImageSave') {
@@ -60,9 +60,9 @@ freeStyleJob ('CodeDeployStage') {
 	steps {
 		shell('commitID=$(git rev-parse --verify HEAD) && aws deploy create-deployment --output text --application-name nando-demo --region us-east-1 --github-location commitId=$commitID,repository="stelligent/nando_automation_demo" --deployment-group-name nando-demo')
 		shell('sleep 10')
-	        downstreamParameterized {
-            		trigger("CodeDeployStageTests", 'SUCCESS', true)
-        	}		
+	}
+	publishers {
+                downstream('CodeDeployStageTests', 'SUCCESS', true)
 	}
 }
 
@@ -72,9 +72,9 @@ freeStyleJob ('CodeDeployStageTests') {
 	}
 	steps {
 		shell('sleep 10')
-	        downstreamParameterized {
-            		trigger("CodeDeployProduction", 'SUCCESS', true)
-        	}		
+	}
+	publishers {
+                downstream('CodeDeployProduction', 'SUCCESS', true)
 	}
 }
 
@@ -96,9 +96,9 @@ freeStyleJob ('DockerStage') {
 	}
 	steps {
 		shell('sleep 10')
-	        downstreamParameterized {
-            		trigger("DockerStageTests", 'SUCCESS', true)
-        	}		
+	}
+	publishers {
+                downstream('DockerStageTests', 'SUCCESS', true)
 	}
 }
 
@@ -108,9 +108,9 @@ freeStyleJob ('DockerStageTests') {
 	}
 	steps {
 		shell('sleep 10')
-        	downstreamParameterized {
-            		trigger("DockerProduction", 'SUCCESS', true)
-        	}		
+	}
+	publishers {
+                downstream('DockerStageTests', 'SUCCESS', true)
 	}
 }
 
