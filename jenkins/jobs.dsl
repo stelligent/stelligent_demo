@@ -8,9 +8,7 @@ freeStyleJob ('getImage') {
         steps {
 		customWorkspace('instagram')
                 shell('python instagram.image.get.py')
-                downstreamParameterized {
-                        trigger("testImage", 'SUCCESS', true)
-                }
+                downstream('testImage', 'SUCCESS')
         }
 }
 freeStyleJob ('testImage') {
@@ -20,9 +18,7 @@ freeStyleJob ('testImage') {
         steps {
                 customWorkspace('instagram')
                 shell('python instagram.image.test.py')
-                downstreamParameterized {
-                        trigger("testImage", 'SUCCESS', true)
-                }
+                downstream('saveImage', 'SUCCESS')
         }
 }
 freeStyleJob ('saveImage') {
