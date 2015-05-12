@@ -1,10 +1,10 @@
 branch-defaults:
   default:
-    environment: nand-Nand-1S7NK5TWP2C8Q
+    environment: null
 global:
-  application_name: NandoDemoDockerApp
-  default_ec2_keyname: nando-demo-20150512005231
-  default_platform: 64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0
-  default_region: null
+  application_name: help
+  default_ec2_keyname: ../nando-demo-20150512005231
+  default_platform: docker
+  default_region: us-west-2
   profile: null
   sc: null
