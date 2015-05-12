@@ -15,6 +15,6 @@ aws s3 cp nando-demo.zip s3://nando-automation-demo
 echo
 /usr/local/bin/eb init -i NandoDemoDockerApp -r us-east-1 -p docker -k $stackName
 echo
-/usr/local/bin/eb use NandoDemoDockerApp
+/usr/local/bin/eb use NandoDemoDockerEnvironment
 echo
 /usr/local/bin/eb deploy
