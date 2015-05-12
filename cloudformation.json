@@ -495,7 +495,7 @@
       			},
       			"Properties" : {
         			"KeyName" : { "Ref" : "KeyName" },
-        			"InstanceType" : { "Ref" : "InstanceType" },
+        			"InstanceType" : { "Ref" : "InstanceTypeASG" },
  				"ImageId" : { "Ref" : "InstanceAMI" },
 				"AssociatePublicIpAddress" : "true",
             			"IamInstanceProfile": { "Ref": "NandoDemoASGInstanceProfile" },
