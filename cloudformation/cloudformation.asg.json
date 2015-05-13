@@ -1,0 +1,206 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+ 	"Description" : "Nando Automation Demo",
+  	"Parameters" : {
+    		"InstanceTypeASG" : {
+      			"Type" : "String",
+      			"Default" : "m1.small" 
+    		},
+		"InstanceAMI" : {
+			"Type" : "String",
+ 			"Default" : "ami-fb8e9292"
+		},
+		"NandoDemoZoneName" : {
+			"Type" : "String",
+			"Default" : "elasticoperations.com."	
+		},
+      		"NandoDemoDBName" : { 
+			"Type" : "String",
+			"Default" : "NandoDemoDB"
+		},
+      		"NandoDemoDBUser" : {
+			"Type" : "String",
+			"Default" : "NandoDemoDBUser"
+		},
+		"NandoDemoDBPass": { 
+			"Type" : "String",
+			"Default"  : "NandoDemoDBPass" 
+		}, 
+		"NandoDemoName" : { "Type" : "String" },
+    		"Location1" : { "Type": "String" },
+    		"Location2" : { "Type" : "String" },
+    		"Location3" : { "Type" : "String" },
+    		"Location4" : { "Type" : "String" },
+    		"InstagramId" : { "Type" : "String" },
+    		"InstagramSecret" : { "Type" : "String" }
+  	},
+ 	"Mappings" : {
+		"AvailabilityZone" : {
+			"Public" : { "AZ" : "us-east-1c" },
+			"Private1" : { "AZ" : "us-east-1d" },
+			"Private2" : { "AZ" : "us-east-1e" }
+		}
+ 	}, 
+ 	"Resources" : {
+		"NandoDemoWebASG" : {
+      			"Type": "AWS::AutoScaling::AutoScalingGroup",
+			"DependsOn" : [ "NandoDemoWebLaunchConfig" ],
+      			"Version": "2009-05-15",
+      			"Properties": {
+				"AvailabilityZones" : [ { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" ] } ],
+        			"LaunchConfigurationName" : { "Ref": "NandoDemoWebLaunchConfig" },
+				"LoadBalancerNames" : [ {"Ref" : "NandoDemoELB" } ],
+				"VPCZoneIdentifier" : [ { "Ref" : "NandoDemoPublicSubnet" } ],
+        			"MinSize": "2",
+        			"MaxSize": "2",
+        			"Tags" : [ {
+          				"Key"   : "Name",
+          				"Value" : { "Fn::Join"  : [ "-" , [ { "Ref" : "AWS::StackName" }, "webserver" ] ] },
+          				"PropagateAtLaunch" : "true"
+        			} ]
+			}
+      		},
+		"NandoDemoWebLaunchConfig" : {
+   			"Type" : "AWS::AutoScaling::LaunchConfiguration",
+			"DependsOn" : "NandoDemoPublicRouteTableAssociation",
+      			"Metadata" : {
+        			"Comment" : "NandoDemoWebLaunchConfig",
+        			"AWS::CloudFormation::Init" : {
+          				"config" : {
+            					"files" : {
+							"/etc/cfn/NandoDemoDBHost" : {
+								"content" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] },
+								"mode" : "000644",
+                                                                "owner" : "root",
+                                                                "group" : "root"
+                                                        },
+							"/etc/cfn/NandoDemoDBName" : {
+								"content" : { "Ref" : "NandoDemoDBName" }, 
+								"mode" : "000644",
+								"owner" : "root",
+								"group" : "root"
+							},
+							"/etc/cfn/NandoDemoDBUser" : {
+								"content" : { "Ref" : "NandoDemoDBUser" },
+								"mode" : "000644",
+								"owner" : "root",
+								"group" : "root"
+							},
+							"/etc/cfn/NandoDemoDBPass" : {
+								"content" : { "Ref" : "NandoDemoDBPass" },
+								"mode" : "000644",
+								"owner" : "root",
+								"group" : "root"
+							},
+              						"/etc/cfn/cfn-hup.conf" : {
+                						"content" : { "Fn::Join" : [ "", [
+                  							"[main]\n",
+                  							"stack=", { "Ref" : "AWS::StackId" }, "\n",
+                  							"region=", { "Ref" : "AWS::Region" }, "\n"
+                						] ] },
+                						"mode" : "000400",
+                						"owner" : "root",
+                						"group" : "root"
+              						},
+              						"/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
+                						"content" : { "Fn::Join" : [ "", [
+                  							"[cfn-auto-reloader-hook]\n",
+                  							"triggers=post.update\n",
+                  							"path=Resources.NandoDemoWebASG.Metadata.AWS::CloudFormation::Init\n",
+                  							"action=/opt/aws/bin/cfn-init -v ",
+                  							"         --stack ", { "Ref" : "AWS::StackName" },
+                  							"         --resource NandoDemoWebLaunchConfig ",
+                  							"         --region ", { "Ref" : "AWS::Region" }, "\n",
+                  							"runas=root\n"
+                						] ] }
+              						}
+            					},
+            					"services" : {
+              						"sysvinit" : {
+                						"cfn-hup" : { 
+									"enabled" : "true", "ensureRunning" : "true",
+                              						"files" : [ 
+										"/etc/cfn/cfn-hup.conf", 
+										"/etc/cfn/hooks.d/cfn-auto-reloader.conf" 
+									] 
+								}
+              						}
+            					}
+          				}
+        			}
+      			},
+      			"Properties" : {
+        			"KeyName" : { "Ref" : "KeyName" },
+        			"InstanceType" : { "Ref" : "InstanceTypeASG" },
+ 				"ImageId" : { "Ref" : "InstanceAMI" },
+				"AssociatePublicIpAddress" : "true",
+            			"IamInstanceProfile": { "Ref": "NandoDemoASGInstanceProfile" },
+				"SecurityGroups": [ { "Ref": "NandoDemoPublicSecurityGroup" } ],
+        			"UserData"       : { "Fn::Base64" : { "Fn::Join" : [ "", [
+             				"#!/bin/bash -xe\n",
+             				"yum update -y aws-cfn-bootstrap aws-cli\n",
+					"aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region us-east-1\n",
+					"chmod +x ./install\n",
+					"./install auto\n",
+             				"/opt/aws/bin/cfn-init -v ",
+             				"         --stack ", { "Ref" : "AWS::StackName" },
+             				"         --resource NandoDemoWebLaunchConfig ",
+             				"         --region ", { "Ref" : "AWS::Region" }, "\n",
+             				"/opt/aws/bin/cfn-signal -e $? ",
+             				"         --stack ", { "Ref" : "AWS::StackName" },
+             				"         --resource NandoDemoWebLaunchConfig ",
+             				"         --region ", { "Ref" : "AWS::Region" }, "\n"
+        				] ] }
+				}
+      			},
+      			"CreationPolicy" : {
+        			"ResourceSignal" : {
+          				"Timeout" : "PT5M"
+        			}
+      			}
+    		},
+                "NandoDemoELB" : {
+                        "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+                        "DependsOn" : "NandoDemoPublicRouteTableAssociation",
+                        "Properties" : {
+                                "Subnets" : [ { "Ref" : "NandoDemoPublicSubnet" } ],
+                                "Listeners" : [
+                                        { "LoadBalancerPort" : "80", "InstancePort" : "80", "Protocol" : "HTTP" },
+                                        { "LoadBalancerPort" : "2222", "InstancePort" : "22", "Protocol" : "TCP" }
+                                ],
+                                "HealthCheck" : {
+                                        "Target" : "HTTP:80/",
+                                        "HealthyThreshold" : "2",
+                                        "UnhealthyThreshold" : "5",
+                                        "Interval" : "5",
+                                        "Timeout" : "4"
+                                },
+                                "SecurityGroups" : [ { "Ref" : "NandoDemoPublicSecurityGroup" } ]
+                        }
+                },
+                "NandoDemoELBDNS" : {
+                        "Type" : "AWS::Route53::RecordSetGroup",
+                        "DependsOn" : "NandoDemoELB",
+                        "Properties" : {
+                                "HostedZoneName" : { "Ref" : "NandoDemoZoneName" },
+                                "RecordSets" : [ {
+                                        "Name" : { "Fn::Join" : [ ".", [ "nando-automation-demo", { "Ref" : "NandoDemoZoneName" } ] ] },
+                                        "Type" : "A",
+                                        "AliasTarget" : {
+                                                "HostedZoneId" : { "Fn::GetAtt" : [ "NandoDemoELB","CanonicalHostedZoneNameID" ] },
+                                                "DNSName" : { "Fn::GetAtt" : [ "NandoDemoELB","CanonicalHostedZoneName" ] }
+                                        }
+                                } ]
+                        }
+                }
+	},
+  	"Outputs" : {
+		"NandoDemoName" : { "Value" : { "Ref" : "NandoDemoName" } },
+		"NandoDemoWebASG" : { "Value" : { "Ref" : "NandoDemoWebASG" } },
+		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
+		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
+		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } },
+		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] } },
+      		"NandoDemoELBDNSNAME" : { "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "NandoDemoELB", "DNSName" ] } ] ] } },
+  	}
+}
