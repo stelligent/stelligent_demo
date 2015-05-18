@@ -16,8 +16,4 @@ node /^nando-demo-jenkins.*/ {
 	jenkins::plugin { 'promoted-builds': }
 	jenkins::plugin { 'job-dsl': }
 	jenkins::plugin { 'build-flow-plugin': }
-
-        jenkins::job { 'seed':
-                config => template("/etc/puppet/templates/seed.xml.erb"),
-        }
 }
