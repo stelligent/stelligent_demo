@@ -18,6 +18,6 @@ node /^nando-demo-jenkins.*/ {
 	jenkins::plugin { 'build-flow-plugin': }
 
         jenkins::job { 'seed':
-                config => template("/tmp/seed.xml.erb"),
+                config => template("/etc/puppet/templates/seed.xml.erb"),
         }
 }

@@ -1,4 +1,4 @@
-node /.*internal$/ {
+node /.*/ {
 	class { jenkins:
 		lts => true,
 	}
