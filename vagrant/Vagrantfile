@@ -81,15 +81,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   			SHELL
   		jenkins.vm.provision :puppet do |puppet|
   			puppet.manifests_path = "../puppet"
-  			puppet.manifest_file  = "installJenkins.pp"
+  			puppet.manifest_file  = "vagrant-jenkins.pp"
 		end
   		jenkins.vm.provision :puppet do |puppet|
   			puppet.manifests_path = "../puppet"
-  			puppet.manifest_file  = "installJenkinsPlugins.pp"
-		end
-  		jenkins.vm.provision :puppet do |puppet|
-  			puppet.manifests_path = "../puppet"
-  			puppet.manifest_file  = "installJenkinsJob.pp"
+  			puppet.manifest_file  = "vagrant-jenkins-seed.pp"
 		end
   	end
 	#config.vm.define "docker" do |docker|
