@@ -1,4 +1,4 @@
-node /.*/ {
+node /.*internal$/ {
    	include jenkins
         jenkins::plugin { 'python': }
 	jenkins::plugin { 'credentials': }
