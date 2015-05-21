@@ -2,4 +2,6 @@
 *.zip
 trustedips
 .vagrant/
+.idea/
+.DS_Store
 cloudformation.stack.name

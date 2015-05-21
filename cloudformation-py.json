@@ -10,10 +10,6 @@
       "Type": "String",
       "Default": "m1.medium"
     },
-    "InstanceAMI": {
-      "Type": "String",
-      "Default": "ami-fb8e9292"
-    },
     "NandoDemoZoneName": {
       "Type": "String",
       "Default": "elasticoperations.com."
@@ -37,18 +33,6 @@
       "Type": "String"
     },
     "PrivateKey": {
-      "Type": "String"
-    },
-    "Location1": {
-      "Type": "String"
-    },
-    "Location2": {
-      "Type": "String"
-    },
-    "Location3": {
-      "Type": "String"
-    },
-    "Location4": {
       "Type": "String"
     },
     "InstagramId": {
