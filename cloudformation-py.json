@@ -40,6 +40,12 @@
     },
     "InstagramSecret": {
       "Type": "String"
+    },
+    "CodeDeployAppName": {
+      "Type": "String"
+    },
+    "CodeDeployDeploymentGroup": {
+      "Type": "String"
     }
   },
   "Mappings": {
