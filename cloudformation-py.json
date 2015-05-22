@@ -859,90 +859,6 @@
           "FromPort": "22",
           "ToPort": "22",
           "CidrIp": "10.200.0.0/16"
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "22",
-          "ToPort": "22",
-          "CidrIp": {
-            "Ref": "Location1"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "22",
-          "ToPort": "22",
-          "CidrIp": {
-            "Ref": "Location2"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "22",
-          "ToPort": "22",
-          "CidrIp": {
-            "Ref": "Location3"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "22",
-          "ToPort": "22",
-          "CidrIp": {
-            "Ref": "Location4"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "2222",
-          "ToPort": "2222",
-          "CidrIp": {
-            "Ref": "Location1"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "2222",
-          "ToPort": "2222",
-          "CidrIp": {
-            "Ref": "Location2"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "2222",
-          "ToPort": "2222",
-          "CidrIp": {
-            "Ref": "Location3"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "2222",
-          "ToPort": "2222",
-          "CidrIp": {
-            "Ref": "Location4"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "8080",
-          "ToPort": "8080",
-          "CidrIp": {
-            "Ref": "Location1"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "8080",
-          "ToPort": "8080",
-          "CidrIp": {
-            "Ref": "Location2"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "8080",
-          "ToPort": "8080",
-          "CidrIp": {
-            "Ref": "Location3"
-          }
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "8080",
-          "ToPort": "8080",
-          "CidrIp": {
-            "Ref": "Location4"
-          }
         }]
       }
     },
@@ -1101,15 +1017,7 @@
             "Principal": "*",
             "Condition": {
               "IpAddress": {
-                "aws:SourceIp": [{
-                  "Ref": "Location1"
-                }, {
-                  "Ref": "Location2"
-                }, {
-                  "Ref": "Location3"
-                }, {
-                  "Ref": "Location4"
-                }]
+                "aws:SourceIp": []
               }
             }
           }]

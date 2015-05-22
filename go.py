@@ -8,7 +8,9 @@ import sys
 import zipfile
 from datetime import datetime
 
-import boto
+from boto import connect_s3 as s3_connect
+from boto.cloudformation import connect_to_region as cfn_connect
+from boto.ec2 import connect_to_region as ec2_connect
 from boto.s3.key import Key as S3Key
 
 DEFAULT_REGION = 'us-east-1'
@@ -23,6 +25,7 @@ FILES_TO_S3 = ['jenkins/seed.xml.erb',
                'puppet/installJenkinsSecurity.pp',
                DOCKER_ZIPFILE]
 CFN_TEMPLATE = 'cloudformation-py.json'
+INGRESS_PORTS = ['22', '2222', '8080']
 ALLOWED_ACTIONS = ["build", "destroy", "list"]
 
 def ip_address_type(location):
@@ -51,21 +54,67 @@ def prepare_docker_zip():
 def copy_files_to_s3():
     prepare_docker_zip()
     print "Sending files to S3..."
-    s3_connection = boto.connect_s3()
+    s3_connection = s3_connect()
     s3_bucket = s3_connection.get_bucket(MAIN_S3_BUCKET)
     s3_key = S3Key(s3_bucket)
     for f in FILES_TO_S3:
         s3_key.key = os.path.basename(f)
-        s3_key.set_contents_from_file(f)
+        with open(f) as f:
+            s3_key.set_contents_from_file(f)
+
+
+def inject_locations(locations, data):
+    for location in locations:
+        for port in INGRESS_PORTS:
+            item = {'IpProtocol': 'tcp',
+                    'FromPort': port,
+                    'ToPort': port,
+                    'CidrIp': '%s' % location}
+            data['Resources']['NandoDemoPublicSecurityGroup']['Properties']['SecurityGroupIngress'].append(item)
+        data['Resources']['NandoDemoBucketPolicy']['Properties']['PolicyDocument']['Statement'][0]['Condition']['IpAddress']['aws:SourceIp'].append(location)
+    return data
+
+def get_instagram_keys_from_env():
+    try:
+        insta_id = os.environ['INSTAGRAM_CLIENT_ID']
+        insta_secret = os.environ['INSTAGRAM_CLIENT_SECRET']
+    except KeyError:
+        print "Please set both 'INSTAGRAM_CLIENT_ID' and " \
+              "'INSTAGRAM_CLIENT_SECRET' in your environment."
+        sys.exit(1)
+    else:
+        return insta_id, insta_secret
+
+def create_ec2_key_pair(key_pair_name, region):
+    ec2_connection = ec2_connect(region)
+    kp = ec2_connection.create_key_pair(key_pair_name)
+    kp.save('.')
+    return kp.material
 
 
 def build(region, locations):
+    insta_id, insta_secret = get_instagram_keys_from_env()
+    build_params = list()
+    build_params.append(("InstagramId", insta_id))
+    build_params.append(("InstagramSecret", insta_secret))
     stack_name = "nando-demo-%s" % datetime.now().strftime('%Y%m%d%H%M%S')
-    #copy_files_to_s3()
+    build_params.append(("NandoDemoName", stack_name))
+    key_pair_name = stack_name
+    build_params.append(("KeyName", key_pair_name))
+    copy_files_to_s3()
     with open(CFN_TEMPLATE) as data_file:
         data = json.load(data_file)
-    #cfn_connection = boto.connect_cloudformation()
-    #import ipdb; ipdb.set_trace()
+    location_in_data = inject_locations(locations, data)
+    private_key = create_ec2_key_pair(key_pair_name, region)
+    build_params.append(("PrivateKey", private_key))
+    #  Create Stack
+    cfn_connection = cfn_connect(region)
+    cfn_connection.create_stack(
+        stack_name,
+        template_body=json.dumps(location_in_data),
+        parameters=build_params,
+        capabilities=['CAPABILITY_IAM']
+    )
 
 
 def main():
