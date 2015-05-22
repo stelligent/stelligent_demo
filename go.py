@@ -8,12 +8,13 @@ import sys
 import zipfile
 from datetime import datetime
 from pprint import pprint
+from time import sleep
 
-from boto import connect_iam as iam_connect
-from boto import connect_s3 as s3_connect
+from boto import connect_iam as iam_connect, connect_s3 as s3_connect
 from boto.cloudformation import connect_to_region as cfn_connect
 from boto.codedeploy import connect_to_region as codedeploy_connect
 from boto.ec2 import connect_to_region as ec2_connect
+from boto.exception import BotoServerError
 from boto.s3.key import Key as S3Key
 
 STACK_NAME_PREFIX = 'nando-demo'
@@ -33,6 +34,9 @@ INGRESS_PORTS = ['22', '2222', '8080']
 ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 
 #  FIXME: These are hard-coded elsewhere, make dynamic everywhere.
+CODEDEPLOY_APP_NAME = 'nando-demo'
+CODEDEPLOY_GROUP_NAME = 'nando-demo'
+WEB_ASG_NAME = 'NandoDemoWebASG'
 IAM_ROLE_NAME = 'NandoDemoCodeDeployRole'
 IAM_ROLE_DOC = 'codedeploy/NandoDemoCodeDeployRole.json'
 IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
@@ -135,9 +139,10 @@ def delete_ec2_key_pair(ec2_connection, key_pair_name):
 def create_iam_role(iam_connection, role_name, role_doc):
     sys.stdout.write("Creating IAM Role %s..." % role_name)
     with open(role_doc) as doc:
-        iam_connection.create_role(
+        result = iam_connection.create_role(
             role_name, assume_role_policy_document=doc.read())
     print "Done!"
+    return result['create_role_response']['create_role_result']['role']['arn']
 
 
 def delete_iam_role(iam_connection, role_name):
@@ -163,26 +168,77 @@ def delete_iam_policy(iam_connection, role_name, policy_name):
 
 
 def create_codedeploy_application(codedeploy_connection, app_name):
+    sys.stdout.write("Creating CodeDeploy Application %s..." % app_name)
+    codedeploy_connection.create_application(app_name)
     print "Done!"
-    pass
 
 
 def delete_codedeploy_application(codedeploy_connection, app_name):
+    sys.stdout.write("Deleting CodeDeploy Application %s..." % app_name)
+    codedeploy_connection.delete_application(app_name)
     print "Done!"
-    pass
 
 
 def create_codedeploy_deployment_group(codedeploy_connection, app_name,
-                                       group_name):
+                                       group_name, asg_id, service_role):
+    sys.stdout.write("Creating CodeDeploy Deployment Group %s in %s..." % (
+        group_name, app_name))
+    codedeploy_connection.create_deployment_group(
+        app_name,
+        group_name,
+        auto_scaling_groups=[asg_id],
+        service_role_arn=service_role
+    )
     print "Done!"
     pass
 
 
 def delete_codedeploy_deployment_group(codedeploy_connection, app_name,
                                        group_name):
+    sys.stdout.write("Deleting CodeDeploy Deployment Group %s from %s..." % (
+        group_name, app_name))
+    codedeploy_connection.delete_deployment_group(app_name, group_name)
     print "Done!"
-    pass
 
+
+def get_resource_id(cfn_connection, stack_name, resource_name):
+    #  Initial Check
+    try:
+        #  FIXME: Must be a better way...
+        resource = cfn_connection.describe_stack_resource(stack_name,
+                                                          resource_name)
+        info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
+        status = info['ResourceStatus']
+        resource_id = info['PhysicalResourceId']
+    except BotoServerError:
+        status = "NOT STARTED"
+    while status != "CREATE_COMPLETE":
+        sys.stdout.write("\rWaiting for %s" % resource_name)
+        sleep(1)
+        sys.stdout.flush()
+        sys.stdout.write("\rWaiting for %s." % resource_name)
+        sleep(1)
+        sys.stdout.flush()
+        sys.stdout.write("\rWaiting for %s.." % resource_name)
+        sleep(1)
+        sys.stdout.flush()
+        sys.stdout.write("\rWaiting for %s..." % resource_name)
+        sys.stdout.flush()
+        try:
+            #  FIXME: Must be a better way...
+            resource = cfn_connection.describe_stack_resource(stack_name,
+                                                              resource_name)
+            info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
+            status = info['ResourceStatus']
+            resource_id = info['PhysicalResourceId']
+        except BotoServerError:
+            status = "NOT STARTED"
+        if status.endswith('FAILED'):
+            print "Stack Failed Exiting..."
+            sys.exit(1)
+        if status.endswith('COMPLETE'):
+            sys.stdout.write("\rWaiting for %s...Done!" % resource_name)
+    return resource_id
 
 def build(connections, region, locations):
     build_params = list()
@@ -206,9 +262,12 @@ def build(connections, region, locations):
     build_params.append(("KeyName", key_pair_name))
     build_params.append(("PrivateKey", private_key))
     #  Setup IAM Roles/Policies
-    create_iam_role(connections['iam'], IAM_ROLE_NAME, IAM_ROLE_DOC)
+    role_arn = create_iam_role(connections['iam'], IAM_ROLE_NAME, IAM_ROLE_DOC)
     put_iam_role_policy(connections['iam'], IAM_ROLE_NAME, IAM_POLICY_NAME,
                         IAM_POLICY_DOC)
+    #  Add Extra Information to Stack
+    build_params.append(("CodeDeployAppName", CODEDEPLOY_APP_NAME))
+    build_params.append(("CodeDeployDeploymentGroup", CODEDEPLOY_GROUP_NAME))
     #  Create Stack
     sys.stdout.write("Launching CloudFormation Stack in %s..." % region)
     connections['cfn'].create_stack(
@@ -219,11 +278,21 @@ def build(connections, region, locations):
         disable_rollback='true'
     )
     print "Done!"
+    #  Setup CodeDeploy
+    create_codedeploy_application(connections['codedeploy'],
+                                  CODEDEPLOY_APP_NAME)
+    asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
+    create_codedeploy_deployment_group(connections['codedeploy'],
+                                       CODEDEPLOY_APP_NAME,
+                                       CODEDEPLOY_GROUP_NAME,
+                                       asg_id, role_arn)
 
 def destroy(connections, region):
     stack = list_and_get_stack(connections['cfn'], region)
     parameters = {x.key: x.value for x in stack.parameters}
-
+    #  Destroy CodeDeploy
+    delete_codedeploy_application(connections['codedeploy'],
+                                  parameters['CodeDeployAppName'])
     #  Destroy Stack
     sys.stdout.write("Deleting the CloudFormation Stack %s..." %
                      stack.stack_name)
@@ -265,13 +334,25 @@ def main():
     connections['s3'] = s3_connect()
     if args.action == "test":
         print "Testing stuff"
-        create_iam_role(connections['iam'], IAM_ROLE_NAME, IAM_ROLE_DOC)
+        stack_name = 'nando-demo-20150522072422'
+        role_arn = create_iam_role(connections['iam'], IAM_ROLE_NAME, IAM_ROLE_DOC)
         put_iam_role_policy(connections['iam'], IAM_ROLE_NAME, IAM_POLICY_NAME,
                             IAM_POLICY_DOC)
+        create_codedeploy_application(connections['codedeploy'],
+                                      CODEDEPLOY_APP_NAME)
+        asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
+        create_codedeploy_deployment_group(connections['codedeploy'],
+                                           CODEDEPLOY_APP_NAME,
+                                           CODEDEPLOY_GROUP_NAME,
+                                           asg_id, role_arn)
         raw_input("ok to delete?")
+        delete_codedeploy_deployment_group(connections['codedeploy'],
+                                           CODEDEPLOY_APP_NAME,
+                                           CODEDEPLOY_GROUP_NAME)
+        delete_codedeploy_application(connections['codedeploy'],
+                                      CODEDEPLOY_APP_NAME)
         delete_iam_policy(connections['iam'], IAM_ROLE_NAME, IAM_POLICY_NAME)
         delete_iam_role(connections['iam'], IAM_ROLE_NAME)
-
         sys.exit(0)
     if args.action == "build":
         if not args.locations:
