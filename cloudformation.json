@@ -602,6 +602,9 @@
               "bootstrapK": {
                 "command": "sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp"
               },
+              "bootstrapL": {
+                "command": "sync; find /var/cache/yum >/dev/null 2>&1"
+              },
               "installjenkinsA": {
                 "command": "puppet apply /etc/puppet/manifests/installJenkins.pp > /root/installJenkins.out 2>&1"
               },
