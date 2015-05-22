@@ -1,5 +1,6 @@
 VAGRANTFILE_API_VERSION = "2"
 
+Vagrant.require_version ">= 1.7.2"
 unless Vagrant.has_plugin?("vagrant-hosts")
 raise "Please install the vagrant-hosts plugin by running `vagrant plugin install vagrant-hosts`"
 end
