@@ -376,7 +376,7 @@
     },
     "NandoDemoJenkins": {
       "Type": "AWS::EC2::Instance",
-      "DependsOn": "NandoDemoPublicRouteTableAssociation",
+      "DependsOn": "NandoDemoWebASG",
       "Properties": {
         "KeyName": {
           "Ref": "KeyName"
