@@ -134,6 +134,15 @@ def delete_ec2_key_pair(ec2_connection, key_pair_name):
     sys.stdout.write("Deleting EC2 KeyPair %s..." % key_pair_name)
     ec2_connection.delete_key_pair(key_pair_name)
     print "Done!"
+    key_file = '%s.pem' % key_pair_name
+    if os.path.isfile(key_file):
+        print "Private Key %s found on local system." % key_file
+        res = raw_input("OK to delete %s? (y/N):  " % key_file)
+        if res in ('Y', 'y'):
+            os.remove(key_file)
+            print "%s deleted." % key_file
+        else:
+            print "%s not deleted." % key_file
 
 
 def create_iam_role(iam_connection, role_name, role_doc):
@@ -338,7 +347,7 @@ def main():
     connections['iam'] = iam_connect()
     connections['s3'] = s3_connect()
     if args.action == "test":
-        print "Testing stuff"
+        #  Test pieces here
         sys.exit(0)
     if args.action == "build":
         if not args.locations:
