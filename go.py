@@ -213,16 +213,16 @@ def get_resource_id(cfn_connection, stack_name, resource_name):
     except BotoServerError:
         status = "NOT STARTED"
     while status != "CREATE_COMPLETE":
-        sys.stdout.write("\rWaiting for %s" % resource_name)
-        sleep(1)
+        sys.stdout.write("\rWaiting for %s        " % resource_name)
         sys.stdout.flush()
-        sys.stdout.write("\rWaiting for %s." % resource_name)
         sleep(1)
+        sys.stdout.write("\rWaiting for %s.       " % resource_name)
         sys.stdout.flush()
-        sys.stdout.write("\rWaiting for %s.." % resource_name)
         sleep(1)
+        sys.stdout.write("\rWaiting for %s..      " % resource_name)
         sys.stdout.flush()
-        sys.stdout.write("\rWaiting for %s..." % resource_name)
+        sleep(1)
+        sys.stdout.write("\rWaiting for %s...     " % resource_name)
         sys.stdout.flush()
         try:
             #  FIXME: Must be a better way...
@@ -234,11 +234,14 @@ def get_resource_id(cfn_connection, stack_name, resource_name):
         except BotoServerError:
             status = "NOT STARTED"
         if status.endswith('FAILED'):
-            print "Stack Failed Exiting..."
+            print "Stack Failed. Exiting..."
             sys.exit(1)
         if status.endswith('COMPLETE'):
             sys.stdout.write("\rWaiting for %s...Done!" % resource_name)
+            sys.stdout.flush()
+            print "\n"
     return resource_id
+
 
 def build(connections, region, locations):
     build_params = list()
@@ -291,24 +294,26 @@ def destroy(connections, region):
     stack = list_and_get_stack(connections['cfn'], region)
     parameters = {x.key: x.value for x in stack.parameters}
     #  Destroy CodeDeploy
+    delete_codedeploy_deployment_group(connections['codedeploy'],
+                                       parameters['CodeDeployAppName'],
+                                       parameters['CodeDeployDeploymentGroup'])
     delete_codedeploy_application(connections['codedeploy'],
                                   parameters['CodeDeployAppName'])
     #  Destroy Stack
     sys.stdout.write("Deleting the CloudFormation Stack %s..." %
                      stack.stack_name)
+    print "Deleting!"
     connections['cfn'].delete_stack(stack.stack_name)
     #  Destroy IAM Roles/Policies
     delete_iam_policy(connections['iam'], IAM_ROLE_NAME, IAM_POLICY_NAME)
     delete_iam_role(connections['iam'], IAM_ROLE_NAME)
     #  Destroy EC2 Key Pair
     delete_ec2_key_pair(connections['ec2'], parameters['KeyName'])
-    print "Done!"
 
 
 def info(connections, region):
     stack = list_and_get_stack(connections['cfn'], region)
     pprint(stack.parameters, indent=2)
-    #import ipdb;ipdb.set_trace()
 
 
 def main():
@@ -334,25 +339,6 @@ def main():
     connections['s3'] = s3_connect()
     if args.action == "test":
         print "Testing stuff"
-        stack_name = 'nando-demo-20150522072422'
-        role_arn = create_iam_role(connections['iam'], IAM_ROLE_NAME, IAM_ROLE_DOC)
-        put_iam_role_policy(connections['iam'], IAM_ROLE_NAME, IAM_POLICY_NAME,
-                            IAM_POLICY_DOC)
-        create_codedeploy_application(connections['codedeploy'],
-                                      CODEDEPLOY_APP_NAME)
-        asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
-        create_codedeploy_deployment_group(connections['codedeploy'],
-                                           CODEDEPLOY_APP_NAME,
-                                           CODEDEPLOY_GROUP_NAME,
-                                           asg_id, role_arn)
-        raw_input("ok to delete?")
-        delete_codedeploy_deployment_group(connections['codedeploy'],
-                                           CODEDEPLOY_APP_NAME,
-                                           CODEDEPLOY_GROUP_NAME)
-        delete_codedeploy_application(connections['codedeploy'],
-                                      CODEDEPLOY_APP_NAME)
-        delete_iam_policy(connections['iam'], IAM_ROLE_NAME, IAM_POLICY_NAME)
-        delete_iam_role(connections['iam'], IAM_ROLE_NAME)
         sys.exit(0)
     if args.action == "build":
         if not args.locations:
