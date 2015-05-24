@@ -123,7 +123,7 @@ def get_instagram_keys_from_env():
 
 
 def create_ec2_key_pair(ec2_connection, key_pair_name):
-    sys.stdout.write("Creating EC2 KeyPair %s..." % key_pair_name)
+    sys.stdout.write("Creating EC2 Key Pair %s..." % key_pair_name)
     kp = ec2_connection.create_key_pair(key_pair_name)
     kp.save('.')
     print "Done!"
@@ -131,18 +131,13 @@ def create_ec2_key_pair(ec2_connection, key_pair_name):
 
 
 def delete_ec2_key_pair(ec2_connection, key_pair_name):
-    sys.stdout.write("Deleting EC2 KeyPair %s..." % key_pair_name)
+    sys.stdout.write("Deleting EC2 Key Pair %s..." % key_pair_name)
     ec2_connection.delete_key_pair(key_pair_name)
     print "Done!"
     key_file = '%s.pem' % key_pair_name
     if os.path.isfile(key_file):
-        print "Private Key %s found on local system." % key_file
-        res = raw_input("OK to delete %s? (y/N):  " % key_file)
-        if res in ('Y', 'y'):
-            os.remove(key_file)
-            print "%s deleted." % key_file
-        else:
-            print "%s not deleted." % key_file
+        os.remove(key_file)
+        print "Deleted Private Key %s." % key_file
 
 
 def create_iam_role(iam_connection, role_name, role_doc):
