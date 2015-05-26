@@ -8,8 +8,12 @@ echo
 
 aws deploy get-application --region "${REGION}" --application-name nando-demo || \
 {
-    aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --region "${REGION}"
     aws deploy create-application --application-name nando-demo --region "${REGION}"
+}
+
+aws deploy get-deployment-group --application-name nando-demo --deployment-group-name nando-demo --region "${REGION}" || \
+{
+    aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --region "${REGION}"
 }
 
 deployID=$(aws deploy create-deployment --output text --region "${REGION}" --application-name nando-demo  --github-location commitId=$commitID,repository=stelligent/nando_automation_demo --deployment-group-name nando-demo)
