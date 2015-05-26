@@ -6,6 +6,7 @@ import os
 import socket
 import sys
 import zipfile
+import re
 from datetime import datetime
 from pprint import pprint
 from time import sleep
@@ -27,9 +28,9 @@ FILES_TO_S3 = ['jenkins/seed.xml.erb',
                'puppet/installJenkinsJob.pp',
                'puppet/installJenkinsPlugins.pp',
                'puppet/installJenkinsUsers.pp',
-               'puppet/installJenkinsSecurity.pp',
-               DOCKER_ZIPFILE]
-CFN_TEMPLATE = 'cloudformation-py.json'
+               'puppet/installJenkinsSecurity.pp']
+#               DOCKER_ZIPFILE]
+CFN_TEMPLATE = 'cloudformation-py-slim.json'
 INGRESS_PORTS = ['22', '2222', '8080']
 ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 
@@ -37,6 +38,9 @@ ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 CODEDEPLOY_APP_NAME = 'nando-demo'
 CODEDEPLOY_GROUP_NAME = 'nando-demo'
 WEB_ASG_NAME = 'NandoDemoWebASG'
+
+#  Note: IAM_ROLE_NAME and IAM_POLICY_NAME will have the region
+#        appended as 'NandoDemoRole-us-east-1' to allow multi-region support
 IAM_ROLE_NAME = 'NandoDemoCodeDeployRole'
 IAM_ROLE_DOC = 'codedeploy/NandoDemoCodeDeployRole.json'
 IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
@@ -99,7 +103,11 @@ def copy_files_to_s3(s3_connection, bucket):
 
 def inject_locations(locations, data):
     for location in locations:
-        location += '/32'  # Add CIDR Subnet
+        if re.search(r"0.0.0.0", location):
+            location += '/0'
+        else:
+            location += '/32'  # Add CIDR Subnet
+        print "Setting security source to ", location
         for port in INGRESS_PORTS:
             item = {'IpProtocol': 'tcp',
                     'FromPort': port,
@@ -257,6 +265,7 @@ def build(connections, region, locations):
     stack_name = "%s-%s" % (STACK_NAME_PREFIX,
                             datetime.now().strftime('%Y%m%d%H%M%S'))
     build_params.append(("NandoDemoName", stack_name))
+    build_params.append(("DemoRegion", region))
     #  Setup S3
     copy_files_to_s3(connections['s3'], MAIN_S3_BUCKET)
     #  Setup Security Groups/Access
@@ -269,9 +278,10 @@ def build(connections, region, locations):
     build_params.append(("KeyName", key_pair_name))
     build_params.append(("PrivateKey", private_key))
     #  Setup IAM Roles/Policies
-    role_arn = create_iam_role(connections['iam'], IAM_ROLE_NAME, IAM_ROLE_DOC)
-    put_iam_role_policy(connections['iam'], IAM_ROLE_NAME, IAM_POLICY_NAME,
-                        IAM_POLICY_DOC)
+    IRN = "-".join((IAM_ROLE_NAME, region))
+    IPN = "-".join((IAM_POLICY_NAME, region))
+    role_arn = create_iam_role(connections['iam'], IRN, IAM_ROLE_DOC)
+    put_iam_role_policy(connections['iam'], IRN, IPN, IAM_POLICY_DOC)
     #  Add Extra Information to Stack
     build_params.append(("CodeDeployAppName", CODEDEPLOY_APP_NAME))
     build_params.append(("CodeDeployDeploymentGroup", CODEDEPLOY_GROUP_NAME))
@@ -286,13 +296,13 @@ def build(connections, region, locations):
     )
     print "Done!"
     #  Setup CodeDeploy
-    create_codedeploy_application(connections['codedeploy'],
-                                  CODEDEPLOY_APP_NAME)
-    asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
-    create_codedeploy_deployment_group(connections['codedeploy'],
-                                       CODEDEPLOY_APP_NAME,
-                                       CODEDEPLOY_GROUP_NAME,
-                                       asg_id, role_arn)
+##    create_codedeploy_application(connections['codedeploy'],
+##                                  CODEDEPLOY_APP_NAME)
+##    asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
+##    create_codedeploy_deployment_group(connections['codedeploy'],
+##                                       CODEDEPLOY_APP_NAME,
+##                                       CODEDEPLOY_GROUP_NAME,
+##                                       asg_id, role_arn)
 
 def destroy(connections, region):
     stack = list_and_get_stack(connections['cfn'], region)
@@ -309,8 +319,10 @@ def destroy(connections, region):
     print "Deleting!"
     connections['cfn'].delete_stack(stack.stack_name)
     #  Destroy IAM Roles/Policies
-    delete_iam_policy(connections['iam'], IAM_ROLE_NAME, IAM_POLICY_NAME)
-    delete_iam_role(connections['iam'], IAM_ROLE_NAME)
+    IRN = "-".join((IAM_ROLE_NAME, region))
+    IPN = "-".join((IAM_POLICY_NAME, region))
+    delete_iam_policy(connections['iam'], IRN, IPN)
+    delete_iam_role(connections['iam'], IRN)
     #  Destroy EC2 Key Pair
     delete_ec2_key_pair(connections['ec2'], parameters['KeyName'])
 
@@ -328,7 +340,7 @@ def main():
                         dest="locations", help="""If building, provide the
                         IP Address(es) from which ssh is allowed.\n
                         Example: './go.py build -l xx.xx.xx.xx yy.yy.yy.yy""",
-                        type=ip_address_type)
+                        type=ip_address_type, default="0.0.0.0")
     parser.add_argument('--region', action="store", dest="region",
                         default=DEFAULT_REGION)
     args = parser.parse_args()

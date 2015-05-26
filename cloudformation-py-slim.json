@@ -346,30 +346,6 @@
         }]
       }
     },
-    "NandoDemoDockerDNS": {
-      "Type": "AWS::Route53::RecordSetGroup",
-      "DependsOn": "NandoDemoDockerEnvironment",
-      "Properties": {
-        "HostedZoneName": {
-          "Ref": "NandoDemoZoneName"
-        },
-        "RecordSets": [{
-          "Name": {
-            "Fn::Join": [".", [ {
-              "Fn::Join": ["-", [ 
-                "nando-automation-demo-docker", {
-                "Ref": "DemoRegion" }]]}, {
-              "Ref": "NandoDemoZoneName"
-            }]]
-          },
-          "Type": "CNAME",
-          "TTL": "900",
-          "ResourceRecords": [{
-            "Fn::GetAtt": ["NandoDemoDockerEnvironment", "EndpointURL"]
-          }]
-        }]
-      }
-    },
     "NandoDemoBucketDNS": {
       "Type": "AWS::Route53::RecordSetGroup",
       "DependsOn": "NandoDemoBucket",
@@ -538,17 +514,6 @@
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
-              "/var/lib/jenkins/cloudformation.stack.name": {
-                "source": { "Fn::Join": ["-", [
-                              "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name", {
-                              "Ref": "DemoRegion"
-                            }]]
-                          },
-                "mode": "000400",
-                "owner": "root",
-                "group": "root",
-                "authentication": "S3AccessCreds"
-              },
               "/var/lib/jenkins/.instagram.client.id": {
                 "content": {
                   "Ref": "InstagramId"
@@ -568,14 +533,6 @@
               "/var/lib/jenkins/nando-demo.pem": {
                 "content": {
                   "Ref": "PrivateKey"
-                },
-                "mode": "000400",
-                "owner": "root",
-                "group": "root"
-              },
-              "/var/lib/jenkins/cloudformation-stack-name": {
-                "content": {
-                  "Ref": "AWS::StackName"
                 },
                 "mode": "000400",
                 "owner": "root",
@@ -1063,72 +1020,7 @@
           "IndexDocument": "index.html"
         }
       }
-    },
-    "NandoDemoDockerApp": {
-      "Type": "AWS::ElasticBeanstalk::Application",
-      "Properties": {
-        "ApplicationName": "NandoDemoDockerApp",
-        "Description": "NandoDemoDockerApp"
-      }
-    },
-    "NandoDemoDockerVersion": {
-      "Type": "AWS::ElasticBeanstalk::ApplicationVersion",
-      "Properties": {
-        "ApplicationName": {
-          "Ref": "NandoDemoDockerApp"
-        },
-        "Description": "NandoDemoDockerVersion",
-        "SourceBundle": {
-          "S3Bucket": "nando-automation-demo",
-          "S3Key": "nando-demo.zip"
-        }
-      }
-    },
-    "NandoDemoDockerTemplate": {
-      "Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
-      "Properties": {
-        "ApplicationName": {
-          "Ref": "NandoDemoDockerApp"
-        },
-        "Description": "NandoDemoDockerTemplate",
-        "OptionSettings": [{
-          "Namespace": "aws:autoscaling:asg",
-          "OptionName": "MinSize",
-          "Value": "1"
-        }, {
-          "Namespace": "aws:autoscaling:asg",
-          "OptionName": "MaxSize",
-          "Value": "2"
-        }, {
-          "Namespace": "aws:elasticbeanstalk:environment",
-          "OptionName": "EnvironmentType",
-          "Value": "LoadBalanced"
-        }, {
-          "Namespace": "aws:autoscaling:launchconfiguration",
-          "OptionName": "EC2KeyName",
-          "Value": {
-            "Ref": "KeyName"
-          }
-        }],
-        "SolutionStackName": "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0"
-      }
-    },
-    "NandoDemoDockerEnvironment": {
-      "Type": "AWS::ElasticBeanstalk::Environment",
-      "Properties": {
-        "ApplicationName": {
-          "Ref": "NandoDemoDockerApp"
-        },
-        "Description": "NandoDemoDockerEnvironment",
-        "TemplateName": {
-          "Ref": "NandoDemoDockerTemplate"
-        },
-        "VersionLabel": {
-          "Ref": "NandoDemoDockerVersion"
-        }
-      }
     }
-
   },
   "Outputs": {
     "NandoDemoName": {
@@ -1192,13 +1084,6 @@
         }]]
       }
     },
-    "NandoDemoDockerURL": {
-      "Value": {
-        "Fn::Join": ["", ["http://", {
-          "Fn::GetAtt": ["NandoDemoDockerEnvironment", "EndpointURL"]
-        }]]
-      }
-    },
     "NandoDemoCNAME": {
       "Value": {
         "Fn::Join": [".", [ {
@@ -1216,13 +1101,6 @@
             "http://nando-automation-demo-bucket", {
             "Ref": "DemoRegion" }]]}, {
           "Ref": "NandoDemoZoneName"
-        }]]
-      }
-    },
-    "NandoDemoDockerCNAME": {
-      "Value": {
-        "Fn::Join": ["", ["https://", {
-          "Fn::GetAtt": ["NandoDemoBucket", "DomainName"]
         }]]
       }
     },
