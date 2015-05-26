@@ -6,8 +6,9 @@ echo
 echo "using github commit $commitID"
 echo
 
-aws deploy list-applications --region "${REGION}" --application-name nando-demo || \
+aws deploy get-application --region "${REGION}" --application-name nando-demo || \
 {
+    aws deploy create-deployment-group --application-name nando-demo --deployment-group-name nando-demo --region "${REGION}"
     aws deploy create-application --application-name nando-demo --region "${REGION}"
 }
 
