@@ -309,7 +309,8 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo", {
-                  "Ref": "DemoRegion"
+                  "Ref": "DemoRegion" }, {
+                  "Ref": "HashID"
                 }
               ]]
             }, {
@@ -340,7 +341,8 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-jenkins", {
-                  "Ref": "DemoRegion"
+                  "Ref": "DemoRegion" }, {
+                  "Ref": "HashID"
                 }
               ]]
             }, {
@@ -367,7 +369,8 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-docker", {
-                  "Ref": "DemoRegion"
+                  "Ref": "DemoRegion" }, {
+                  "Ref": "HashID"
                 }
               ]]
             }, {
@@ -394,7 +397,8 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-bucket", {
-                  "Ref": "DemoRegion"
+                  "Ref": "DemoRegion" }, {
+                  "Ref": "HashID"
                 }
               ]]
             }, {

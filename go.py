@@ -258,8 +258,11 @@ def get_resource_id(cfn_connection, stack_name, resource_name):
     return resource_id
 
 
-def set_stack_name_in_s3(stack_name, dest_name):
-    pass
+def set_stack_name_in_s3(s3_connection, stack_name, dest_name, bucket):
+    s3_bucket = s3_connection.get_bucket(bucket)
+    s3_key = S3Key(s3_bucket)
+    s3_key.key = dest_name
+    s3_key.set_contents_from_string(stack_name)
 
 
 def build(connections, region, locations, hash_id):
@@ -302,11 +305,10 @@ def build(connections, region, locations, hash_id):
         capabilities=['CAPABILITY_IAM'],
         disable_rollback='true'
     )
-
     # Upload stackname to S3
     dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
-    set_stack_name_in_s3(stack_name, dest_name)
-
+    set_stack_name_in_s3(connections['s3'], stack_name,
+                         dest_name, MAIN_S3_BUCKET)
     print "Done!"
     #  Setup CodeDeploy
     create_codedeploy_application(connections['codedeploy'],
