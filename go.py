@@ -340,7 +340,7 @@ def main():
                         dest="locations", help="""If building, provide the
                         IP Address(es) from which ssh is allowed.\n
                         Example: './go.py build -l xx.xx.xx.xx yy.yy.yy.yy""",
-                        type=ip_address_type, default="0.0.0.0")
+                        type=ip_address_type, default=["0.0.0.0"])
     parser.add_argument('--region', action="store", dest="region",
                         default=DEFAULT_REGION)
     args = parser.parse_args()
