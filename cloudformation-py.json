@@ -14,6 +14,9 @@
       "Type": "String",
       "Default": "us-east-1"
     },
+    "HashID" : {
+      "Type": "String"
+    },
     "NandoDemoZoneName": {
       "Type": "String",
       "Default": "elasticoperations.com." 
@@ -541,7 +544,8 @@
               "/var/lib/jenkins/cloudformation.stack.name": {
                 "source": { "Fn::Join": ["-", [
                               "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name", {
-                              "Ref": "DemoRegion"
+                              "Ref": "DemoRegion"}, {
+                              "Ref": "HashID"
                             }]]
                           },
                 "mode": "000400",
@@ -1067,7 +1071,11 @@
     "NandoDemoDockerApp": {
       "Type": "AWS::ElasticBeanstalk::Application",
       "Properties": {
-        "ApplicationName": "NandoDemoDockerApp",
+        "ApplicationName": { "Fn::Join": ["-", [
+                               "NandoDemoDockerApp", {
+                               "Ref": "DemoRegion"}, {
+                               "Ref": "HashID"}
+                             ]]},
         "Description": "NandoDemoDockerApp"
       }
     },

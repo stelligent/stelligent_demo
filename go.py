@@ -7,6 +7,8 @@ import socket
 import sys
 import zipfile
 import re
+import time
+import md5
 from datetime import datetime
 from pprint import pprint
 from time import sleep
@@ -28,9 +30,9 @@ FILES_TO_S3 = ['jenkins/seed.xml.erb',
                'puppet/installJenkinsJob.pp',
                'puppet/installJenkinsPlugins.pp',
                'puppet/installJenkinsUsers.pp',
-               'puppet/installJenkinsSecurity.pp']
-#               DOCKER_ZIPFILE]
-CFN_TEMPLATE = 'cloudformation-py-slim.json'
+               'puppet/installJenkinsSecurity.pp',
+               DOCKER_ZIPFILE]
+CFN_TEMPLATE = 'cloudformation-py.json'
 INGRESS_PORTS = ['22', '2222', '8080']
 ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 
@@ -39,12 +41,13 @@ CODEDEPLOY_APP_NAME = 'nando-demo'
 CODEDEPLOY_GROUP_NAME = 'nando-demo'
 WEB_ASG_NAME = 'NandoDemoWebASG'
 
-#  Note: IAM_ROLE_NAME and IAM_POLICY_NAME will have the region
+#  Note: IAM_ROLE_NAME and IAM_POLICY_NAME will have the region and hash
 #        appended as 'NandoDemoRole-us-east-1' to allow multi-region support
 IAM_ROLE_NAME = 'NandoDemoCodeDeployRole'
 IAM_ROLE_DOC = 'codedeploy/NandoDemoCodeDeployRole.json'
 IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
 IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
+
 
 def ip_address_type(location):
     try:
@@ -255,7 +258,11 @@ def get_resource_id(cfn_connection, stack_name, resource_name):
     return resource_id
 
 
-def build(connections, region, locations):
+def set_stack_name_in_s3(stack_name, dest_name):
+    pass
+
+
+def build(connections, region, locations, hash_id):
     build_params = list()
     #  Setup Instagram Access
     instagram_id, instagram_secret = get_instagram_keys_from_env()
@@ -266,6 +273,7 @@ def build(connections, region, locations):
                             datetime.now().strftime('%Y%m%d%H%M%S'))
     build_params.append(("NandoDemoName", stack_name))
     build_params.append(("DemoRegion", region))
+    build_params.append(("HashID", hash_id))
     #  Setup S3
     copy_files_to_s3(connections['s3'], MAIN_S3_BUCKET)
     #  Setup Security Groups/Access
@@ -278,8 +286,8 @@ def build(connections, region, locations):
     build_params.append(("KeyName", key_pair_name))
     build_params.append(("PrivateKey", private_key))
     #  Setup IAM Roles/Policies
-    IRN = "-".join((IAM_ROLE_NAME, region))
-    IPN = "-".join((IAM_POLICY_NAME, region))
+    IRN = "-".join((IAM_ROLE_NAME, region, hash_id))
+    IPN = "-".join((IAM_POLICY_NAME, region, hash_id))
     role_arn = create_iam_role(connections['iam'], IRN, IAM_ROLE_DOC)
     put_iam_role_policy(connections['iam'], IRN, IPN, IAM_POLICY_DOC)
     #  Add Extra Information to Stack
@@ -294,17 +302,23 @@ def build(connections, region, locations):
         capabilities=['CAPABILITY_IAM'],
         disable_rollback='true'
     )
+
+    # Upload stackname to S3
+    dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
+    set_stack_name_in_s3(stack_name, dest_name)
+
     print "Done!"
     #  Setup CodeDeploy
-##    create_codedeploy_application(connections['codedeploy'],
-##                                  CODEDEPLOY_APP_NAME)
-##    asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
-##    create_codedeploy_deployment_group(connections['codedeploy'],
-##                                       CODEDEPLOY_APP_NAME,
-##                                       CODEDEPLOY_GROUP_NAME,
-##                                       asg_id, role_arn)
+    create_codedeploy_application(connections['codedeploy'],
+                                  CODEDEPLOY_APP_NAME)
+    asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
+    create_codedeploy_deployment_group(connections['codedeploy'],
+                                       CODEDEPLOY_APP_NAME,
+                                       CODEDEPLOY_GROUP_NAME,
+                                       asg_id, role_arn)
 
-def destroy(connections, region):
+
+def destroy(connections, region, hash_id):
     stack = list_and_get_stack(connections['cfn'], region)
     parameters = {x.key: x.value for x in stack.parameters}
     #  Destroy CodeDeploy
@@ -319,8 +333,8 @@ def destroy(connections, region):
     print "Deleting!"
     connections['cfn'].delete_stack(stack.stack_name)
     #  Destroy IAM Roles/Policies
-    IRN = "-".join((IAM_ROLE_NAME, region))
-    IPN = "-".join((IAM_POLICY_NAME, region))
+    IRN = "-".join((IAM_ROLE_NAME, region, hash_id))
+    IPN = "-".join((IAM_POLICY_NAME, region, hash_id))
     delete_iam_policy(connections['iam'], IRN, IPN)
     delete_iam_role(connections['iam'], IRN)
     #  Destroy EC2 Key Pair
@@ -333,6 +347,7 @@ def info(connections, region):
 
 
 def main():
+    new_hash = md5.new(str(time.time())).hexdigest()[:8]
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=ALLOWED_ACTIONS, action="store",
                         help="Action to take against the stack(s)")
@@ -343,6 +358,10 @@ def main():
                         type=ip_address_type, default="0.0.0.0")
     parser.add_argument('--region', action="store", dest="region",
                         default=DEFAULT_REGION)
+    parser.add_argument('--hash', action="store", dest="hash_id",
+                        help="""Define the hash to use for multiple
+                        deployments.  If left blank, the hash will be
+                        generated.""", default=new_hash)
     args = parser.parse_args()
     connections = dict()
     connections['cfn'] = cfn_connect(args.region)
@@ -361,9 +380,9 @@ def main():
             print "Please provide at least one IP Address."
             parser.print_help()
             sys.exit(1)
-        build(connections, args.region, args.locations)
+        build(connections, args.region, args.locations, args.hash_id)
     elif args.action == "destroy":
-        destroy(connections, args.region)
+        destroy(connections, args.region, args.hash_id)
 
 
 if __name__ == '__main__':
