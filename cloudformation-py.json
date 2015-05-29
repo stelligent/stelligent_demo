@@ -19,7 +19,7 @@
     },
     "NandoDemoZoneName": {
       "Type": "String",
-      "Default": "elasticoperations.com." 
+      "Default": "elasticoperations.com."
     },
     "NandoDemoDBName": {
       "Type": "String",
@@ -306,10 +306,13 @@
         },
         "RecordSets": [{
           "Name": {
-            "Fn::Join": [".", [ {
+            "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo", {
-                "Ref": "DemoRegion" }]]}, {
+                  "Ref": "DemoRegion"
+                }
+              ]]
+            }, {
               "Ref": "NandoDemoZoneName"
             }]]
           },
@@ -334,10 +337,13 @@
         },
         "RecordSets": [{
           "Name": {
-            "Fn::Join": [".", [ {
+            "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-jenkins", {
-                "Ref": "DemoRegion" }]]}, {
+                  "Ref": "DemoRegion"
+                }
+              ]]
+            }, {
               "Ref": "NandoDemoZoneName"
             }]]
           },
@@ -358,10 +364,13 @@
         },
         "RecordSets": [{
           "Name": {
-            "Fn::Join": [".", [ {
-              "Fn::Join": ["-", [ 
+            "Fn::Join": [".", [{
+              "Fn::Join": ["-", [
                 "nando-automation-demo-docker", {
-                "Ref": "DemoRegion" }]]}, {
+                  "Ref": "DemoRegion"
+                }
+              ]]
+            }, {
               "Ref": "NandoDemoZoneName"
             }]]
           },
@@ -382,10 +391,13 @@
         },
         "RecordSets": [{
           "Name": {
-            "Fn::Join": [".", [ {
+            "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-bucket", {
-                "Ref": "DemoRegion" }]]}, {
+                  "Ref": "DemoRegion"
+                }
+              ]]
+            }, {
               "Ref": "NandoDemoZoneName"
             }]]
           },
@@ -463,7 +475,25 @@
           }
         },
         "AWS::CloudFormation::Init": {
-          "config": {
+          "configSets": {
+            "default": ["install_jenkins", "system_setup", "jenkins_setup"]
+          },
+          "install_jenkins": {
+            "packages": {
+              "rpm": {
+                "jenkins": "http://pkg.jenkins-ci.org/redhat/jenkins-1.596-1.1.noarch.rpm"
+              }
+            },
+            "services": {
+              "sysvinit": {
+                "jenkins": {
+                  "enabled": "true",
+                  "ensureRunning": "true"
+                }
+              }
+            }
+          },
+          "system_setup": {
             "files": {
               "/etc/cfn/cfn-hup.conf": {
                 "content": {
@@ -544,7 +574,7 @@
               "/var/lib/jenkins/cloudformation.stack.name": {
                 "source": { "Fn::Join": ["-", [
                               "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name", {
-                              "Ref": "DemoRegion"}, {
+                              "Ref": "DemoRegion" }, {
                               "Ref": "HashID"
                             }]]
                           },
@@ -586,14 +616,9 @@
                 "group": "root"
               }
             },
-            "packages": {
-              "rpm": {
-                "jenkins": "http://pkg.jenkins-ci.org/redhat/jenkins-1.596-1.1.noarch.rpm"
-              }
-            },
             "commands": {
               "bootstrapA": {
-                "command": "service jenkins restart"
+                "command": "mkdir -pv /etc/puppet/modules /var/lib/jenkins"
               },
               "bootstrapB": {
                 "command": "yum -y update"
@@ -617,17 +642,30 @@
                 "command": "/usr/local/bin/pip2.7 install --upgrade awscli awsebcli python-instagram"
               },
               "bootstrapI": {
-                "command": "mkdir -pv /etc/puppet/modules /var/lib/jenkins"
-              },
-              "bootstrapJ": {
                 "command": "puppet module install rtyler/jenkins --version 1.3.0"
               },
-              "bootstrapK": {
+              "bootstrapJ": {
                 "command": "sed -i 's|RedHat|Linux|g' /etc/puppet/modules/java/manifests/params.pp"
               },
-              "bootstrapL": {
+              "bootstrapK": {
                 "command": "sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp"
-              },
+              }
+            },
+            "services": {
+              "sysvinit": {
+                "cfn-hup": {
+                  "enabled": "true",
+                  "ensureRunning": "true",
+                  "files": [
+                    "/etc/cfn/cfn-hup.conf",
+                    "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                  ]
+                }
+              }
+            }
+          },
+          "jenkins_setup": {
+            "commands": {
               "installjenkinsA": {
                 "command": "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp > /root/installJenkinsPlugins.out 2>&1"
               },
@@ -639,22 +677,6 @@
               },
               "installjenkinsD": {
                 "command": "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp > /root/installJenkinsSecurity.out 2>&1"
-              }
-            },
-            "services": {
-              "sysvinit": {
-                "jenkins": {
-                  "enabled": "true",
-                  "ensureRunning": "true"
-                },
-                "cfn-hup": {
-                  "enabled": "true",
-                  "ensureRunning": "true",
-                  "files": [
-                    "/etc/cfn/cfn-hup.conf",
-                    "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
-                  ]
-                }
               }
             }
           }
@@ -1209,20 +1231,26 @@
     },
     "NandoDemoCNAME": {
       "Value": {
-        "Fn::Join": [".", [ {
+        "Fn::Join": [".", [{
           "Fn::Join": ["-", [
             "http://nando-automation-demo", {
-            "Ref": "DemoRegion" }]]}, {
+              "Ref": "DemoRegion"
+            }
+          ]]
+        }, {
           "Ref": "NandoDemoZoneName"
         }]]
       }
     },
     "NandoDemoBucketCNAME": {
       "Value": {
-        "Fn::Join": [".", [ {
+        "Fn::Join": [".", [{
           "Fn::Join": ["-", [
             "http://nando-automation-demo-bucket", {
-            "Ref": "DemoRegion" }]]}, {
+              "Ref": "DemoRegion"
+            }
+          ]]
+        }, {
           "Ref": "NandoDemoZoneName"
         }]]
       }
@@ -1237,7 +1265,8 @@
     "NandoDemoJenkinsCNAME": {
       "Value": {
         "Fn::Join": ["", ["http://nando-automation-demo-jenkins-", {
-          "Ref": "DemoRegion" }, ".", {
+          "Ref": "DemoRegion"
+        }, ".", {
           "Ref": "NandoDemoZoneName"
         }, ":8080"]]
       }
