@@ -931,7 +931,12 @@
               "ec2:Describe*",
               "s3:*",
               "codedeploy:*",
-              "elasticbeanstalk:*"
+              "elasticbeanstalk:*",
+              "iam:ListRoles",
+              "iam:PassRole",
+              "iam:CreateRole",
+              "iam:PutRolePolicy",
+              "iam:GetRole"
             ],
             "Effect": "Allow",
             "Resource": "*"

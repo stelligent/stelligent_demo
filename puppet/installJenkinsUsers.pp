@@ -1,7 +1,7 @@
 node /.*internal$/ {
    	include jenkins
 
-  	jenkins::user { 'nando':
+  	jenkins::user { 'stelligentdemo':
     		email    => 'fernando.pando@stelligent.com',
     		password => 'changeme123',
   	}
