@@ -126,7 +126,7 @@ deliveryPipelineView('Continuous Delivery Pipeline') {
     showChangeLog()
     pipelines {
         component('CodeDeploy', 'CodeDeployStage')
-        component('Docker', 'DockerJob')
+        component('Docker', 'DockerStage')
         component('Instagram', 'InstagramImageGet')
     }
 }
