@@ -14,7 +14,7 @@
       "Type": "String",
       "Default": "us-east-1"
     },
-    "HashID" : {
+    "HashID": {
       "Type": "String"
     },
     "NandoDemoZoneName": {
@@ -309,7 +309,8 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo", {
-                  "Ref": "DemoRegion" }, {
+                  "Ref": "DemoRegion"
+                }, {
                   "Ref": "HashID"
                 }
               ]]
@@ -341,7 +342,8 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-jenkins", {
-                  "Ref": "DemoRegion" }, {
+                  "Ref": "DemoRegion"
+                }, {
                   "Ref": "HashID"
                 }
               ]]
@@ -369,7 +371,8 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-docker", {
-                  "Ref": "DemoRegion" }, {
+                  "Ref": "DemoRegion"
+                }, {
                   "Ref": "HashID"
                 }
               ]]
@@ -397,7 +400,8 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-bucket", {
-                  "Ref": "DemoRegion" }, {
+                  "Ref": "DemoRegion"
+                }, {
                   "Ref": "HashID"
                 }
               ]]
@@ -479,25 +483,12 @@
           }
         },
         "AWS::CloudFormation::Init": {
-          "configSets": {
-            "default": ["install_jenkins", "system_setup", "jenkins_setup"]
-          },
-          "install_jenkins": {
+          "config": {
             "packages": {
               "rpm": {
                 "jenkins": "http://pkg.jenkins-ci.org/redhat/jenkins-1.596-1.1.noarch.rpm"
               }
             },
-            "services": {
-              "sysvinit": {
-                "jenkins": {
-                  "enabled": "true",
-                  "ensureRunning": "true"
-                }
-              }
-            }
-          },
-          "system_setup": {
             "files": {
               "/etc/cfn/cfn-hup.conf": {
                 "content": {
@@ -576,12 +567,15 @@
                 "authentication": "S3AccessCreds"
               },
               "/var/lib/jenkins/cloudformation.stack.name": {
-                "source": { "Fn::Join": ["-", [
-                              "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name", {
-                              "Ref": "DemoRegion" }, {
-                              "Ref": "HashID"
-                            }]]
-                          },
+                "source": {
+                  "Fn::Join": ["-", [
+                    "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name", {
+                      "Ref": "DemoRegion"
+                    }, {
+                      "Ref": "HashID"
+                    }
+                  ]]
+                },
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
@@ -621,6 +615,9 @@
               }
             },
             "commands": {
+              "bootstrap0": {
+                "command": "service restart jenkins"
+              },
               "bootstrapA": {
                 "command": "mkdir -pv /etc/puppet/modules /var/lib/jenkins"
               },
@@ -653,23 +650,7 @@
               },
               "bootstrapK": {
                 "command": "sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp"
-              }
-            },
-            "services": {
-              "sysvinit": {
-                "cfn-hup": {
-                  "enabled": "true",
-                  "ensureRunning": "true",
-                  "files": [
-                    "/etc/cfn/cfn-hup.conf",
-                    "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
-                  ]
-                }
-              }
-            }
-          },
-          "jenkins_setup": {
-            "commands": {
+              },
               "installjenkinsA": {
                 "command": "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp > /root/installJenkinsPlugins.out 2>&1"
               },
@@ -681,6 +662,22 @@
               },
               "installjenkinsD": {
                 "command": "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp > /root/installJenkinsSecurity.out 2>&1"
+              }
+            },
+            "services": {
+              "sysvinit": {
+                "jenkins": {
+                  "enabled": "true",
+                  "ensureRunning": "true"
+                },
+                "cfn-hup": {
+                  "enabled": "true",
+                  "ensureRunning": "true",
+                  "files": [
+                    "/etc/cfn/cfn-hup.conf",
+                    "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                  ]
+                }
               }
             }
           }
@@ -1002,12 +999,21 @@
               "autoscaling:Describe*",
               "cloudformation:DescribeStacks",
               "ec2:Describe*",
-              "s3:*",
               "codedeploy:*",
+              "s3:Get*",
+              "s3:List*",
               "elasticbeanstalk:*"
             ],
             "Effect": "Allow",
             "Resource": "*"
+          }, {
+            "Action": [
+              "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": {
+              "Ref": "NandoDemoBucket"
+            }
           }]
         },
         "Roles": [{
@@ -1097,11 +1103,15 @@
     "NandoDemoDockerApp": {
       "Type": "AWS::ElasticBeanstalk::Application",
       "Properties": {
-        "ApplicationName": { "Fn::Join": ["-", [
-                               "NandoDemoDockerApp", {
-                               "Ref": "DemoRegion"}, {
-                               "Ref": "HashID"}
-                             ]]},
+        "ApplicationName": {
+          "Fn::Join": ["-", [
+            "NandoDemoDockerApp", {
+              "Ref": "DemoRegion"
+            }, {
+              "Ref": "HashID"
+            }
+          ]]
+        },
         "Description": "NandoDemoDockerApp"
       }
     },

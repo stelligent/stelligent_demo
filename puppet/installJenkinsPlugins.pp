@@ -12,5 +12,7 @@ node /.*internal$/ {
 	jenkins::plugin { 'promoted-builds': }
 	jenkins::plugin { 'job-dsl': }
 	jenkins::plugin { 'build-flow-plugin': }
+  jenkins::plugin { 'build-pipeline-plugin': }
+	jenkins::plugin { 'delivery-pipeline-plugin': }
 }
 
