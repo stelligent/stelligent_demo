@@ -115,3 +115,18 @@ freeStyleJob ('DockerStageTests') {
 	}
 }
 
+deliveryPipelineView('Continuous Delivery Pipeline') {
+    pipelineInstances(3)
+    showAggregatedPipeline()
+    columns(1)
+    sorting()
+    updateInterval(5)
+    enableManualTriggers()
+    showAvatars()
+    showChangeLog()
+    pipelines {
+        component('CodeDeploy', 'CodeDeployStage')
+        component('Docker', 'DockerJob')
+        component('Instagram', 'InstagramImageGet')
+    }
+}
