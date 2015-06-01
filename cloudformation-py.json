@@ -1012,7 +1012,10 @@
             ],
             "Effect": "Allow",
             "Resource": {
-              "Ref": "NandoDemoBucket"
+              "Fn::Join": ["", ["arn:aws:s3:::", {
+                "Ref": "NandoDemoBucket"
+              }, "/*"]]
+            },
             }
           }]
         },
