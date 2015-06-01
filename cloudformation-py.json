@@ -570,13 +570,12 @@
                 "source": {
                   "Fn::Join": ["-", [
                     "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name", {
-                      "Ref": "DemoRegion"
-                    }, {
+                      "Ref": "DemoRegion" }, {
                       "Ref": "HashID"
                     }
                   ]]
                 },
-                "mode": "000400",
+                "mode": "000444",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
@@ -585,7 +584,7 @@
                 "content": {
                   "Ref": "InstagramId"
                 },
-                "mode": "000400",
+                "mode": "000444",
                 "owner": "root",
                 "group": "root"
               },
@@ -593,7 +592,7 @@
                 "content": {
                   "Ref": "InstagramSecret"
                 },
-                "mode": "000400",
+                "mode": "000444",
                 "owner": "root",
                 "group": "root"
               },
@@ -601,7 +600,7 @@
                 "content": {
                   "Ref": "PrivateKey"
                 },
-                "mode": "000400",
+                "mode": "000444",
                 "owner": "root",
                 "group": "root"
               },
@@ -609,7 +608,7 @@
                 "content": {
                   "Ref": "AWS::StackName"
                 },
-                "mode": "000400",
+                "mode": "000444",
                 "owner": "root",
                 "group": "root"
               }
@@ -620,9 +619,6 @@
               },
               "bootstrapA": {
                 "command": "mkdir -pv /etc/puppet/modules /var/lib/jenkins"
-              },
-              "bootstrapB": {
-                "command": "yum -y update"
               },
               "bootstrapC": {
                 "command": "yum -y install git puppet python-pip python-devel gcc zlib-devel openssl-devel"
@@ -961,9 +957,13 @@
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [{
+            "Sid": "",
             "Effect": "Allow",
             "Principal": {
-              "Service": ["ec2.amazonaws.com"]
+              "Service": [
+                "codedeploy.amazonaws.com",
+                "ec2.amazonaws.com"
+              ]
             },
             "Action": ["sts:AssumeRole"]
           }]
@@ -977,9 +977,13 @@
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [{
+            "Sid": "",
             "Effect": "Allow",
             "Principal": {
-              "Service": ["ec2.amazonaws.com"]
+              "Service": [
+                "codedeploy.amazonaws.com",
+                "ec2.amazonaws.com"
+              ]
             },
             "Action": ["sts:AssumeRole"]
           }]
@@ -1030,7 +1034,25 @@
         "PolicyName": "nando-demo-asg-policy",
         "PolicyDocument": {
           "Version": "2012-10-17",
-          "Statement": [{
+          "Statement": [
+          {
+            "Action": [
+                "autoscaling:PutLifecycleHook",
+		        "autoscaling:DeleteLifecycleHook",
+		        "autoscaling:RecordLifecycleActionHeartbeat",
+		        "autoscaling:CompleteLifecycleAction",
+		        "autoscaling:DescribeAutoscalingGroups",
+		        "autoscaling:PutInstanceInStandby",
+		        "autoscaling:PutInstanceInService",
+                "cloudformation:DescribeStacks",
+                "ec2:Describe*",
+                "Tag:get*",
+                "elasticbeanstalk:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+          },
+          {
             "Action": ["s3:Get*", "s3:List*"],
             "Effect": "Allow",
             "Resource": [
