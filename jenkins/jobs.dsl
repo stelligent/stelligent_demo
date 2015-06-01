@@ -117,7 +117,6 @@ freeStyleJob ('DockerStageTests') {
 
 deliveryPipelineView('Continuous Delivery Pipeline') {
     pipelineInstances(3)
-    showAggregatedPipeline()
     columns(1)
     sorting()
     updateInterval(5)
