@@ -6,7 +6,7 @@
       "Effect": "Allow",
       "Principal": {
         "Service": [
-            "codedeploy.us-east-1.amazonaws.com"            
+            "codedeploy.amazonaws.com"
         ]
       },
       "Action": "sts:AssumeRole"

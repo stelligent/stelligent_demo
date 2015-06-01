@@ -1045,6 +1045,7 @@
 		        "autoscaling:PutInstanceInStandby",
 		        "autoscaling:PutInstanceInService",
                 "cloudformation:DescribeStacks",
+                "codedeploy:*",
                 "ec2:Describe*",
                 "Tag:get*",
                 "elasticbeanstalk:*"
