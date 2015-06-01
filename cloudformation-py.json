@@ -616,7 +616,7 @@
             },
             "commands": {
               "bootstrap0": {
-                "command": "service restart jenkins"
+                "command": "service jenkins restart"
               },
               "bootstrapA": {
                 "command": "mkdir -pv /etc/puppet/modules /var/lib/jenkins"
