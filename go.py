@@ -104,6 +104,13 @@ def copy_files_to_s3(s3_connection, bucket):
     print "Done!"
 
 
+def delete_stack_name_from_s3(s3_connection, bucket, target):
+    s3_bucket = s3_connection.get_bucket(bucket)
+    s3_key = S3Key(s3_bucket)
+    s3_key = target
+    s3_bucket.delete_key(s3_key)
+
+
 def inject_locations(locations, data):
     for location in locations:
         if re.search(r"0.0.0.0", location):
@@ -320,8 +327,12 @@ def build(connections, region, locations, hash_id):
                                        asg_id, role_arn)
 
 
-def destroy(connections, region, hash_id):
+def destroy(connections, region):
     stack = list_and_get_stack(connections['cfn'], region)
+    #  Fetch our Hash ID for this stack (probably a better way to find this)
+    for param in stack.parameters:
+        if param.key == "HashID":
+            hash_id = param.value
     parameters = {x.key: x.value for x in stack.parameters}
     #  Destroy CodeDeploy
     delete_codedeploy_deployment_group(connections['codedeploy'],
@@ -341,6 +352,9 @@ def destroy(connections, region, hash_id):
     delete_iam_role(connections['iam'], IRN)
     #  Destroy EC2 Key Pair
     delete_ec2_key_pair(connections['ec2'], parameters['KeyName'])
+    #  Remove the stackname from S3
+    dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
+    delete_stack_name_from_s3(connections['s3'], MAIN_S3_BUCKET, dest_name)
 
 
 def info(connections, region):
@@ -384,7 +398,7 @@ def main():
             sys.exit(1)
         build(connections, args.region, args.locations, args.hash_id)
     elif args.action == "destroy":
-        destroy(connections, args.region, args.hash_id)
+        destroy(connections, args.region)
 
 
 if __name__ == '__main__':

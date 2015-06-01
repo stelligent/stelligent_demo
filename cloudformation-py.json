@@ -1238,7 +1238,8 @@
         "Fn::Join": [".", [{
           "Fn::Join": ["-", [
             "http://nando-automation-demo", {
-              "Ref": "DemoRegion"
+              "Ref": "DemoRegion"}, {
+              "Ref": "HashID"
             }
           ]]
         }, {
@@ -1251,7 +1252,8 @@
         "Fn::Join": [".", [{
           "Fn::Join": ["-", [
             "http://nando-automation-demo-bucket", {
-              "Ref": "DemoRegion"
+              "Ref": "DemoRegion"}, {
+              "Ref": "HashID"
             }
           ]]
         }, {
