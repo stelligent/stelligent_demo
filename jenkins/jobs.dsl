@@ -42,7 +42,7 @@ freeStyleJob ('dumpXML') {
 }
 // Image Selector Application (ISA)(CodeDeploy)
 // ISA Commit
-freeStyleJob ('ISA-trigger') {
+freeStyleJob ('ISA-poll-version-control') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -53,12 +53,12 @@ freeStyleJob ('ISA-trigger') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-commit', 'SUCCESS')
+        downstream('ISA-run-application-build', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Commit', 'trigger')
+	deliveryPipelineConfiguration('Commit', 'poll-version-control')
 }
 
-freeStyleJob ('ISA-commit') {
+freeStyleJob ('ISA-run-application-build') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -66,14 +66,91 @@ freeStyleJob ('ISA-commit') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-create-env-acceptance', 'SUCCESS')
+        downstream('ISA-store-distros', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Commit', 'commit')
+	deliveryPipelineConfiguration('Commit', 'run-application-build')
+}
+
+freeStyleJob ('ISA-store-distros') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-run-unit-tests', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Commit', 'store-distros')
+}
+
+freeStyleJob ('ISA-run-unit-tests') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-run-static-analysis', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Commit', 'run-unit-tests')
+}
+
+freeStyleJob ('ISA-run-static-analysis') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-provision-environment', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Commit', 'run-static-analysis')
 }
 
 //ISA Acceptance Testing
+freeStyleJob ('ISA-provision-environment') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-node-configuration', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Acceptance Testing', 'provision-environment')
+}
 
-freeStyleJob ('ISA-create-env-acceptance') {
+freeStyleJob ('ISA-node-configuration') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-create-system-image', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Acceptance Testing', 'node-configuration')
+}
+
+freeStyleJob ('ISA-create-system-image') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-app-deployment', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Acceptance Testing', 'create-system-image')
+}
+
+freeStyleJob ('ISA-app-deployment') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -81,12 +158,12 @@ freeStyleJob ('ISA-create-env-acceptance') {
 		shell('bash codedeploy/codedeploy.sh')
 	}
 	publishers {
-        downstream('ISA-run-tests-infrastructure', 'SUCCESS')
+        downstream('ISA-run-infrastructure-tests', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Acceptance Testing', 'create-env-acceptance')
+	deliveryPipelineConfiguration('Acceptance Testing', 'app-deployment')
 }
 
-freeStyleJob ('ISA-run-tests-infrastructure') {
+freeStyleJob ('ISA-run-infrastructure-tests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -94,26 +171,12 @@ freeStyleJob ('ISA-run-tests-infrastructure') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-destroy-env-acceptence', 'SUCCESS')
+        downstream('ISA-run-long-running-tests', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Acceptance Testing', 'run-tests-infrastructure')
+	deliveryPipelineConfiguration('Acceptance Testing', 'run-infrastructure-tests')
 }
 
-freeStyleJob ('ISA-destroy-env-acceptence') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-	steps {
-		shell('sleep 2')
-	}
-	publishers {
-        downstream('ISA-create-env-exploratory', 'SUCCESS')
-	}
-	deliveryPipelineConfiguration('Acceptance Testing', 'destroy-env-acceptance')
-}
-
-// ISA Exploratory
-freeStyleJob ('ISA-create-env-exploratory') {
+freeStyleJob ('ISA-run-long-running-tests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -123,9 +186,10 @@ freeStyleJob ('ISA-create-env-exploratory') {
 	publishers {
         downstream('ISA-approve-reject-exploratory', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Exploratory', 'create-env-exploratory')
+	deliveryPipelineConfiguration('Acceptance Testing', 'run-long-running-tests')
 }
 
+// ISA Exploratory
 freeStyleJob ('ISA-approve-reject-exploratory') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
@@ -134,26 +198,13 @@ freeStyleJob ('ISA-approve-reject-exploratory') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-destroy-env-exploratory', 'SUCCESS')
+        downstream('ISA-launch-environment-capacity', 'SUCCESS')
 	}
 	deliveryPipelineConfiguration('Exploratory', 'approve-reject-exploratory')
 }
 
-freeStyleJob ('ISA-destroy-env-exploratory') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-	steps {
-		shell('sleep 2')
-	}
-	publishers {
-        downstream('ISA-create-env-capacity', 'SUCCESS')
-	}
-	deliveryPipelineConfiguration('Exploratory', 'destroy-env-exploratory')
-}
-
 // ISA Capacity
-freeStyleJob ('ISA-create-env-capacity') {
+freeStyleJob ('ISA-launch-environment-capacity') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -161,12 +212,12 @@ freeStyleJob ('ISA-create-env-capacity') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-run-tests-performance', 'SUCCESS')
+        downstream('ISA-load-prod-database-cap', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Capacity', 'create-env-capacity')
+	deliveryPipelineConfiguration('Capacity', 'launch-env-capacity')
 }
 
-freeStyleJob ('ISA-run-tests-performance') {
+freeStyleJob ('ISA-load-prod-database-cap') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -174,12 +225,12 @@ freeStyleJob ('ISA-run-tests-performance') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-run-tests-load', 'SUCCESS')
+        downstream('ISA-run-loadperf-tests', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Capacity', 'run-tests-performance')
+	deliveryPipelineConfiguration('Capacity', 'load-prod-database')
 }
 
-freeStyleJob ('ISA-run-tests-load') {
+freeStyleJob ('ISA-run-loadperf-tests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -187,12 +238,12 @@ freeStyleJob ('ISA-run-tests-load') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-run-tests-chaos', 'SUCCESS')
+        downstream('ISA-run-chaos-tests', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Capacity', 'run-tests-load')
+	deliveryPipelineConfiguration('Capacity', 'run-loadperf-tests')
 }
 
-freeStyleJob ('ISA-run-tests-chaos') {
+freeStyleJob ('ISA-run-chaos-tests') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -200,12 +251,12 @@ freeStyleJob ('ISA-run-tests-chaos') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-destroy-env-capacity', 'SUCCESS')
+        downstream('ISA-dynamic-security-analysis', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Capacity', 'run-tests-chaos')
+	deliveryPipelineConfiguration('Capacity', 'run-chaos-tests')
 }
 
-freeStyleJob ('ISA-destroy-env-capacity') {
+freeStyleJob ('ISA-dynamic-security-analysis') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -213,15 +264,27 @@ freeStyleJob ('ISA-destroy-env-capacity') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-create-env-staging', 'SUCCESS')
+        downstream('ISA-terminate-environment-capacity', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Capacity', 'destroy-env-capacity')
+	deliveryPipelineConfiguration('Capacity', 'dynamic-security-analysis')
 }
 
+freeStyleJob ('ISA-terminate-environment-capacity') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-launch-preprod-environment', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Capacity', 'terminate-env-capacity')
+}
 
 // ISA Pre-Production
 
-freeStyleJob ('ISA-create-env-staging') {
+freeStyleJob ('ISA-launch-preprod-environment') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -229,53 +292,12 @@ freeStyleJob ('ISA-create-env-staging') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-approve-reject-staging', 'SUCCESS')
+        downstream('ISA-load-prod-database', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Pre-Production', 'create-env-staging')
+	deliveryPipelineConfiguration('Pre-Production', 'launch-preprod-env')
 }
 
-freeStyleJob ('ISA-approve-reject-staging') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-	steps {
-		shell('sleep 2')
-	}
-	publishers {
-        downstream('ISA-destroy-env-staging', 'SUCCESS')
-	}
-	deliveryPipelineConfiguration('Pre-Production', 'approve-reject-staging')
-}
-
-freeStyleJob ('ISA-destroy-env-staging') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-	steps {
-		shell('sleep 2')
-	}
-	publishers {
-        downstream('ISA-create-env-production', 'SUCCESS')
-	}
-	deliveryPipelineConfiguration('Pre-Production', 'destroy-env-staging')
-}
-
-// ISA Production
-
-freeStyleJob ('ISA-create-env-production') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-	steps {
-		shell('sleep 2')
-	}
-	publishers {
-        downstream('ISA-approve-reject-production', 'SUCCESS')
-	}
-	deliveryPipelineConfiguration('Production', 'create-env-production')
-}
-
-freeStyleJob ('ISA-approve-reject-production') {
+freeStyleJob ('ISA-load-prod-database') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
@@ -285,7 +307,7 @@ freeStyleJob ('ISA-approve-reject-production') {
 	publishers {
         downstream('ISA-blue-green-deployment', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Production', 'approve-reject-production')
+	deliveryPipelineConfiguration('Pre-Production', 'load-prod-database')
 }
 
 freeStyleJob ('ISA-blue-green-deployment') {
@@ -295,7 +317,49 @@ freeStyleJob ('ISA-blue-green-deployment') {
 	steps {
 		shell('sleep 2')
 	}
-	deliveryPipelineConfiguration('Production', 'blue-green-deployment')
+	publishers {
+        downstream('ISA-approve-reject-preprod', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Pre-Production', 'blue-green-deployment')
+}
+
+
+
+freeStyleJob ('ISA-approve-reject-preprod') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-terminate-preprod', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Pre-Production', 'approve-reject-preprod')
+}
+
+freeStyleJob ('ISA-terminate-preprod') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-update-dns', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Pre-Production', 'terminate-preprod')
+}
+
+// ISA Production
+freeStyleJob ('ISA-update-dns') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	deliveryPipelineConfiguration('Production', 'update-dns')
 }
 
 
@@ -320,7 +384,7 @@ freeStyleJob ('DockerStage') {
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('DockerStageTests', 'SUCCESS')
+         downstream('DockerStageTests', 'SUCCESS')
 	}
 }
 
@@ -332,17 +396,17 @@ freeStyleJob ('DockerStageTests') {
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('DockerProduction', 'SUCCESS')
+         downstream('DockerProduction', 'SUCCESS')
 	}
 }
 
 deliveryPipelineView('Continuous Delivery Pipeline') {
-    pipelineInstances(3)
+    pipelineInstances(2)
     columns(1)
     updateInterval(5)
     enableManualTriggers()
     pipelines {
-        component('Image Selector Application', 'ISA-trigger')
+        component('Image Selector Application', 'ISA-poll-version-control')
         component('Image Slide Show', 'DockerStage')
         component('Instagram Image Processing', 'InstagramImageGet')
     }
