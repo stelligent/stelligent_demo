@@ -105,23 +105,49 @@ freeStyleJob ('ISA-run-static-analysis') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-launch-environment-acceptance', 'SUCCESS')
+        downstream('ISA-provision-environment', 'SUCCESS')
 	}
 	deliveryPipelineConfiguration('Commit', 'run-static-analysis')
 }
 
 //ISA Acceptance Testing
-freeStyleJob ('ISA-launch-environment-acceptance') {
+freeStyleJob ('ISA-provision-environment') {
 	scm {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
 	steps {
-		shell('bash codedeploy/codedeploy.sh')
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-node-configuration', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Acceptance Testing', 'provision-environment')
+}
+
+freeStyleJob ('ISA-node-configuration') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
+	}
+	publishers {
+        downstream('ISA-create-system-image', 'SUCCESS')
+	}
+	deliveryPipelineConfiguration('Acceptance Testing', 'node-configuration')
+}
+
+freeStyleJob ('ISA-create-system-image') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
+	steps {
+		shell('sleep 2')
 	}
 	publishers {
         downstream('ISA-app-deployment', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Acceptance Testing', 'launch-environment-acceptance')
+	deliveryPipelineConfiguration('Acceptance Testing', 'create-system-image')
 }
 
 freeStyleJob ('ISA-app-deployment') {
@@ -129,7 +155,7 @@ freeStyleJob ('ISA-app-deployment') {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
 	steps {
-		shell('sleep 2')
+		shell('bash codedeploy/codedeploy.sh')
 	}
 	publishers {
         downstream('ISA-run-infrastructure-tests', 'SUCCESS')
@@ -158,48 +184,9 @@ freeStyleJob ('ISA-run-long-running-tests') {
 		shell('sleep 2')
 	}
 	publishers {
-        downstream('ISA-generate-documentation', 'SUCCESS')
-	}
-	deliveryPipelineConfiguration('Acceptance Testing', 'run-long-running-tests')
-}
-
-freeStyleJob ('ISA-generate-documentation') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-	steps {
-		shell('sleep 2')
-	}
-	publishers {
-        downstream('ISA-create-system-image-acceptance', 'SUCCESS')
-	}
-	deliveryPipelineConfiguration('Acceptance Testing', 'generate-documentation')
-}
-
-freeStyleJob ('ISA-create-system-image-acceptance') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-	steps {
-		shell('sleep 2')
-	}
-	publishers {
-        downstream('ISA-terminate-environment-acceptance', 'SUCCESS')
-	}
-	deliveryPipelineConfiguration('Acceptance Testing', 'create-system-image-acceptance')
-}
-
-freeStyleJob ('ISA-terminate-environment-acceptance') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
-	steps {
-		shell('sleep 2')
-	}
-	publishers {
         downstream('ISA-approve-reject-exploratory', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Acceptance Testing', 'terminate-environment-acceptance')
+	deliveryPipelineConfiguration('Acceptance Testing', 'run-long-running-tests')
 }
 
 // ISA Exploratory
@@ -227,7 +214,7 @@ freeStyleJob ('ISA-launch-environment-capacity') {
 	publishers {
         downstream('ISA-load-prod-database-cap', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Capacity', 'launch-environment-capacity')
+	deliveryPipelineConfiguration('Capacity', 'launch-env-capacity')
 }
 
 freeStyleJob ('ISA-load-prod-database-cap') {
@@ -292,7 +279,7 @@ freeStyleJob ('ISA-terminate-environment-capacity') {
 	publishers {
         downstream('ISA-launch-preprod-environment', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Capacity', 'terminate-environment-capacity')
+	deliveryPipelineConfiguration('Capacity', 'terminate-env-capacity')
 }
 
 // ISA Pre-Production
@@ -307,7 +294,7 @@ freeStyleJob ('ISA-launch-preprod-environment') {
 	publishers {
         downstream('ISA-load-prod-database', 'SUCCESS')
 	}
-	deliveryPipelineConfiguration('Pre-Production', 'launch-preprod-environment')
+	deliveryPipelineConfiguration('Pre-Production', 'launch-preprod-env')
 }
 
 freeStyleJob ('ISA-load-prod-database') {
@@ -397,7 +384,7 @@ freeStyleJob ('DockerStage') {
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('DockerStageTests', 'SUCCESS')
+         downstream('DockerStageTests', 'SUCCESS')
 	}
 }
 
@@ -409,12 +396,12 @@ freeStyleJob ('DockerStageTests') {
 		shell('sleep 10')
 	}
 	publishers {
-                downstream('DockerProduction', 'SUCCESS')
+         downstream('DockerProduction', 'SUCCESS')
 	}
 }
 
 deliveryPipelineView('Continuous Delivery Pipeline') {
-    pipelineInstances(3)
+    pipelineInstances(2)
     columns(1)
     updateInterval(5)
     enableManualTriggers()
