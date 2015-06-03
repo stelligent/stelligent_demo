@@ -1,10 +1,36 @@
 # nando_automation_demo
+## Running the Demo 
+#####Prerequisites:#####
+Python, pip, boto, and awscli are required to be installed and configured.
+Once awscli is installed, use aws configure to provide aws access keys.
 
-All-In-One Amazon AWS automated demo from a single cli command:
+OSX:
+```
+==> sudo easy_install pip
+==> pip install boto awscli
+==> aws configure
+```
+Prepare to launch command (replace XXXX with your instagram keys):
+```
+==> git clone https://github.com/stelligent/nando_automation_demo.git
+==> cd nando_automation_demo
+==> export INSTAGRAM_CLIENT_ID=XXXXXXXXXXXXXXXXXXXXXXXX
+==> export INSTAGRAM_CLIENT_SECRET=XXXXXXXXXXXXXXXXXXXXXXXX
+```
+#####All-In-One Amazon AWS automated demo from a single cli command:#####
+```
+==> ./go.py build
+```
+Options:
+* -l xx.xx.xx.xx yy.yy.yy.yy : list IP's from which to limit access. (Default: open to all)
+* --region us-xxxx-# : Build stack is specific region. (Default: us-east-1)
 
+To destroy a stack created by this script run:
 ```
-==> ./deploy.nando.automation.demo.sh [TrustedIP1] [TrustedIP2] [TrustedIPX]
+==> ./go.py destroy
 ```
+A list of launched stacks will be displayed from which you can select the one to destroy.
+## Demo Architecture
 ![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-001.png)
 ![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-002.png)
 

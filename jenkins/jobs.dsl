@@ -155,7 +155,7 @@ freeStyleJob ('ISA-app-deployment') {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
 	steps {
-		shell('bash codedeploy/codedeploy.py')
+		shell('/usr/local/bin/python codedeploy/codedeploy.py')
 	}
 	publishers {
         downstream('ISA-run-infrastructure-tests', 'SUCCESS')
