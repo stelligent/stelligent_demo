@@ -400,8 +400,7 @@
             "Fn::Join": [".", [{
               "Fn::Join": ["-", [
                 "nando-automation-demo-bucket", {
-                  "Ref": "DemoRegion"
-                }, {
+                  "Ref": "DemoRegion" }, {
                   "Ref": "HashID"
                 }
               ]]
@@ -826,7 +825,6 @@
             "Fn::Join": ["", [
               "#!/bin/bash -xe\n",
               "yum update -y aws-cfn-bootstrap aws-cli\n",
-              "arn:aws:s3:::aws-codedeploy-us-east-1/*",
               "aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region ", {
                 "Ref": "DemoRegion"
               }, "\n",
@@ -1131,8 +1129,7 @@
         "ApplicationName": {
           "Fn::Join": ["-", [
             "NandoDemoDockerApp", {
-              "Ref": "DemoRegion"
-            }, {
+              "Ref": "DemoRegion" }, {
               "Ref": "HashID"
             }
           ]]
