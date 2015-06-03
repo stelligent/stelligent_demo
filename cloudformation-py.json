@@ -78,6 +78,14 @@
         "AMI": "ami-ff527ecf"
       }
     },
+    "JenkinsInstanceAMIs": {
+      "us-east-1": {
+        "AMI": "ami-f798779c"
+      },
+      "us-west-2": {
+        "AMI": "ami-bf9ea08f"
+      }
+    },
     "AvailabilityZone": {
       "us-east-1": {
         "Public": "us-east-1c",
@@ -559,7 +567,7 @@
         },
         "ImageId": {
           "Fn::FindInMap": [
-            "InstanceAMIs",
+            "JenkinsInstanceAMIs",
             {
               "Ref": "AWS::Region"
             },
@@ -614,12 +622,7 @@
                 {
                   "Ref": "AWS::Region"
                 },
-                "\n",
-                "/opt/aws/bin/cfn-signal -e $? '",
-                {
-                  "Ref": "JenkinsHandle"
-                },
-                "'\n"
+                "\n"
               ]
             ]
           }
@@ -639,24 +642,13 @@
           }
         },
         "AWS::CloudFormation::Init": {
-          "configsets": {
-            "default": {
-              "Fn::If": [
-                "UseQuickBootstrap",
-                [
-                  "cfg-files",
-                  "cfg-jenkins-commands",
-                  "cfg-services"
-                ],
-                [
-                  "cfg-packages",
-                  "cfg-files",
-                  "cfg-sys-commands",
-                  "cfg-jenkins-commands",
-                  "cfg-services"
-                ]
+          "configSets": {
+            "default":
+              [
+                "cfg-files",
+                "cfg-jenkins-commands",
+                "cfg-services"
               ]
-            }
           },
           "cfg-packages": {
             "packages": {
@@ -812,10 +804,10 @@
           },
           "cfg-sys-commands": {
             "commands": {
-              "bootstrap0": {
+              "bootstrapA": {
                 "command": "service jenkins restart"
               },
-              "bootstrapA": {
+              "bootstrapB": {
                 "command": "mkdir -pv /etc/puppet/modules /var/lib/jenkins"
               },
               "bootstrapC": {
@@ -849,6 +841,9 @@
           },
           "cfg-jenkins-commands": {
             "commands": {
+              "installjenkins0": {
+                "command": "service jenkins restart && sleep 30"
+              },
               "installjenkinsA": {
                 "command": "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp > /root/installJenkinsPlugins.out 2>&1"
               },
@@ -1521,19 +1516,6 @@
         "VersionLabel": {
           "Ref": "NandoDemoDockerVersion"
         }
-      }
-    },
-    "JenkinsHandle": {
-      "Type": "AWS::CloudFormation::WaitConditionHandle"
-    },
-    "JenkinsWaitCondition": {
-      "Type": "AWS::CloudFormation::WaitCondition",
-      "DependsOn": "NandoDemoJenkins",
-      "Properties": {
-        "Handle": {
-          "Ref": "JenkinsHandle"
-        },
-        "Timeout": "1200"
       }
     }
   },

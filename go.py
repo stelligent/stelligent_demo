@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
 import argparse
+import hashlib
 import json
 import os
 import socket
 import sys
-import zipfile
-import re
 import time
-import md5
+import zipfile
 from datetime import datetime
 from pprint import pprint
 from time import sleep
@@ -115,12 +114,13 @@ def delete_stack_name_from_s3(s3_connection, bucket, target):
 
 
 def inject_locations(locations, data):
+    print "Setting security source(s) to %s" % locations
     for location in locations:
-        if re.search(r"0.0.0.0", location):
-            location += '/0'
+        # Add CIDR Subnet
+        if location == '0.0.0.0':
+            location = '%s/0' % location
         else:
-            location += '/32'  # Add CIDR Subnet
-        print "Setting security source to ", location
+            location = '%s/32' % location
         for port in INGRESS_PORTS:
             item = {'IpProtocol': 'tcp',
                     'FromPort': port,
@@ -178,7 +178,7 @@ def delete_iam_role(iam_connection, role_name):
 
 def put_iam_role_policy(iam_connection, role_name, policy_name,
                         policy_doc):
-    sys.stdout.write("Putting policy %s to role %s..." % (role_name,
+    sys.stdout.write("Adding policy %s to role %s..." % (role_name,
                                                           policy_name))
     with open(policy_doc) as doc:
         iam_connection.put_role_policy(role_name, policy_name, doc.read())
@@ -259,12 +259,13 @@ def get_resource_id(cfn_connection, stack_name, resource_name):
         except BotoServerError:
             status = "NOT STARTED"
         if status.endswith('FAILED'):
+            sys.stdout.write("\n")
             print "Stack Failed. Exiting..."
             sys.exit(1)
         if status.endswith('COMPLETE'):
             sys.stdout.write("\rWaiting for %s...Done!" % resource_name)
             sys.stdout.flush()
-            print "\n"
+            sys.stdout.write("\n")
     return resource_id
 
 
@@ -328,8 +329,11 @@ def build(connections, region, locations, hash_id):
     asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
-    get_resource_id(connections['cfn'], stack_name, JENKINS_WAIT_CONDITION)
-    print "Gathering Stack Outputs...Almost there!"
+    #get_resource_id(connections['cfn'], stack_name, JENKINS_WAIT_CONDITION)
+    #fake wait for jenkins.
+    print "Configuring Jenkins...Please Wait."
+    time.sleep(240)
+    print "Gathering Stack Outputs...almost there!"
     outputs = ''
     while not outputs:
         stack = connections['cfn'].describe_stacks(stack_name)[0]
@@ -377,7 +381,7 @@ def info(connections, region):
 
 
 def main():
-    new_hash = md5.new(str(time.time())).hexdigest()[:8]
+    new_hash = hashlib.md5(str(time.time())).hexdigest()[:8]
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=ALLOWED_ACTIONS, action="store",
                         help="Action to take against the stack(s)")
