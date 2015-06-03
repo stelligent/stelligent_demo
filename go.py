@@ -22,6 +22,7 @@ from boto.s3.key import Key as S3Key
 STACK_NAME_PREFIX = 'nando-demo'
 DEFAULT_REGION = 'us-east-1'
 MAIN_S3_BUCKET = 'nando-automation-demo'
+TEMP_S3_BUCKET_RESOURCE = 'NandoDemoBucket'
 DOCKER_ZIPFILE = 'nando-demo.zip'
 DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
 FILES_TO_S3 = ['jenkins/seed.xml.erb',
@@ -218,6 +219,16 @@ def create_codedeploy_deployment_group(codedeploy_connection, app_name,
     pass
 
 
+def empty_related_buckets(s3_connection, stack):
+    resource = stack.describe_resource(TEMP_S3_BUCKET_RESOURCE)
+    bucket_id = resource[u'DescribeStackResourceResponse']['DescribeStackResourceResult'][u'StackResourceDetail'].get('PhysicalResourceId')
+    bucket = s3_connection.get_bucket(bucket_id)
+    keys = bucket.get_all_keys()
+    print "Deleting the following files from %s:" % bucket_id
+    print keys
+    bucket.delete_keys(keys)
+
+
 def delete_codedeploy_deployment_group(codedeploy_connection, app_name,
                                        group_name):
     sys.stdout.write("Deleting CodeDeploy Deployment Group %s from %s..." % (
@@ -358,6 +369,8 @@ def destroy(connections, region):
                                        parameters['CodeDeployDeploymentGroup'])
     delete_codedeploy_application(connections['codedeploy'],
                                   parameters['CodeDeployAppName'])
+    #  Empty S3 Bucket
+    empty_related_buckets(connections['s3'], stack)
     #  Destroy Stack
     sys.stdout.write("Deleting the CloudFormation Stack %s..." %
                      stack.stack_name)
