@@ -1069,43 +1069,31 @@
         ],
         "UserData": {
           "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash -xe\n",
-                "yum update -y aws-cfn-bootstrap aws-cli\n",
-                "arn:aws:s3:::aws-codedeploy-us-east-1/*",
-                "aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region ",
-                {
-                  "Ref": "DemoRegion"
-                },
-                "\n",
-                "chmod +x ./install\n",
-                "./install auto\n",
-                "/opt/aws/bin/cfn-init -v ",
-                "         --stack ",
-                {
-                  "Ref": "AWS::StackName"
-                },
-                "         --resource NandoDemoWebLaunchConfig ",
-                "         --region ",
-                {
-                  "Ref": "AWS::Region"
-                },
-                "\n",
-                "/opt/aws/bin/cfn-signal -e $? ",
-                "         --stack ",
-                {
-                  "Ref": "AWS::StackName"
-                },
-                "         --resource NandoDemoWebLaunchConfig ",
-                "         --region ",
-                {
-                  "Ref": "AWS::Region"
-                },
-                "\n"
-              ]
-            ]
+            "Fn::Join": ["", [
+              "#!/bin/bash -xe\n",
+              "yum update -y aws-cfn-bootstrap aws-cli\n",
+              "aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region ", {
+                "Ref": "DemoRegion"
+              }, "\n",
+              "chmod +x ./install\n",
+              "./install auto\n",
+              "/opt/aws/bin/cfn-init -v ",
+              "         --stack ", {
+                "Ref": "AWS::StackName"
+              },
+              "         --resource NandoDemoWebLaunchConfig ",
+              "         --region ", {
+                "Ref": "AWS::Region"
+              }, "\n",
+              "/opt/aws/bin/cfn-signal -e $? ",
+              "         --stack ", {
+                "Ref": "AWS::StackName"
+              },
+              "         --resource NandoDemoWebLaunchConfig ",
+              "         --region ", {
+                "Ref": "AWS::Region"
+              }, "\n"
+            ]]
           }
         }
       },
