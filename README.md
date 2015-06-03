@@ -22,8 +22,8 @@ Prepare to launch command (replace XXXX with your instagram keys):
 ==> ./go.py build
 ```
 Options:
--l xx.xx.xx.xx yy.yy.yy.yy : list IP's from which to limit access. (Default: open to all)
---region us-xxxx-# : Build stack is specific region. (Default: us-east-1)
+* -l xx.xx.xx.xx yy.yy.yy.yy : list IP's from which to limit access. (Default: open to all)
+* --region us-xxxx-# : Build stack is specific region. (Default: us-east-1)
 
 To destroy a stack created by this script run:
 ```
