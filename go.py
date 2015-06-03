@@ -48,6 +48,8 @@ IAM_ROLE_DOC = 'codedeploy/NandoDemoCodeDeployRole.json'
 IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
 IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
 
+JENKINS_WAIT_CONDITION = "JenkinsWaitCondition"
+
 
 def ip_address_type(location):
     try:
@@ -326,6 +328,17 @@ def build(connections, region, locations, hash_id):
     asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
+    get_resource_id(connections['cfn'], stack_name, JENKINS_WAIT_CONDITION)
+    print "Gathering Stack Outputs...Almost there!"
+    outputs = ''
+    while not outputs:
+        stack = connections['cfn'].describe_stacks(stack_name)[0]
+        outputs = stack.outputs
+        if not outputs:
+            time.sleep(3)
+    print "Outputs:"
+    for output in outputs:
+        print '%s = %s' % (output.key, output.value)
 
 
 def destroy(connections, region):
