@@ -628,6 +628,11 @@
           }
         }
       },
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Timeout" : "PT10M"
+        }
+      },
       "Metadata": {
         "Comment": "Nando Demo Jenkins",
         "AWS::CloudFormation::Authentication": {
@@ -842,7 +847,10 @@
           "cfg-jenkins-commands": {
             "commands": {
               "installjenkins0": {
-                "command": "service jenkins restart && sleep 30"
+                "command": "service jenkins restart"
+              },
+              "installjenkins1": {
+                "command": "while [[ $(curl -s -w \"%{http_code}\" http://localhost:8080 -o /dev/null) != \"200\" ]]; do sleep 1; done"
               },
               "installjenkinsA": {
                 "command": "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp > /root/installJenkinsPlugins.out 2>&1"

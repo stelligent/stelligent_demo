@@ -48,7 +48,7 @@ IAM_ROLE_DOC = 'codedeploy/NandoDemoCodeDeployRole.json'
 IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
 IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
 
-JENKINS_WAIT_CONDITION = "JenkinsWaitCondition"
+JENKINS_INSTANCE = "NandoDemoJenkins"
 
 
 def ip_address_type(location):
@@ -224,9 +224,10 @@ def empty_related_buckets(s3_connection, stack):
     bucket_id = resource[u'DescribeStackResourceResponse']['DescribeStackResourceResult'][u'StackResourceDetail'].get('PhysicalResourceId')
     bucket = s3_connection.get_bucket(bucket_id)
     keys = bucket.get_all_keys()
-    print "Deleting the following files from %s:" % bucket_id
-    print keys
-    bucket.delete_keys(keys)
+    if keys:
+        print "Deleting the following files from %s:" % bucket_id
+        print keys
+        bucket.delete_keys(keys)
 
 
 def delete_codedeploy_deployment_group(codedeploy_connection, app_name,
@@ -340,10 +341,7 @@ def build(connections, region, locations, hash_id):
     asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
-    #get_resource_id(connections['cfn'], stack_name, JENKINS_WAIT_CONDITION)
-    #fake wait for jenkins.
-    print "Configuring Jenkins...Please Wait."
-    time.sleep(240)
+    get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
     print "Gathering Stack Outputs...almost there!"
     outputs = ''
     while not outputs:
