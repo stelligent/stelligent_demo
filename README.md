@@ -1,12 +1,25 @@
 # nando_automation_demo
 ## Running the Demo 
-#####Prerequisites:#####
+####Prerequisites:####
 Python, pip, boto, and awscli are required to be installed and configured.
 Once awscli is installed, use aws configure to provide aws access keys.
+
+**Install pip:**
 
 OSX:
 ```
 ==> sudo easy_install pip
+```
+Ubuntu:
+```
+==> sudo apt-get install python-pip
+```
+Amazon Linux/Redhat/CentOS/Fedora
+```
+==> sudo yum install python-pip
+```
+**Install packages and configure:**
+```
 ==> sudo pip install boto awscli
 ==> aws configure
 ```
@@ -17,7 +30,7 @@ Prepare to launch command (replace XXXX with your instagram keys):
 ==> export INSTAGRAM_CLIENT_ID=XXXXXXXXXXXXXXXXXXXXXXXX
 ==> export INSTAGRAM_CLIENT_SECRET=XXXXXXXXXXXXXXXXXXXXXXXX
 ```
-#####All-In-One Amazon AWS automated demo from a single cli command:#####
+####All-In-One Amazon AWS automated demo from a single cli command:####
 ```
 ==> ./go.py build
 ```
