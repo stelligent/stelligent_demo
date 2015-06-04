@@ -224,9 +224,10 @@ def empty_related_buckets(s3_connection, stack):
     bucket_id = resource[u'DescribeStackResourceResponse']['DescribeStackResourceResult'][u'StackResourceDetail'].get('PhysicalResourceId')
     bucket = s3_connection.get_bucket(bucket_id)
     keys = bucket.get_all_keys()
-    print "Deleting the following files from %s:" % bucket_id
-    print keys
-    bucket.delete_keys(keys)
+    if keys:
+        print "Deleting the following files from %s:" % bucket_id
+        print keys
+        bucket.delete_keys(keys)
 
 
 def delete_codedeploy_deployment_group(codedeploy_connection, app_name,
