@@ -31,7 +31,7 @@
 		}
 	}
 	echo "</tr></table>";
-        echo "<img src=http://nando-automation-demo.s3.amazonaws.com/public/stelligent.gif>";
+        echo "<img src=http://nando-automation-demo.s3.amazonaws.com/public/stelligent.gif width=75%>";
         echo exec('hostname -f');
 	echo "</body></html>";
 ?>
