@@ -48,7 +48,7 @@ IAM_ROLE_DOC = 'codedeploy/NandoDemoCodeDeployRole.json'
 IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
 IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
 
-JENKINS_WAIT_CONDITION = "JenkinsWaitCondition"
+JENKINS_INSTANCE = "NandoDemoJenkins"
 
 
 def ip_address_type(location):
@@ -340,10 +340,7 @@ def build(connections, region, locations, hash_id):
     asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
-    #get_resource_id(connections['cfn'], stack_name, JENKINS_WAIT_CONDITION)
-    #fake wait for jenkins.
-    print "Configuring Jenkins...Please Wait."
-    time.sleep(240)
+    get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
     print "Gathering Stack Outputs...almost there!"
     outputs = ''
     while not outputs:
