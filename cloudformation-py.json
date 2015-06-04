@@ -1279,7 +1279,8 @@
                 "ec2:Describe*",
                 "s3:Get*",
                 "s3:List*",
-                "elasticbeanstalk:*"
+                "elasticbeanstalk:*",
+                "codedeploy:*"
               ],
               "Effect": "Allow",
               "Resource": "*"
@@ -1301,13 +1302,6 @@
                   ]
                 ]
               }
-            },
-            {
-              "Action": [
-                "codedeploy:*"
-              ],
-              "Effect": "Allow",
-              "Resource": "arn:aws:codedeploy:*:*:*:nando-demo*"
             }
           ]
         },
