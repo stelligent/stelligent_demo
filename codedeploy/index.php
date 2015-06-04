@@ -9,8 +9,12 @@
 	$dbHost = trim(file_get_contents('/etc/cfn/NandoDemoDBHost'));
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
+        $thishost = exec('hostname -f');
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
-	echo "<html><body bgcolor=white>" . date(DATE_RFC2822) . "<p>Connecting to <h3>" . $dbHost . "</h3><br>";
+	echo "<html><body bgcolor=white>";
+        echo date(DATE_RFC2822)
+        echo "<p>Connecting to <b>" . $dbHost . "<b><br>";
+        echo "<p>Application running on <b>" . $thishost . "<b><br>";
 	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
 	if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); } 
         if (! $result = $conn->query("show databases")) { printf("Error: %s\n", $mysqli->error); }
@@ -19,7 +23,7 @@
 	mysqli_close($conn);
  	echo "<p><table border=0 width=100%><tr>";
 	for ($placeHolder = 0; $placeHolder < 12; $placeHolder++) { 
-		if ($placeHolder % 3 == 0) { echo "</tr><tr>"; }
+		if ($placeHolder % 4 == 0) { echo "</tr><tr>"; }
 		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=image1.jpg></td>"; }
     		elseif ($placeHolder == $placeImage2) { echo "<td width=20% align=center><img src=image2.jpg></td>"; }
 		else { 
@@ -32,6 +36,5 @@
 	}
 	echo "</tr></table>";
         echo "<img src=http://nando-automation-demo.s3.amazonaws.com/public/stelligent.gif width=65% align=right>";
-        echo exec('hostname -f');
 	echo "</body></html>";
 ?>
