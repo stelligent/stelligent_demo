@@ -7,7 +7,7 @@ Once awscli is installed, use aws configure to provide aws access keys.
 OSX:
 ```
 ==> sudo easy_install pip
-==> pip install boto awscli
+==> sudo pip install boto awscli
 ==> aws configure
 ```
 Prepare to launch command (replace XXXX with your instagram keys):
