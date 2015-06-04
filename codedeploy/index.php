@@ -10,6 +10,7 @@
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
         $thishost = exec('hostname -f');
+        $thisos = exec('cat /etc/redhat-release');
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body bgcolor=white>";
         echo date(DATE_RFC2822);
@@ -21,6 +22,7 @@
   	mysqli_free_result($result);
 	mysqli_close($conn);
         echo "<p>Application running on <b>" . $thishost . "</b><br>";
+        echo $thisos;
  	echo "<p><table border=0 width=100%><tr>";
 	for ($placeHolder = 0; $placeHolder < 12; $placeHolder++) { 
 		if ($placeHolder % 4 == 0) { echo "</tr><tr>"; }
