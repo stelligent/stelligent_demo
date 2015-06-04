@@ -18,8 +18,8 @@
   	mysqli_free_result($result);
 	mysqli_close($conn);
  	echo "<p><table border=0 width=100%><tr>";
-	for ($placeHolder = 0; $placeHolder < 16; $placeHolder++) { 
-		if ($placeHolder % 4 == 0) { echo "</tr><tr>"; }
+	for ($placeHolder = 0; $placeHolder < 12; $placeHolder++) { 
+		if ($placeHolder % 3 == 0) { echo "</tr><tr>"; }
 		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=image1.jpg></td>"; }
     		elseif ($placeHolder == $placeImage2) { echo "<td width=20% align=center><img src=image2.jpg></td>"; }
 		else { 
