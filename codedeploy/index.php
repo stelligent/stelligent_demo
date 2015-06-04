@@ -9,7 +9,7 @@
 	$dbHost = trim(file_get_contents('/etc/cfn/NandoDemoDBHost'));
 	$placeImage1 = rand(1,20);
 	$placeImage2 = rand(1,20);
-        $thishost = exec('hostname');
+        $thishost = exec('hostname -f');
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body bgcolor=white>";
         echo date(DATE_RFC2822);
