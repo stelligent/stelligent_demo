@@ -12,7 +12,7 @@
         $thishost = exec('hostname');
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body bgcolor=white>";
-        echo date(DATE_RFC2822)
+        echo date(DATE_RFC2822);
         echo "<p>Connecting to <b>" . $dbHost . "<b><br>";
         echo "<p>Application running on <b>" . $thishost . "<b><br>";
 	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
