@@ -14,7 +14,7 @@ Ubuntu:
 ```
 ==> sudo apt-get install python-pip
 ```
-Amazon Linux/Redhat/CentOS/Fedora
+Amazon Linux/Redhat/CentOS/Fedora:
 ```
 ==> sudo yum install python-pip
 ```
