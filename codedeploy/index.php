@@ -13,8 +13,8 @@
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body bgcolor=white>";
         echo date(DATE_RFC2822);
-        echo "<p>Connecting to <b>" . $dbHost . "<b><br>";
-        echo "<p>Application running on <b>" . $thishost . "<b><br>";
+        echo "<p>Connecting to <b>" . $dbHost . "</b><br>";
+        echo "<p>Application running on <b>" . $thishost . "</b><br>";
 	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
 	if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); } 
         if (! $result = $conn->query("show databases")) { printf("Error: %s\n", $mysqli->error); }
@@ -34,7 +34,7 @@
        			echo rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . " " . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . rand(0,1) . "</td>"; 
 		}
 	}
-	echo "</tr></table>";
+	echo "</tr></table><p>";
         echo "<img src=http://nando-automation-demo.s3.amazonaws.com/public/stelligent.gif width=65% align=right>";
 	echo "</body></html>";
 ?>
