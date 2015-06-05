@@ -23,7 +23,7 @@ from boto.s3.key import Key as S3Key
 #  OPTIONAL: Provide prebaked AMIs with python2.7, jenkins, and puppet.
 #  See configSets "cfg-packages" and "cfg-sys-commands" for reference.
 CUSTOM_AMI_MAP = {
-    'us-east-2': 'ami-f798779c',
+    'us-east-1': 'ami-f798779c',
     'us-west-2': 'ami-bf9ea08f'
 }
 
