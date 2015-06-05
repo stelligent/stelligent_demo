@@ -10,7 +10,7 @@ freeStyleJob ('DockerStage') {
 		git('https://github.com/stelligent/nando_automation_demo', 'master')
 	}
 	triggers {
-		scm('*/5 * * * *')
+		scm('* * * * *')
 	}
 	steps {
         customWorkspace('docker')
