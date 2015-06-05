@@ -5,7 +5,7 @@ freeStyleJob ('ISA-poll-version-control') {
 		git('https://github.com/stelligent/nando_automation_demo')
 	}
 	triggers {
-		scm('* * * * *')
+		scm('*/5 * * * *')
 	}
 	steps {
                 customWorkspace('codedeploy')
