@@ -10,7 +10,7 @@
 	$placeImage1 = rand(1,8);
 	$placeImage2 = rand(1,8);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
-	echo "<html><body bgcolor=white>";
+	echo "<html><body bgcolor=green>";
         echo date(DATE_RFC2822);
         echo "<p>Database: <b>" . $dbHost . "</b><br>";
 	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
