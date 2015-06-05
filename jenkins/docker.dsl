@@ -1,7 +1,4 @@
 freeStyleJob ('DockerProduction') {
-	scm {
-		git('https://github.com/stelligent/nando_automation_demo')
-	}
 	steps {
                 customWorkspace('docker')
 		shell('sleep 10')
@@ -9,6 +6,9 @@ freeStyleJob ('DockerProduction') {
 }
 
 freeStyleJob ('DockerStage') {
+	scm {
+		git('https://github.com/stelligent/nando_automation_demo')
+	}
 	triggers {
 		scm('* * * * *')
 	}
@@ -18,7 +18,7 @@ freeStyleJob ('DockerStage') {
 		shell('sleep 10')
 	}
 	publishers {
-         downstream('DockerStageTests', 'SUCCESS')
+                downstream('DockerStageTests', 'SUCCESS')
 	}
 }
 
@@ -28,7 +28,7 @@ freeStyleJob ('DockerStageTests') {
 		shell('sleep 10')
 	}
 	publishers {
-         downstream('DockerProduction', 'SUCCESS')
+                downstream('DockerProduction', 'SUCCESS')
 	}
 }
 
