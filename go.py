@@ -21,8 +21,7 @@ from boto.s3.key import Key as S3Key
 
 STACK_NAME_PREFIX = 'nando-demo'
 DEFAULT_REGION = 'us-east-1'
-MAIN_S3_BUCKET = 'nando-automation-demo'
-TEMP_S3_BUCKET_RESOURCE = 'NandoDemoBucket'
+MAIN_S3_BUCKET = 'nando-automation-demo'  # Permanent S3 Bucket
 DOCKER_ZIPFILE = 'nando-demo.zip'
 DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
 FILES_TO_S3 = ['jenkins/seed.xml.erb',
@@ -39,7 +38,7 @@ ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 #  FIXME: These are hard-coded elsewhere, make dynamic everywhere.
 CODEDEPLOY_APP_NAME = 'nando-demo'
 CODEDEPLOY_GROUP_NAME = 'nando-demo'
-WEB_ASG_NAME = 'NandoDemoWebASG'
+
 
 #  Note: IAM_ROLE_NAME and IAM_POLICY_NAME will have the region and hash
 #        appended as 'NandoDemoRole-us-east-1' to allow multi-region support
@@ -48,7 +47,13 @@ IAM_ROLE_DOC = 'codedeploy/NandoDemoCodeDeployRole.json'
 IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
 IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
 
+#  Resource Logical IDs
 JENKINS_INSTANCE = "NandoDemoJenkins"
+WEB_ASG_NAME = 'NandoDemoWebASG'
+DEMO_RDS = 'NandoDemoMysql'
+DEMO_ELB = 'NandoDemoELB'
+DEMO_S3_BUCKET = 'NandoDemoBucket'  # Ephemeral Bucket
+DEMO_VPC = 'NandoDemoVPC'
 
 
 def ip_address_type(location):
@@ -82,7 +87,7 @@ def list_and_get_stack(cfn_connection, region):
 
 
 def prepare_docker_zip():
-    print "Repacking %s..." % DOCKER_ZIPFILE
+    sys.stdout.write("Repacking %s..." % DOCKER_ZIPFILE)
     try:
         os.remove(DOCKER_ZIPFILE)
     except OSError:
@@ -92,6 +97,7 @@ def prepare_docker_zip():
         for f in DOCKER_FILES:
             zf.write(f)
         os.chdir('..')
+    print "Done!"
 
 
 def copy_files_to_s3(s3_connection, bucket):
@@ -115,7 +121,7 @@ def delete_stack_name_from_s3(s3_connection, bucket, target):
 
 
 def inject_locations(locations, data):
-    print "Setting security source(s) to %s" % locations
+    sys.stdout.write("Setting security source(s) to %s..." % locations)
     for location in locations:
         # Add CIDR Subnet
         if location == '0.0.0.0':
@@ -129,6 +135,7 @@ def inject_locations(locations, data):
                     'CidrIp': '%s' % location}
             data['Resources']['NandoDemoPublicSecurityGroup']['Properties']['SecurityGroupIngress'].append(item)
         data['Resources']['NandoDemoBucketPolicy']['Properties']['PolicyDocument']['Statement'][0]['Condition']['IpAddress']['aws:SourceIp'].append(location)
+    print "Done!"
     return data
 
 
@@ -147,6 +154,8 @@ def get_instagram_keys_from_env():
 def create_ec2_key_pair(ec2_connection, key_pair_name):
     sys.stdout.write("Creating EC2 Key Pair %s..." % key_pair_name)
     kp = ec2_connection.create_key_pair(key_pair_name)
+    print "Done!"
+    sys.stdout.write("Creating private key %s.pem locally..." % key_pair_name)
     kp.save('.')
     print "Done!"
     return kp.material
@@ -179,16 +188,14 @@ def delete_iam_role(iam_connection, role_name):
 
 def put_iam_role_policy(iam_connection, role_name, policy_name,
                         policy_doc):
-    sys.stdout.write("Adding policy %s to role %s..." % (role_name,
-                                                          policy_name))
+    sys.stdout.write("Adding policy %s ..." % policy_name)
     with open(policy_doc) as doc:
         iam_connection.put_role_policy(role_name, policy_name, doc.read())
     print "Done!"
 
 
 def delete_iam_policy(iam_connection, role_name, policy_name):
-    sys.stdout.write("Deleting policy %s from role %s..." % (role_name,
-                                                             policy_name))
+    sys.stdout.write("Deleting policy %s..." % policy_name)
     iam_connection.delete_role_policy(role_name, policy_name)
     print "Done!"
 
@@ -207,8 +214,7 @@ def delete_codedeploy_application(codedeploy_connection, app_name):
 
 def create_codedeploy_deployment_group(codedeploy_connection, app_name,
                                        group_name, asg_id, service_role):
-    sys.stdout.write("Creating CodeDeploy Deployment Group %s in %s..." % (
-        group_name, app_name))
+    sys.stdout.write("Creating CodeDeploy Deployment Group %s..." % group_name)
     codedeploy_connection.create_deployment_group(
         app_name,
         group_name,
@@ -219,23 +225,25 @@ def create_codedeploy_deployment_group(codedeploy_connection, app_name,
     pass
 
 
-def empty_related_buckets(s3_connection, stack):
-    resource = stack.describe_resource(TEMP_S3_BUCKET_RESOURCE)
-    bucket_id = resource[u'DescribeStackResourceResponse']['DescribeStackResourceResult'][u'StackResourceDetail'].get('PhysicalResourceId')
+def delete_codedeploy_deployment_group(codedeploy_connection, app_name,
+                                       group_name):
+    sys.stdout.write("Deleting CodeDeploy Deployment Group %s..." % group_name)
+    codedeploy_connection.delete_deployment_group(app_name, group_name)
+    print "Done!"
+
+
+def empty_related_buckets(s3_connection, stack, bucket_name=DEMO_S3_BUCKET):
+    #  Safeguard. Do not delete items from main bucket.
+    if bucket_name == MAIN_S3_BUCKET:
+        return
+    resource = stack.describe_resource(bucket_name)
+    bucket_id = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail'].get('PhysicalResourceId')
     bucket = s3_connection.get_bucket(bucket_id)
     keys = bucket.get_all_keys()
     if keys:
         print "Deleting the following files from %s:" % bucket_id
         print keys
         bucket.delete_keys(keys)
-
-
-def delete_codedeploy_deployment_group(codedeploy_connection, app_name,
-                                       group_name):
-    sys.stdout.write("Deleting CodeDeploy Deployment Group %s from %s..." % (
-        group_name, app_name))
-    codedeploy_connection.delete_deployment_group(app_name, group_name)
-    print "Done!"
 
 
 def get_resource_id(cfn_connection, stack_name, resource_name):
@@ -330,15 +338,20 @@ def build(connections, region, locations, hash_id):
         capabilities=['CAPABILITY_IAM'],
         disable_rollback='true'
     )
-    # Upload stackname to S3
+    #  Upload stackname to S3
     dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
     set_stack_name_in_s3(connections['s3'], stack_name,
                          dest_name, MAIN_S3_BUCKET)
     print "Done!"
+    #  Give Feedback whilst we wait...
+    get_resource_id(connections['cfn'], stack_name, DEMO_S3_BUCKET)
+    get_resource_id(connections['cfn'], stack_name, DEMO_VPC)
+    get_resource_id(connections['cfn'], stack_name, DEMO_ELB)
+    get_resource_id(connections['cfn'], stack_name, DEMO_RDS)
+    asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     #  Setup CodeDeploy
     create_codedeploy_application(connections['codedeploy'],
                                   CAN)
-    asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
