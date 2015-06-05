@@ -1,5 +1,5 @@
 freeStyleJob ('InstagramImageGet') {
-	scm {
+    scm {
         git('https://github.com/stelligent/nando_automation_demo')
     }
     triggers {
@@ -14,9 +14,6 @@ freeStyleJob ('InstagramImageGet') {
 	}
 }
 freeStyleJob ('InstagramImageTest') {
-    scm {
-        git('https://github.com/stelligent/nando_automation_demo')
-    }
     steps {
         customWorkspace('instagram')
         shell('python instagram/instagram.image.test.py')
@@ -26,9 +23,6 @@ freeStyleJob ('InstagramImageTest') {
 	}
 }
 freeStyleJob ('InstagramImageSave') {
-    scm {
-        git('https://github.com/stelligent/nando_automation_demo')
-    }
     steps {
         customWorkspace('instagram')
         shell('python instagram/instagram.image.save.py')
