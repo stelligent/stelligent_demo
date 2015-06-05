@@ -10,7 +10,6 @@
 	$placeImage1 = rand(1,12);
 	$placeImage2 = rand(1,12);
         $thishost = exec('hostname -f');
-        $thisos = exec('cat /etc/redhat-release');
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body bgcolor=white>";
         echo date(DATE_RFC2822);
@@ -22,7 +21,18 @@
   	mysqli_free_result($result);
 	mysqli_close($conn);
         echo "<p>Application running on <b>" . $thishost . "</b><br>";
-        echo $thisos;
+        echo exec('curl http://169.254.169.254/latest/meta-data/ami-id');
+        echo exec('curl http://169.254.169.254/latest/meta-data/hostname');
+        echo exec('curl http://169.254.169.254/latest/meta-data/instance-id');
+        echo exec('curl http://169.254.169.254/latest/meta-data/instance-type');
+        echo exec('curl http://169.254.169.254/latest/meta-data/kernel-id');
+        echo exec('curl http://169.254.169.254/latest/meta-data/local-hostname');
+        echo exec('curl http://169.254.169.254/latest/meta-data/local-ipv4');
+        echo exec('curl http://169.254.169.254/latest/meta-data/mac');
+        echo exec('curl http://169.254.169.254/latest/meta-data/public-hostname');
+        echo exec('curl http://169.254.169.254/latest/meta-data/public-ipv4');
+        echo exec('curl http://169.254.169.254/latest/meta-data/public-keys');
+        echo exec('curl http://169.254.169.254/latest/meta-data/security-groups');
  	echo "<p><table border=0 width=100%><tr>";
 	for ($placeHolder = 0; $placeHolder < 12; $placeHolder++) { 
 		if ($placeHolder % 4 == 0) { echo "</tr><tr>"; }
