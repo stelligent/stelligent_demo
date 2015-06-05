@@ -33,7 +33,11 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <javaposse.jobdsl.plugin.ExecuteDslScripts plugin="job-dsl@1.34">
-      <targets>jenkins/jobs.dsl</targets>
+      <targets>jenkins/codedeploy.dsl
+jenkins/docker.dsl
+jenkins/instagram.dsl
+jenkins/ops.dsl
+jenkins/views.dsl</targets>
       <usingScriptText>false</usingScriptText>
       <ignoreExisting>false</ignoreExisting>
       <removedJobAction>DELETE</removedJobAction>
@@ -42,16 +46,6 @@
       <additionalClasspath></additionalClasspath>
     </javaposse.jobdsl.plugin.ExecuteDslScripts>
   </builders>
-  <publishers>
-    <hudson.tasks.BuildTrigger>
-      <childProjects>CodeDeployStage, DockerStage</childProjects>
-      <threshold>
-        <name>SUCCESS</name>
-        <ordinal>0</ordinal>
-        <color>BLUE</color>
-        <completeBuild>true</completeBuild>
-      </threshold>
-    </hudson.tasks.BuildTrigger>
-  </publishers>
+  <publishers/>
   <buildWrappers/>
 </project>
