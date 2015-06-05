@@ -7,8 +7,8 @@
 	$dbUser = trim(file_get_contents('/etc/cfn/NandoDemoDBUser'));
 	$dbPass = trim(file_get_contents('/etc/cfn/NandoDemoDBPass'));
 	$dbHost = trim(file_get_contents('/etc/cfn/NandoDemoDBHost'));
-	$placeImage1 = rand(1,12);
-	$placeImage2 = rand(1,12);
+	$placeImage1 = rand(1,8);
+	$placeImage2 = rand(1,8);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body bgcolor=white>";
         echo date(DATE_RFC2822);
@@ -21,30 +21,30 @@
 	mysqli_close($conn);
         echo "<p>Application running on <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/public-hostname');
-        echo "</b><br>AMI: <b>";
+        echo "</b><p>AMI: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/ami-id');
-        echo "</b> Hostname: <b>";
+        echo "<br></b> Hostname: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/hostname');
-        echo "</b> InstanceID: <b>";
+        echo "<br></b> InstanceID: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/instance-id');
-        echo "</b> InstanceType: <b>";
+        echo "<br></b> InstanceType: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/instance-type');
-        echo "</b> KernelID: <b>";
+        echo "<br></b> KernelID: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/kernel-id');
-        echo "</b> Localhost: <b>";
+        echo "<br></b> Localhost: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/local-hostname');
-        echo "</b> PrivateIP: <b>";
+        echo "<br></b> PrivateIP: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/local-ipv4');
-        echo "</b> MacAddr: <b>";
+        echo "<br></b> MacAddr: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/mac');
-        echo "</b> PublicIP: <b>";
+        echo "<br></b> PublicIP: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/public-ipv4');
-        echo "</b> PubKey: <b>";
+        echo "<br></b> PubKey: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/public-keys');
-        echo "</b> SecurityGroup: <b>";
+        echo "<br></b> SecurityGroup: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/security-groups');
  	echo "<br><p><table border=0 width=100%><tr>";
-	for ($placeHolder = 0; $placeHolder < 12; $placeHolder++) { 
+	for ($placeHolder = 0; $placeHolder < 8; $placeHolder++) { 
 		if ($placeHolder % 4 == 0) { echo "</tr><tr>"; }
 		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=image1.jpg></td>"; }
     		elseif ($placeHolder == $placeImage2) { echo "<td width=20% align=center><img src=image2.jpg></td>"; }
