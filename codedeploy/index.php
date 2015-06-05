@@ -9,7 +9,6 @@
 	$dbHost = trim(file_get_contents('/etc/cfn/NandoDemoDBHost'));
 	$placeImage1 = rand(1,12);
 	$placeImage2 = rand(1,12);
-        $thishost = exec('hostname -f');
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body bgcolor=white>";
         echo date(DATE_RFC2822);
@@ -20,8 +19,11 @@
 	while ($row = mysqli_fetch_row($result)) { echo $row[0] . " : "; }
   	mysqli_free_result($result);
 	mysqli_close($conn);
-        echo "<p>Application running on <b>" . $thishost . "</b><br>";
+        echo "<p>Application running on <b>";
+        echo exec('curl http://169.254.169.254/latest/meta-data/public-hostname');
+        echo "</b> AMI: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/ami-id');
+        echo "</b> Hostname: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/hostname');
         echo exec('curl http://169.254.169.254/latest/meta-data/instance-id');
         echo exec('curl http://169.254.169.254/latest/meta-data/instance-type');
@@ -29,7 +31,6 @@
         echo exec('curl http://169.254.169.254/latest/meta-data/local-hostname');
         echo exec('curl http://169.254.169.254/latest/meta-data/local-ipv4');
         echo exec('curl http://169.254.169.254/latest/meta-data/mac');
-        echo exec('curl http://169.254.169.254/latest/meta-data/public-hostname');
         echo exec('curl http://169.254.169.254/latest/meta-data/public-ipv4');
         echo exec('curl http://169.254.169.254/latest/meta-data/public-keys');
         echo exec('curl http://169.254.169.254/latest/meta-data/security-groups');
