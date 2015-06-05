@@ -21,20 +21,29 @@
 	mysqli_close($conn);
         echo "<p>Application running on <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/public-hostname');
-        echo "</b> AMI: <b>";
+        echo "</b><br>AMI: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/ami-id');
         echo "</b> Hostname: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/hostname');
+        echo "</b> InstanceID: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/instance-id');
+        echo "</b> InstanceType: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/instance-type');
+        echo "</b> KernelID: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/kernel-id');
+        echo "</b> Localhost: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/local-hostname');
+        echo "</b> PrivateIP: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/local-ipv4');
+        echo "</b> MacAddr: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/mac');
+        echo "</b> PublicIP: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/public-ipv4');
+        echo "</b> PubKey: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/public-keys');
+        echo "</b> SecurityGroup: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/security-groups');
- 	echo "<p><table border=0 width=100%><tr>";
+ 	echo "<br><p><table border=0 width=100%><tr>";
 	for ($placeHolder = 0; $placeHolder < 12; $placeHolder++) { 
 		if ($placeHolder % 4 == 0) { echo "</tr><tr>"; }
 		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=image1.jpg></td>"; }
