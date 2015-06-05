@@ -12,7 +12,7 @@
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
 	echo "<html><body bgcolor=white>";
         echo date(DATE_RFC2822);
-        echo "<p>Connecting to <b>" . $dbHost . "</b><br>";
+        echo "<p>Database: <b>" . $dbHost . "</b><br>";
 	$conn = new mysqli($dbHost, $dbUser, $dbPass, $dbName);
 	if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); } 
         if (! $result = $conn->query("show databases")) { printf("Error: %s\n", $mysqli->error); }
