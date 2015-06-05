@@ -12,12 +12,20 @@ from datetime import datetime
 from pprint import pprint
 from time import sleep
 
-from boto import connect_iam as iam_connect, connect_s3 as s3_connect
 from boto.cloudformation import connect_to_region as cfn_connect
 from boto.codedeploy import connect_to_region as codedeploy_connect
 from boto.ec2 import connect_to_region as ec2_connect
-from boto.exception import BotoServerError
+from boto.exception import BotoServerError, EC2ResponseError, S3ResponseError
+from boto.iam import connect_to_region as iam_connect
+from boto.s3 import connect_to_region as s3_connect
 from boto.s3.key import Key as S3Key
+
+#  OPTIONAL: Provide prebaked AMIs with python2.7, jenkins, and puppet.
+#  See configSets "cfg-packages" and "cfg-sys-commands" for reference.
+CUSTOM_AMI_MAP = {
+    'us-east-2': 'ami-f798779c',
+    'us-west-2': 'ami-bf9ea08f'
+}
 
 STACK_NAME_PREFIX = 'nando-demo'
 DEFAULT_REGION = 'us-east-1'
@@ -114,10 +122,29 @@ def copy_files_to_s3(s3_connection, bucket):
 
 def delete_stack_name_from_s3(s3_connection, bucket, target):
     s3_bucket = s3_connection.get_bucket(bucket)
-    s3_key = S3Key(s3_bucket)
     s3_key = target
     s3_bucket.delete_key(s3_key)
     print "Deleted stack name from s3 %s." % target
+
+
+def inject_custom_ami(resource, data, parameters, ec2_connection, region):
+    try:
+        ami = CUSTOM_AMI_MAP[region]
+        ec2_connection.get_image(ami)
+    except KeyError:
+        print "No Custom AMI defined for %s. See CUSTOM_AMI_MAP." % region
+        print "Using default AMI for %s." % resource
+        return data, parameters
+    except EC2ResponseError:
+        print "AMI %s does not exist in %s. See CUSTOM_AMI_MAP." % (ami,
+                                                                    region)
+        print "Using default AMI for %s." % resource
+        return data, parameters
+    data['Resources'][resource]['Properties']['ImageId'] = ami
+    resource_config_set = "%sConfigSet" % resource
+    parameters.append((resource_config_set, "quick"))
+    print "Using image %s for %s." % (ami, resource)
+    return data, parameters
 
 
 def inject_locations(locations, data):
@@ -238,12 +265,15 @@ def empty_related_buckets(s3_connection, stack, bucket_name=DEMO_S3_BUCKET):
         return
     resource = stack.describe_resource(bucket_name)
     bucket_id = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail'].get('PhysicalResourceId')
-    bucket = s3_connection.get_bucket(bucket_id)
-    keys = bucket.get_all_keys()
-    if keys:
-        print "Deleting the following files from %s:" % bucket_id
-        print keys
-        bucket.delete_keys(keys)
+    try:
+        bucket = s3_connection.get_bucket(bucket_id)
+        keys = bucket.get_all_keys()
+        if keys:
+            print "Deleting the following files from %s:" % bucket_id
+            print keys
+            bucket.delete_keys(keys)
+    except S3ResponseError:
+        pass
 
 
 def get_resource_id(cfn_connection, stack_name, resource_name):
@@ -313,7 +343,11 @@ def build(connections, region, locations, hash_id):
     #  Setup Security Groups/Access
     with open(CFN_TEMPLATE) as data_file:
         data = json.load(data_file)
-    location_in_data = inject_locations(locations, data)
+    #  Inject locations
+    data = inject_locations(locations, data)
+    #  Inject Custom AMI
+    data, build_params = inject_custom_ami(
+        JENKINS_INSTANCE, data, build_params, connections['ec2'], region)
     #  Setup EC2 Key Pair
     key_pair_name = stack_name
     private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
@@ -333,7 +367,7 @@ def build(connections, region, locations, hash_id):
     sys.stdout.write("Launching CloudFormation Stack in %s..." % region)
     connections['cfn'].create_stack(
         stack_name,
-        template_body=json.dumps(location_in_data, indent=2),
+        template_body=json.dumps(data, indent=2),
         parameters=build_params,
         capabilities=['CAPABILITY_IAM'],
         disable_rollback='true'
@@ -428,10 +462,11 @@ def main():
         sys.exit(0)
     connections['codedeploy'] = codedeploy_connect(args.region)
     connections['ec2'] = ec2_connect(args.region)
-    connections['iam'] = iam_connect()
-    connections['s3'] = s3_connect()
+    connections['iam'] = iam_connect(args.region)
+    connections['s3'] = s3_connect(args.region)
     if args.action == "test":
         #  Test pieces here
+        import ipdb; ipdb.set_trace()
         sys.exit(0)
     if args.action == "build":
         if not args.locations:

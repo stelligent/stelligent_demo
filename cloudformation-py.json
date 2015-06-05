@@ -17,6 +17,10 @@
     "HashID": {
       "Type": "String"
     },
+    "NandoDemoJenkinsConfigSet": {
+      "Type": "String",
+      "Default": "default"
+    },
     "NandoDemoZoneName": {
       "Type": "String",
       "Default": "elasticoperations.com."
@@ -78,14 +82,6 @@
         "AMI": "ami-ff527ecf"
       }
     },
-    "JenkinsInstanceAMIs": {
-      "us-east-1": {
-        "AMI": "ami-f798779c"
-      },
-      "us-west-2": {
-        "AMI": "ami-bf9ea08f"
-      }
-    },
     "AvailabilityZone": {
       "us-east-1": {
         "Public": "us-east-1c",
@@ -99,14 +95,6 @@
       }
     }
   },
-  "Conditions":{
-    "UseQuickBootstrap" : {
-       "Fn::Equals": [
-          {"Ref": "AWS::Region"},
-          "us-east-1"
-       ]
-    }
-  },
   "Resources": {
     "NandoDemoJenkinsEth0": {
       "Type": "AWS::EC2::NetworkInterface",
@@ -116,11 +104,9 @@
         "SubnetId": {
           "Ref": "NandoDemoPublicSubnet"
         },
-        "GroupSet": [
-          {
-            "Ref": "NandoDemoPublicSecurityGroup"
-          }
-        ]
+        "GroupSet": [{
+          "Ref": "NandoDemoPublicSecurityGroup"
+        }]
       }
     },
     "NandoDemoJenkinsEIP": {
@@ -156,18 +142,15 @@
             "CIDR"
           ]
         },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Public"
+        "Tags": [{
+          "Key": "Application",
+          "Value": {
+            "Ref": "AWS::StackName"
           }
-        ]
+        }, {
+          "Key": "Network",
+          "Value": "Public"
+        }]
       }
     },
     "NandoDemoPublicSubnet": {
@@ -176,8 +159,7 @@
       "Properties": {
         "AvailabilityZone": {
           "Fn::FindInMap": [
-            "AvailabilityZone",
-            {
+            "AvailabilityZone", {
               "Ref": "AWS::Region"
             },
             "Public"
@@ -193,18 +175,15 @@
             "CIDR"
           ]
         },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Public"
+        "Tags": [{
+          "Key": "Application",
+          "Value": {
+            "Ref": "AWS::StackName"
           }
-        ]
+        }, {
+          "Key": "Network",
+          "Value": "Public"
+        }]
       }
     },
     "NandoDemoPrivateSubnet1": {
@@ -213,8 +192,7 @@
       "Properties": {
         "AvailabilityZone": {
           "Fn::FindInMap": [
-            "AvailabilityZone",
-            {
+            "AvailabilityZone", {
               "Ref": "AWS::Region"
             },
             "Private1"
@@ -230,18 +208,15 @@
             "CIDR"
           ]
         },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Private1"
+        "Tags": [{
+          "Key": "Application",
+          "Value": {
+            "Ref": "AWS::StackName"
           }
-        ]
+        }, {
+          "Key": "Network",
+          "Value": "Private1"
+        }]
       }
     },
     "NandoDemoPrivateSubnet2": {
@@ -250,8 +225,7 @@
       "Properties": {
         "AvailabilityZone": {
           "Fn::FindInMap": [
-            "AvailabilityZone",
-            {
+            "AvailabilityZone", {
               "Ref": "AWS::Region"
             },
             "Private2"
@@ -267,18 +241,15 @@
             "CIDR"
           ]
         },
-        "Tags": [
-          {
-            "Key": "Application",
-            "Value": {
-              "Ref": "AWS::StackName"
-            }
-          },
-          {
-            "Key": "Network",
-            "Value": "Private2"
+        "Tags": [{
+          "Key": "Application",
+          "Value": {
+            "Ref": "AWS::StackName"
           }
-        ]
+        }, {
+          "Key": "Network",
+          "Value": "Private2"
+        }]
       }
     },
     "NandoDemoInternetGateway": {
@@ -334,23 +305,18 @@
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "DependsOn": "NandoDemoPublicRouteTableAssociation",
       "Properties": {
-        "Subnets": [
-          {
-            "Ref": "NandoDemoPublicSubnet"
-          }
-        ],
-        "Listeners": [
-          {
-            "LoadBalancerPort": "80",
-            "InstancePort": "80",
-            "Protocol": "HTTP"
-          },
-          {
-            "LoadBalancerPort": "2222",
-            "InstancePort": "22",
-            "Protocol": "TCP"
-          }
-        ],
+        "Subnets": [{
+          "Ref": "NandoDemoPublicSubnet"
+        }],
+        "Listeners": [{
+          "LoadBalancerPort": "80",
+          "InstancePort": "80",
+          "Protocol": "HTTP"
+        }, {
+          "LoadBalancerPort": "2222",
+          "InstancePort": "22",
+          "Protocol": "TCP"
+        }],
         "HealthCheck": {
           "Target": "HTTP:80/",
           "HealthyThreshold": "2",
@@ -358,11 +324,9 @@
           "Interval": "5",
           "Timeout": "4"
         },
-        "SecurityGroups": [
-          {
-            "Ref": "NandoDemoPublicSecurityGroup"
-          }
-        ]
+        "SecurityGroups": [{
+          "Ref": "NandoDemoPublicSecurityGroup"
+        }]
       }
     },
     "NandoDemoELBDNS": {
@@ -372,49 +336,40 @@
         "HostedZoneName": {
           "Ref": "NandoDemoZoneName"
         },
-        "RecordSets": [
-          {
-            "Name": {
-              "Fn::Join": [
-                ".",
-                [
-                  {
-                    "Fn::Join": [
-                      "-",
-                      [
-                        "nando-automation-demo",
-                        {
-                          "Ref": "DemoRegion"
-                        },
-                        {
-                          "Ref": "HashID"
-                        }
-                      ]
-                    ]
-                  },
-                  {
-                    "Ref": "NandoDemoZoneName"
-                  }
+        "RecordSets": [{
+          "Name": {
+            "Fn::Join": [
+              ".", [{
+                "Fn::Join": [
+                  "-", [
+                    "nando-automation-demo", {
+                      "Ref": "DemoRegion"
+                    }, {
+                      "Ref": "HashID"
+                    }
+                  ]
                 ]
+              }, {
+                "Ref": "NandoDemoZoneName"
+              }]
+            ]
+          },
+          "Type": "A",
+          "AliasTarget": {
+            "HostedZoneId": {
+              "Fn::GetAtt": [
+                "NandoDemoELB",
+                "CanonicalHostedZoneNameID"
               ]
             },
-            "Type": "A",
-            "AliasTarget": {
-              "HostedZoneId": {
-                "Fn::GetAtt": [
-                  "NandoDemoELB",
-                  "CanonicalHostedZoneNameID"
-                ]
-              },
-              "DNSName": {
-                "Fn::GetAtt": [
-                  "NandoDemoELB",
-                  "CanonicalHostedZoneName"
-                ]
-              }
+            "DNSName": {
+              "Fn::GetAtt": [
+                "NandoDemoELB",
+                "CanonicalHostedZoneName"
+              ]
             }
           }
-        ]
+        }]
       }
     },
     "NandoDemoJenkinsDNS": {
@@ -424,41 +379,30 @@
         "HostedZoneName": {
           "Ref": "NandoDemoZoneName"
         },
-        "RecordSets": [
-          {
-            "Name": {
-              "Fn::Join": [
-                ".",
-                [
-                  {
-                    "Fn::Join": [
-                      "-",
-                      [
-                        "nando-automation-demo-jenkins",
-                        {
-                          "Ref": "DemoRegion"
-                        },
-                        {
-                          "Ref": "HashID"
-                        }
-                      ]
-                    ]
-                  },
-                  {
-                    "Ref": "NandoDemoZoneName"
-                  }
+        "RecordSets": [{
+          "Name": {
+            "Fn::Join": [
+              ".", [{
+                "Fn::Join": [
+                  "-", [
+                    "nando-automation-demo-jenkins", {
+                      "Ref": "DemoRegion"
+                    }, {
+                      "Ref": "HashID"
+                    }
+                  ]
                 ]
-              ]
-            },
-            "Type": "A",
-            "TTL": "900",
-            "ResourceRecords": [
-              {
-                "Ref": "NandoDemoJenkinsEIP"
-              }
+              }, {
+                "Ref": "NandoDemoZoneName"
+              }]
             ]
-          }
-        ]
+          },
+          "Type": "A",
+          "TTL": "900",
+          "ResourceRecords": [{
+            "Ref": "NandoDemoJenkinsEIP"
+          }]
+        }]
       }
     },
     "NandoDemoDockerDNS": {
@@ -468,44 +412,33 @@
         "HostedZoneName": {
           "Ref": "NandoDemoZoneName"
         },
-        "RecordSets": [
-          {
-            "Name": {
-              "Fn::Join": [
-                ".",
-                [
-                  {
-                    "Fn::Join": [
-                      "-",
-                      [
-                        "nando-automation-demo-docker",
-                        {
-                          "Ref": "DemoRegion"
-                        },
-                        {
-                          "Ref": "HashID"
-                        }
-                      ]
-                    ]
-                  },
-                  {
-                    "Ref": "NandoDemoZoneName"
-                  }
+        "RecordSets": [{
+          "Name": {
+            "Fn::Join": [
+              ".", [{
+                "Fn::Join": [
+                  "-", [
+                    "nando-automation-demo-docker", {
+                      "Ref": "DemoRegion"
+                    }, {
+                      "Ref": "HashID"
+                    }
+                  ]
                 ]
-              ]
-            },
-            "Type": "CNAME",
-            "TTL": "900",
-            "ResourceRecords": [
-              {
-                "Fn::GetAtt": [
-                  "NandoDemoDockerEnvironment",
-                  "EndpointURL"
-                ]
-              }
+              }, {
+                "Ref": "NandoDemoZoneName"
+              }]
             ]
-          }
-        ]
+          },
+          "Type": "CNAME",
+          "TTL": "900",
+          "ResourceRecords": [{
+            "Fn::GetAtt": [
+              "NandoDemoDockerEnvironment",
+              "EndpointURL"
+            ]
+          }]
+        }]
       }
     },
     "NandoDemoBucketDNS": {
@@ -515,44 +448,33 @@
         "HostedZoneName": {
           "Ref": "NandoDemoZoneName"
         },
-        "RecordSets": [
-          {
-            "Name": {
-              "Fn::Join": [
-                ".",
-                [
-                  {
-                    "Fn::Join": [
-                      "-",
-                      [
-                        "nando-automation-demo-bucket",
-                        {
-                          "Ref": "DemoRegion"
-                        },
-                        {
-                          "Ref": "HashID"
-                        }
-                      ]
-                    ]
-                  },
-                  {
-                    "Ref": "NandoDemoZoneName"
-                  }
+        "RecordSets": [{
+          "Name": {
+            "Fn::Join": [
+              ".", [{
+                "Fn::Join": [
+                  "-", [
+                    "nando-automation-demo-bucket", {
+                      "Ref": "DemoRegion"
+                    }, {
+                      "Ref": "HashID"
+                    }
+                  ]
                 ]
-              ]
-            },
-            "Type": "CNAME",
-            "TTL": "900",
-            "ResourceRecords": [
-              {
-                "Fn::GetAtt": [
-                  "NandoDemoBucket",
-                  "DomainName"
-                ]
-              }
+              }, {
+                "Ref": "NandoDemoZoneName"
+              }]
             ]
-          }
-        ]
+          },
+          "Type": "CNAME",
+          "TTL": "900",
+          "ResourceRecords": [{
+            "Fn::GetAtt": [
+              "NandoDemoBucket",
+              "DomainName"
+            ]
+          }]
+        }]
       }
     },
     "NandoDemoJenkins": {
@@ -567,8 +489,7 @@
         },
         "ImageId": {
           "Fn::FindInMap": [
-            "JenkinsInstanceAMIs",
-            {
+            "InstanceAMIs", {
               "Ref": "AWS::Region"
             },
             "AMI"
@@ -576,8 +497,7 @@
         },
         "AvailabilityZone": {
           "Fn::FindInMap": [
-            "AvailabilityZone",
-            {
+            "AvailabilityZone", {
               "Ref": "AWS::Region"
             },
             "Public"
@@ -586,40 +506,36 @@
         "IamInstanceProfile": {
           "Ref": "NandoDemoJenkinsInstanceProfile"
         },
-        "NetworkInterfaces": [
-          {
-            "NetworkInterfaceId": {
-              "Ref": "NandoDemoJenkinsEth0"
-            },
-            "DeviceIndex": "0"
-          }
-        ],
+        "NetworkInterfaces": [{
+          "NetworkInterfaceId": {
+            "Ref": "NandoDemoJenkinsEth0"
+          },
+          "DeviceIndex": "0"
+        }],
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
-              "",
-              [
+              "", [
                 "#!/bin/bash\n",
                 "yum update -y aws-cfn-bootstrap\n",
                 "/opt/aws/bin/cfn-init -v ",
-                "         --stack ",
-                {
+                "         -c ", {
+                  "Ref": "NandoDemoJenkinsConfigSet"
+                },
+                "         --stack ", {
                   "Ref": "AWS::StackName"
                 },
                 "         --resource NandoDemoJenkins ",
-                "         --region ",
-                {
+                "         --region ", {
                   "Ref": "AWS::Region"
                 },
                 "\n",
                 "/opt/aws/bin/cfn-signal -e $? ",
-                "         --stack ",
-                {
+                "         --stack ", {
                   "Ref": "AWS::StackName"
                 },
                 "         --resource NandoDemoJenkins ",
-                "         --region ",
-                {
+                "         --region ", {
                   "Ref": "AWS::Region"
                 },
                 "\n"
@@ -628,9 +544,9 @@
           }
         }
       },
-      "CreationPolicy" : {
-        "ResourceSignal" : {
-          "Timeout" : "PT10M"
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT10M"
         }
       },
       "Metadata": {
@@ -648,12 +564,21 @@
         },
         "AWS::CloudFormation::Init": {
           "configSets": {
-            "default":
-              [
-                "cfg-files",
-                "cfg-jenkins-commands",
-                "cfg-services"
-              ]
+            "quick": [
+              "cfg-files",
+              "cfg-jenkins-commands",
+              "cfg-services"
+            ],
+            "full": [
+              "cfg-packages",
+              "cfg-files",
+              "cfg-sys-commands",
+              "cfg-jenkins-commands",
+              "cfg-services"
+            ],
+            "default": [{
+              "ConfigSet": "full"
+            }]
           },
           "cfg-packages": {
             "packages": {
@@ -667,16 +592,13 @@
               "/etc/cfn/cfn-hup.conf": {
                 "content": {
                   "Fn::Join": [
-                    "",
-                    [
+                    "", [
                       "[main]\n",
-                      "stack=",
-                      {
+                      "stack=", {
                         "Ref": "AWS::StackId"
                       },
                       "\n",
-                      "region=",
-                      {
+                      "region=", {
                         "Ref": "AWS::Region"
                       },
                       "\n"
@@ -690,19 +612,16 @@
               "/etc/cfn/hooks.d/cfn-auto-reloader.conf": {
                 "content": {
                   "Fn::Join": [
-                    "",
-                    [
+                    "", [
                       "[cfn-auto-reloader-hook]\n",
                       "triggers=post.update\n",
                       "path=Resources.NandoDemoJenkins.Metadata.AWS::CloudFormation::Init\n",
-                      "action=/opt/aws/bin/cfn-init -v ",
-                      "         --stack ",
-                      {
+                      "action=/opt/aws/bin/cfn-init -v",
+                      "         --stack ", {
                         "Ref": "AWS::StackName"
                       },
                       "         --resource NandoDemoJenkins ",
-                      "         --region ",
-                      {
+                      "         --region ", {
                         "Ref": "AWS::Region"
                       },
                       "\n",
@@ -756,13 +675,10 @@
               "/var/lib/jenkins/cloudformation.stack.name": {
                 "source": {
                   "Fn::Join": [
-                    "-",
-                    [
-                      "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name",
-                      {
+                    "-", [
+                      "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name", {
                         "Ref": "DemoRegion"
-                      },
-                      {
+                      }, {
                         "Ref": "HashID"
                       }
                     ]
@@ -809,9 +725,6 @@
           },
           "cfg-sys-commands": {
             "commands": {
-              "bootstrapA": {
-                "command": "service jenkins restart"
-              },
               "bootstrapB": {
                 "command": "mkdir -pv /etc/puppet/modules /var/lib/jenkins"
               },
@@ -894,49 +807,38 @@
       ],
       "Version": "2009-05-15",
       "Properties": {
-        "AvailabilityZones": [
-          {
-            "Fn::FindInMap": [
-              "AvailabilityZone",
-              {
-                "Ref": "AWS::Region"
-              },
-              "Public"
-            ]
-          }
-        ],
+        "AvailabilityZones": [{
+          "Fn::FindInMap": [
+            "AvailabilityZone", {
+              "Ref": "AWS::Region"
+            },
+            "Public"
+          ]
+        }],
         "LaunchConfigurationName": {
           "Ref": "NandoDemoWebLaunchConfig"
         },
-        "LoadBalancerNames": [
-          {
-            "Ref": "NandoDemoELB"
-          }
-        ],
-        "VPCZoneIdentifier": [
-          {
-            "Ref": "NandoDemoPublicSubnet"
-          }
-        ],
+        "LoadBalancerNames": [{
+          "Ref": "NandoDemoELB"
+        }],
+        "VPCZoneIdentifier": [{
+          "Ref": "NandoDemoPublicSubnet"
+        }],
         "MinSize": "2",
         "MaxSize": "2",
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": {
-              "Fn::Join": [
-                "-",
-                [
-                  {
-                    "Ref": "AWS::StackName"
-                  },
-                  "webserver"
-                ]
+        "Tags": [{
+          "Key": "Name",
+          "Value": {
+            "Fn::Join": [
+              "-", [{
+                  "Ref": "AWS::StackName"
+                },
+                "webserver"
               ]
-            },
-            "PropagateAtLaunch": "true"
-          }
-        ]
+            ]
+          },
+          "PropagateAtLaunch": "true"
+        }]
       }
     },
     "NandoDemoWebLaunchConfig": {
@@ -985,16 +887,13 @@
               "/etc/cfn/cfn-hup.conf": {
                 "content": {
                   "Fn::Join": [
-                    "",
-                    [
+                    "", [
                       "[main]\n",
-                      "stack=",
-                      {
+                      "stack=", {
                         "Ref": "AWS::StackId"
                       },
                       "\n",
-                      "region=",
-                      {
+                      "region=", {
                         "Ref": "AWS::Region"
                       },
                       "\n"
@@ -1008,19 +907,16 @@
               "/etc/cfn/hooks.d/cfn-auto-reloader.conf": {
                 "content": {
                   "Fn::Join": [
-                    "",
-                    [
+                    "", [
                       "[cfn-auto-reloader-hook]\n",
                       "triggers=post.update\n",
                       "path=Resources.NandoDemoWebASG.Metadata.AWS::CloudFormation::Init\n",
                       "action=/opt/aws/bin/cfn-init -v ",
-                      "         --stack ",
-                      {
+                      "         --stack ", {
                         "Ref": "AWS::StackName"
                       },
                       "         --resource NandoDemoWebLaunchConfig ",
-                      "         --region ",
-                      {
+                      "         --region ", {
                         "Ref": "AWS::Region"
                       },
                       "\n",
@@ -1054,8 +950,7 @@
         },
         "ImageId": {
           "Fn::FindInMap": [
-            "InstanceAMIs",
-            {
+            "InstanceAMIs", {
               "Ref": "AWS::Region"
             },
             "AMI"
@@ -1065,11 +960,9 @@
         "IamInstanceProfile": {
           "Ref": "NandoDemoASGInstanceProfile"
         },
-        "SecurityGroups": [
-          {
-            "Ref": "NandoDemoPublicSecurityGroup"
-          }
-        ],
+        "SecurityGroups": [{
+          "Ref": "NandoDemoPublicSecurityGroup"
+        }],
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": ["", [
@@ -1125,14 +1018,12 @@
         "DBInstanceClass": "db.t2.micro",
         "MultiAZ": "true",
         "AllocatedStorage": "5",
-        "VPCSecurityGroups": [
-          {
-            "Fn::GetAtt": [
-              "NandoDemoPrivateSecurityGroup",
-              "GroupId"
-            ]
-          }
-        ],
+        "VPCSecurityGroups": [{
+          "Fn::GetAtt": [
+            "NandoDemoPrivateSecurityGroup",
+            "GroupId"
+          ]
+        }],
         "DBSubnetGroupName": {
           "Ref": "NandoDemoMysqlSubnetGroup"
         }
@@ -1141,14 +1032,11 @@
     "NandoDemoMysqlSubnetGroup": {
       "Type": "AWS::RDS::DBSubnetGroup",
       "Properties": {
-        "SubnetIds": [
-          {
-            "Ref": "NandoDemoPrivateSubnet1"
-          },
-          {
-            "Ref": "NandoDemoPrivateSubnet2"
-          }
-        ],
+        "SubnetIds": [{
+          "Ref": "NandoDemoPrivateSubnet1"
+        }, {
+          "Ref": "NandoDemoPrivateSubnet2"
+        }],
         "DBSubnetGroupDescription": "NandoDemoMysqlSubnetGroup"
       }
     },
@@ -1159,20 +1047,17 @@
         "VpcId": {
           "Ref": "NandoDemoVPC"
         },
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "80",
-            "ToPort": "80",
-            "CidrIp": "0.0.0.0/0"
-          },
-          {
-            "IpProtocol": "tcp",
-            "FromPort": "22",
-            "ToPort": "22",
-            "CidrIp": "10.200.0.0/16"
-          }
-        ]
+        "SecurityGroupIngress": [{
+          "IpProtocol": "tcp",
+          "FromPort": "80",
+          "ToPort": "80",
+          "CidrIp": "0.0.0.0/0"
+        }, {
+          "IpProtocol": "tcp",
+          "FromPort": "22",
+          "ToPort": "22",
+          "CidrIp": "10.200.0.0/16"
+        }]
       }
     },
     "NandoDemoPrivateSecurityGroup": {
@@ -1229,21 +1114,19 @@
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Sid": "",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "codedeploy.amazonaws.com",
-                  "ec2.amazonaws.com"
-                ]
-              },
-              "Action": [
-                "sts:AssumeRole"
+          "Statement": [{
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "codedeploy.amazonaws.com",
+                "ec2.amazonaws.com"
               ]
-            }
-          ]
+            },
+            "Action": [
+              "sts:AssumeRole"
+            ]
+          }]
         },
         "Path": "/"
       }
@@ -1253,21 +1136,19 @@
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Sid": "",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": [
-                  "codedeploy.amazonaws.com",
-                  "ec2.amazonaws.com"
-                ]
-              },
-              "Action": [
-                "sts:AssumeRole"
+          "Statement": [{
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "codedeploy.amazonaws.com",
+                "ec2.amazonaws.com"
               ]
-            }
-          ]
+            },
+            "Action": [
+              "sts:AssumeRole"
+            ]
+          }]
         },
         "Path": "/"
       }
@@ -1279,45 +1160,38 @@
         "PolicyName": "nando-demo-jenkins-policy",
         "PolicyDocument": {
           "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Action": [
-                "autoscaling:Describe*",
-                "cloudformation:DescribeStacks",
-                "ec2:Describe*",
-                "s3:Get*",
-                "s3:List*",
-                "elasticbeanstalk:*",
-                "codedeploy:*"
-              ],
-              "Effect": "Allow",
-              "Resource": "*"
-            },
-            {
-              "Action": [
-                "s3:*"
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {
-                      "Ref": "NandoDemoBucket"
-                    },
-                    "/*"
-                  ]
+          "Statement": [{
+            "Action": [
+              "autoscaling:Describe*",
+              "cloudformation:DescribeStacks",
+              "ec2:Describe*",
+              "s3:Get*",
+              "s3:List*",
+              "elasticbeanstalk:*",
+              "codedeploy:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+          }, {
+            "Action": [
+              "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": {
+              "Fn::Join": [
+                "", [
+                  "arn:aws:s3:::", {
+                    "Ref": "NandoDemoBucket"
+                  },
+                  "/*"
                 ]
-              }
+              ]
             }
-          ]
+          }]
         },
-        "Roles": [
-          {
-            "Ref": "NandoDemoJenkinsRole"
-          }
-        ]
+        "Roles": [{
+          "Ref": "NandoDemoJenkinsRole"
+        }]
       }
     },
     "NandoDemoASGIAM": {
@@ -1327,43 +1201,38 @@
         "PolicyName": "nando-demo-asg-policy",
         "PolicyDocument": {
           "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Action": [
-                "autoscaling:PutLifecycleHook",
-                "autoscaling:DeleteLifecycleHook",
-                "autoscaling:RecordLifecycleActionHeartbeat",
-                "autoscaling:CompleteLifecycleAction",
-                "autoscaling:DescribeAutoscalingGroups",
-                "autoscaling:PutInstanceInStandby",
-                "autoscaling:PutInstanceInService",
-                "cloudformation:DescribeStacks",
-                "codedeploy:*",
-                "ec2:Describe*",
-                "Tag:get*",
-                "elasticbeanstalk:*"
-              ],
-              "Effect": "Allow",
-              "Resource": "*"
-            },
-            {
-              "Action": [
-                "s3:Get*",
-                "s3:List*"
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                "arn:aws:s3:::nando-automation-demo/*",
-                "arn:aws:s3:::aws-codedeploy-us-east-1/*"
-              ]
-            }
-          ]
+          "Statement": [{
+            "Action": [
+              "autoscaling:PutLifecycleHook",
+              "autoscaling:DeleteLifecycleHook",
+              "autoscaling:RecordLifecycleActionHeartbeat",
+              "autoscaling:CompleteLifecycleAction",
+              "autoscaling:DescribeAutoscalingGroups",
+              "autoscaling:PutInstanceInStandby",
+              "autoscaling:PutInstanceInService",
+              "cloudformation:DescribeStacks",
+              "codedeploy:*",
+              "ec2:Describe*",
+              "Tag:get*",
+              "elasticbeanstalk:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+          }, {
+            "Action": [
+              "s3:Get*",
+              "s3:List*"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+              "arn:aws:s3:::nando-automation-demo/*",
+              "arn:aws:s3:::aws-codedeploy-us-east-1/*"
+            ]
+          }]
         },
-        "Roles": [
-          {
-            "Ref": "NandoDemoASGRole"
-          }
-        ]
+        "Roles": [{
+          "Ref": "NandoDemoASGRole"
+        }]
       }
     },
     "NandoDemoJenkinsInstanceProfile": {
@@ -1371,11 +1240,9 @@
       "DependsOn": "NandoDemoJenkinsRole",
       "Properties": {
         "Path": "/",
-        "Roles": [
-          {
-            "Ref": "NandoDemoJenkinsRole"
-          }
-        ]
+        "Roles": [{
+          "Ref": "NandoDemoJenkinsRole"
+        }]
       }
     },
     "NandoDemoASGInstanceProfile": {
@@ -1383,11 +1250,9 @@
       "DependsOn": "NandoDemoASGRole",
       "Properties": {
         "Path": "/",
-        "Roles": [
-          {
-            "Ref": "NandoDemoASGRole"
-          }
-        ]
+        "Roles": [{
+          "Ref": "NandoDemoASGRole"
+        }]
       }
     },
     "NandoDemoBucketPolicy": {
@@ -1397,33 +1262,29 @@
         "PolicyDocument": {
           "Id": "NandoDemoBucketPolicy",
           "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Sid": "allowTrustedIPs",
-              "Action": [
-                "s3:*"
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {
-                      "Ref": "NandoDemoBucket"
-                    },
-                    "/*"
-                  ]
+          "Statement": [{
+            "Sid": "allowTrustedIPs",
+            "Action": [
+              "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": {
+              "Fn::Join": [
+                "", [
+                  "arn:aws:s3:::", {
+                    "Ref": "NandoDemoBucket"
+                  },
+                  "/*"
                 ]
-              },
-              "Principal": "*",
-              "Condition": {
-                "IpAddress": {
-                  "aws:SourceIp": []
-                }
+              ]
+            },
+            "Principal": "*",
+            "Condition": {
+              "IpAddress": {
+                "aws:SourceIp": []
               }
             }
-          ]
+          }]
         },
         "Bucket": {
           "Ref": "NandoDemoBucket"
@@ -1443,13 +1304,10 @@
       "Properties": {
         "ApplicationName": {
           "Fn::Join": [
-            "-",
-            [
-              "NandoDemoDockerApp",
-              {
+            "-", [
+              "NandoDemoDockerApp", {
                 "Ref": "DemoRegion"
-              },
-              {
+              }, {
                 "Ref": "HashID"
               }
             ]
@@ -1478,30 +1336,25 @@
           "Ref": "NandoDemoDockerApp"
         },
         "Description": "NandoDemoDockerTemplate",
-        "OptionSettings": [
-          {
-            "Namespace": "aws:autoscaling:asg",
-            "OptionName": "MinSize",
-            "Value": "1"
-          },
-          {
-            "Namespace": "aws:autoscaling:asg",
-            "OptionName": "MaxSize",
-            "Value": "2"
-          },
-          {
-            "Namespace": "aws:elasticbeanstalk:environment",
-            "OptionName": "EnvironmentType",
-            "Value": "LoadBalanced"
-          },
-          {
-            "Namespace": "aws:autoscaling:launchconfiguration",
-            "OptionName": "EC2KeyName",
-            "Value": {
-              "Ref": "KeyName"
-            }
+        "OptionSettings": [{
+          "Namespace": "aws:autoscaling:asg",
+          "OptionName": "MinSize",
+          "Value": "1"
+        }, {
+          "Namespace": "aws:autoscaling:asg",
+          "OptionName": "MaxSize",
+          "Value": "2"
+        }, {
+          "Namespace": "aws:elasticbeanstalk:environment",
+          "OptionName": "EnvironmentType",
+          "Value": "LoadBalanced"
+        }, {
+          "Namespace": "aws:autoscaling:launchconfiguration",
+          "OptionName": "EC2KeyName",
+          "Value": {
+            "Ref": "KeyName"
           }
-        ],
+        }],
         "SolutionStackName": "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0"
       }
     },
@@ -1595,7 +1448,8 @@
         "Fn::Join": [".", [{
           "Fn::Join": ["-", [
             "http://nando-automation-demo", {
-              "Ref": "DemoRegion"}, {
+              "Ref": "DemoRegion"
+            }, {
               "Ref": "HashID"
             }
           ]]
@@ -1609,7 +1463,8 @@
         "Fn::Join": [".", [{
           "Fn::Join": ["-", [
             "http://nando-automation-demo-bucket", {
-              "Ref": "DemoRegion"}, {
+              "Ref": "DemoRegion"
+            }, {
               "Ref": "HashID"
             }
           ]]
