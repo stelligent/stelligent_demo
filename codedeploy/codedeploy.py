@@ -41,7 +41,7 @@ def main():
     # Make our AWS connections
     connections = dict()
     connections['cfn'] = cfn_connect(region)
-    connections['codedeploy2'] = codedeploy_connect(region)
+    connections['codedeploy'] = codedeploy_connect(region)
 
     # Fetch the codedeploy details from the cfn stack arn
     codedeploy = get_codedeploy_app_and_group(connections['cfn'], stack_arn)
