@@ -44,8 +44,8 @@
  	echo "<br><p><table border=0 width=100%><tr>";
 	for ($placeHolder = 0; $placeHolder < 8; $placeHolder++) { 
 		if ($placeHolder % 4 == 0) { echo "</tr><tr>"; }
-		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=http://nando-automation-demo.s3.amazonaws.com/public/AWS-logo.jpg></td>"; }
-    		elseif ($placeHolder == $placeImage2) { echo "<td width=20% align=center><img src=http://nando-automation-demo.s3.amazonaws.com/public/AWS-logo.jpg></td>"; }
+		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=http://nando-automation-demo.s3.amazonaws.com/public/AWS-logo.jpg width=100></td>"; }
+    		elseif ($placeHolder == $placeImage2) { echo "<td width=20% align=center><img src=http://nando-automation-demo.s3.amazonaws.com/public/AWS-logo.jpg width=100></td>"; }
 		else { 
 			echo "<td width=20% align=center>"; 
     			for ($tddata = 0; $tddata < 8; $tddata++) {
