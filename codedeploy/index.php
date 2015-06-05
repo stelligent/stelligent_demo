@@ -39,8 +39,6 @@
         echo exec('curl http://169.254.169.254/latest/meta-data/mac');
         echo "<br></b> PublicIP: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/public-ipv4');
-        echo "<br></b> PubKey: <b>";
-        echo exec('curl http://169.254.169.254/latest/meta-data/public-keys');
         echo "<br></b> SecurityGroup: <b>";
         echo exec('curl http://169.254.169.254/latest/meta-data/security-groups');
  	echo "<br><p><table border=0 width=100%><tr>";
