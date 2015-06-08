@@ -2,6 +2,9 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Nando Automation Demo",
   "Parameters": {
+    "PrimaryPermanentS3Bucket": {
+      "Type": "String"
+    },
     "InstanceTypeASG": {
       "Type": "String",
       "Default": "m1.small"
@@ -1165,13 +1168,27 @@
               "autoscaling:Describe*",
               "cloudformation:DescribeStacks",
               "ec2:Describe*",
-              "s3:Get*",
-              "s3:List*",
               "elasticbeanstalk:*",
               "codedeploy:*"
             ],
             "Effect": "Allow",
             "Resource": "*"
+          }, {
+            "Action": [
+              "s3:Get*",
+              "s3:List*"
+            ],
+            "Effect": "Allow",
+            "Resource": {
+              "Fn::Join": [
+                "", [
+                  "arn:aws:s3:::", {
+                    "Ref": "PrimaryPermanentS3Bucket"
+                  },
+                  "/*"
+                ]
+              ]
+            }
           }, {
             "Action": [
               "s3:*"

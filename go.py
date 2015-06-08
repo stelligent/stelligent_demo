@@ -74,7 +74,7 @@ def ip_address_type(location):
         return location
 
 
-def list_and_get_stack(cfn_connection, region):
+def list_and_get_stack(cfn_connection):
     stacks = cfn_connection.describe_stacks()
     stacks = [stack for stack in stacks if
               stack.stack_name.startswith(STACK_NAME_PREFIX)]
@@ -82,7 +82,8 @@ def list_and_get_stack(cfn_connection, region):
     custom_range = range(1, len(stacks)+1)
     while response not in custom_range:
         for index, stack in enumerate(stacks):
-            print "%s) %s" % (index + 1, stack.stack_name)
+            print "%s) %s (%s)" % (index + 1, stack.stack_name,
+                                   stack.stack_status)
 
         response = raw_input("Which stack?  ")
         if response in ['q', 'quit', 'exit']:
@@ -328,6 +329,7 @@ def set_stack_name_in_s3(s3_connection, stack_name, dest_name, bucket):
 
 def build(connections, region, locations, hash_id):
     build_params = list()
+    build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
     #  Setup Instagram Access
     instagram_id, instagram_secret = get_instagram_keys_from_env()
     build_params.append(("InstagramId", instagram_id))
@@ -402,7 +404,14 @@ def build(connections, region, locations, hash_id):
 
 
 def destroy(connections, region):
-    stack = list_and_get_stack(connections['cfn'], region)
+    stack = list_and_get_stack(connections['cfn'])
+    if stack.stack_status == "DELETE_IN_PROGRESS":
+        print "Stack deletion already in progress. Exiting."
+        sys.exit(0)
+    if stack.stack_status == "DELETE_FAILED":
+        print "Delete stack previously failed:"
+        print "%s" % stack.stack_status_reason
+        print "Trying again..."
     #  Fetch our Hash ID for this stack (probably a better way to find this)
     for param in stack.parameters:
         if param.key == "HashID":
@@ -434,8 +443,9 @@ def destroy(connections, region):
 
 
 def info(connections, region):
-    stack = list_and_get_stack(connections['cfn'], region)
+    stack = list_and_get_stack(connections['cfn'])
     pprint(stack.parameters, indent=2)
+    pprint(stack.outputs, indent=2)
 
 
 def main():
