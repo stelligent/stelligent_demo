@@ -30,6 +30,7 @@ CUSTOM_AMI_MAP = {
 STACK_NAME_PREFIX = 'nando-demo'
 DEFAULT_REGION = 'us-east-1'
 MAIN_S3_BUCKET = 'nando-automation-demo'  # Permanent S3 Bucket
+MAIN_S3_BUCKET_REGION = 'us-east-1'
 DOCKER_ZIPFILE = 'nando-demo.zip'
 DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
 FILES_TO_S3 = ['jenkins/seed.xml.erb',
@@ -210,7 +211,10 @@ def create_iam_role(iam_connection, role_name, role_doc):
 
 def delete_iam_role(iam_connection, role_name):
     sys.stdout.write("Deleting IAM Role %s..." % role_name)
-    iam_connection.delete_role(role_name)
+    try:
+        iam_connection.delete_role(role_name)
+    except BotoServerError:
+        pass
     print "Done!"
 
 
@@ -224,7 +228,10 @@ def put_iam_role_policy(iam_connection, role_name, policy_name,
 
 def delete_iam_policy(iam_connection, role_name, policy_name):
     sys.stdout.write("Deleting policy %s..." % policy_name)
-    iam_connection.delete_role_policy(role_name, policy_name)
+    try:
+        iam_connection.delete_role_policy(role_name, policy_name)
+    except BotoServerError:
+        pass
     print "Done!"
 
 
@@ -341,7 +348,7 @@ def build(connections, region, locations, hash_id):
     build_params.append(("DemoRegion", region))
     build_params.append(("HashID", hash_id))
     #  Setup S3
-    copy_files_to_s3(connections['s3'], MAIN_S3_BUCKET)
+    copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
     #  Setup Security Groups/Access
     with open(CFN_TEMPLATE) as data_file:
         data = json.load(data_file)
@@ -376,7 +383,7 @@ def build(connections, region, locations, hash_id):
     )
     #  Upload stackname to S3
     dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
-    set_stack_name_in_s3(connections['s3'], stack_name,
+    set_stack_name_in_s3(connections['main_s3'], stack_name,
                          dest_name, MAIN_S3_BUCKET)
     print "Done!"
     #  Give Feedback whilst we wait...
@@ -439,7 +446,7 @@ def destroy(connections, region):
     delete_ec2_key_pair(connections['ec2'], parameters['KeyName'])
     #  Remove the stackname from S3
     dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
-    delete_stack_name_from_s3(connections['s3'], MAIN_S3_BUCKET, dest_name)
+    delete_stack_name_from_s3(connections['main_s3'], MAIN_S3_BUCKET, dest_name)
 
 
 def info(connections, region):
@@ -473,6 +480,7 @@ def main():
     connections['codedeploy'] = codedeploy_connect(args.region)
     connections['ec2'] = ec2_connect(args.region)
     connections['iam'] = iam_connect(args.region)
+    connections['main_s3'] = s3_connect(MAIN_S3_BUCKET_REGION)
     connections['s3'] = s3_connect(args.region)
     if args.action == "test":
         #  Test pieces here
