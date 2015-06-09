@@ -60,23 +60,21 @@
     },
     "CodeDeployDeploymentGroup": {
       "Type": "String"
+    },
+    "StelligentDemoVPC": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSubnet": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Type": "String"
     }
   },
   "Mappings": {
-    "SubnetConfig": {
-      "VPC": {
-        "CIDR": "10.200.0.0/16"
-      },
-      "Public": {
-        "CIDR": "10.200.0.0/24"
-      },
-      "Private1": {
-        "CIDR": "10.200.1.0/24"
-      },
-      "Private2": {
-        "CIDR": "10.200.2.0/24"
-      }
-    },
     "InstanceAMIs": {
       "us-east-1": {
         "AMI": "ami-1ccae774"
@@ -105,7 +103,7 @@
       "Properties": {
         "Description": "eth0jenkins",
         "SubnetId": {
-          "Ref": "NandoDemoPublicSubnet"
+          "Ref": "StelligentDemoPublicSubnet"
         },
         "GroupSet": [{
           "Ref": "NandoDemoPublicSecurityGroup"
@@ -133,183 +131,11 @@
         }
       }
     },
-    "NandoDemoVPC": {
-      "Type": "AWS::EC2::VPC",
-      "Properties": {
-        "EnableDnsSupport": "true",
-        "EnableDnsHostnames": "true",
-        "CidrBlock": {
-          "Fn::FindInMap": [
-            "SubnetConfig",
-            "VPC",
-            "CIDR"
-          ]
-        },
-        "Tags": [{
-          "Key": "Application",
-          "Value": {
-            "Ref": "AWS::StackName"
-          }
-        }, {
-          "Key": "Network",
-          "Value": "Public"
-        }]
-      }
-    },
-    "NandoDemoPublicSubnet": {
-      "Type": "AWS::EC2::Subnet",
-      "DependsOn": "NandoDemoVPC",
-      "Properties": {
-        "AvailabilityZone": {
-          "Fn::FindInMap": [
-            "AvailabilityZone", {
-              "Ref": "AWS::Region"
-            },
-            "Public"
-          ]
-        },
-        "VpcId": {
-          "Ref": "NandoDemoVPC"
-        },
-        "CidrBlock": {
-          "Fn::FindInMap": [
-            "SubnetConfig",
-            "Public",
-            "CIDR"
-          ]
-        },
-        "Tags": [{
-          "Key": "Application",
-          "Value": {
-            "Ref": "AWS::StackName"
-          }
-        }, {
-          "Key": "Network",
-          "Value": "Public"
-        }]
-      }
-    },
-    "NandoDemoPrivateSubnet1": {
-      "Type": "AWS::EC2::Subnet",
-      "DependsOn": "NandoDemoVPC",
-      "Properties": {
-        "AvailabilityZone": {
-          "Fn::FindInMap": [
-            "AvailabilityZone", {
-              "Ref": "AWS::Region"
-            },
-            "Private1"
-          ]
-        },
-        "VpcId": {
-          "Ref": "NandoDemoVPC"
-        },
-        "CidrBlock": {
-          "Fn::FindInMap": [
-            "SubnetConfig",
-            "Private1",
-            "CIDR"
-          ]
-        },
-        "Tags": [{
-          "Key": "Application",
-          "Value": {
-            "Ref": "AWS::StackName"
-          }
-        }, {
-          "Key": "Network",
-          "Value": "Private1"
-        }]
-      }
-    },
-    "NandoDemoPrivateSubnet2": {
-      "Type": "AWS::EC2::Subnet",
-      "DependsOn": "NandoDemoVPC",
-      "Properties": {
-        "AvailabilityZone": {
-          "Fn::FindInMap": [
-            "AvailabilityZone", {
-              "Ref": "AWS::Region"
-            },
-            "Private2"
-          ]
-        },
-        "VpcId": {
-          "Ref": "NandoDemoVPC"
-        },
-        "CidrBlock": {
-          "Fn::FindInMap": [
-            "SubnetConfig",
-            "Private2",
-            "CIDR"
-          ]
-        },
-        "Tags": [{
-          "Key": "Application",
-          "Value": {
-            "Ref": "AWS::StackName"
-          }
-        }, {
-          "Key": "Network",
-          "Value": "Private2"
-        }]
-      }
-    },
-    "NandoDemoInternetGateway": {
-      "Type": "AWS::EC2::InternetGateway"
-    },
-    "NandoDemoInternetGatewayAttach": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "DependsOn": "NandoDemoInternetGateway",
-      "Properties": {
-        "VpcId": {
-          "Ref": "NandoDemoVPC"
-        },
-        "InternetGatewayId": {
-          "Ref": "NandoDemoInternetGateway"
-        }
-      }
-    },
-    "NandoDemoPublicRouteTable": {
-      "Type": "AWS::EC2::RouteTable",
-      "DependsOn": "NandoDemoVPC",
-      "Properties": {
-        "VpcId": {
-          "Ref": "NandoDemoVPC"
-        }
-      }
-    },
-    "NandoDemoPublicRoute": {
-      "Type": "AWS::EC2::Route",
-      "DependsOn": "NandoDemoInternetGatewayAttach",
-      "Properties": {
-        "RouteTableId": {
-          "Ref": "NandoDemoPublicRouteTable"
-        },
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "GatewayId": {
-          "Ref": "NandoDemoInternetGateway"
-        }
-      }
-    },
-    "NandoDemoPublicRouteTableAssociation": {
-      "Type": "AWS::EC2::SubnetRouteTableAssociation",
-      "DependsOn": "NandoDemoPublicRoute",
-      "Properties": {
-        "SubnetId": {
-          "Ref": "NandoDemoPublicSubnet"
-        },
-        "RouteTableId": {
-          "Ref": "NandoDemoPublicRouteTable"
-        }
-      }
-    },
     "NandoDemoELB": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
-      "DependsOn": "NandoDemoPublicRouteTableAssociation",
       "Properties": {
         "Subnets": [{
-          "Ref": "NandoDemoPublicSubnet"
+          "Ref": "StelligentDemoPublicSubnet"
         }],
         "Listeners": [{
           "LoadBalancerPort": "80",
@@ -825,7 +651,7 @@
           "Ref": "NandoDemoELB"
         }],
         "VPCZoneIdentifier": [{
-          "Ref": "NandoDemoPublicSubnet"
+          "Ref": "StelligentDemoPublicSubnet"
         }],
         "MinSize": "2",
         "MaxSize": "2",
@@ -846,7 +672,6 @@
     },
     "NandoDemoWebLaunchConfig": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
-      "DependsOn": "NandoDemoPublicRouteTableAssociation",
       "Metadata": {
         "Comment": "NandoDemoWebLaunchConfig",
         "AWS::CloudFormation::Init": {
@@ -1036,9 +861,9 @@
       "Type": "AWS::RDS::DBSubnetGroup",
       "Properties": {
         "SubnetIds": [{
-          "Ref": "NandoDemoPrivateSubnet1"
+          "Ref": "StelligentDemoPrivateSubnet1"
         }, {
-          "Ref": "NandoDemoPrivateSubnet2"
+          "Ref": "StelligentDemoPrivateSubnet2"
         }],
         "DBSubnetGroupDescription": "NandoDemoMysqlSubnetGroup"
       }
@@ -1048,7 +873,7 @@
       "Properties": {
         "GroupDescription": "nando-demo-public",
         "VpcId": {
-          "Ref": "NandoDemoVPC"
+          "Ref": "StelligentDemoVPC"
         },
         "SecurityGroupIngress": [{
           "IpProtocol": "tcp",
@@ -1068,7 +893,7 @@
       "Properties": {
         "GroupDescription": "nando-demo-private",
         "VpcId": {
-          "Ref": "NandoDemoVPC"
+          "Ref": "StelligentDemoVPC"
         }
       }
     },
