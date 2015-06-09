@@ -242,6 +242,7 @@ def get_or_create_stack(cfn_connection, stack_data, timestamp):
             data = json.load(data_file)
         sys.stdout.write("Creating %s stack %s..." % (stack_data['type'],
                                                       stack_name))
+        sys.stdout.flush()
         create_cfn_stack(cfn_connection, stack_name, data)
         outputs = get_stack_outputs(cfn_connection, stack_name)
         print "Done!"
