@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import socket
 import sys
 import time
@@ -26,8 +27,14 @@ CUSTOM_AMI_MAP = {
     'us-east-1': 'ami-f798779c',
     'us-west-2': 'ami-bf9ea08f'
 }
-
-STACK_NAME_PREFIX = 'nando-demo'
+STACK_DATA = {
+    'main': {'prefix': 'nando-demo',
+             'template': 'cloudformation-py.json',
+             'type': 'MAIN'},
+    'vpc': {'prefix': 'stelligent-demo-vpc',
+            'template': 'cloudformation/cloudformation.vpc.json',
+            'type': 'VPC'}
+}
 DEFAULT_REGION = 'us-east-1'
 MAIN_S3_BUCKET = 'nando-automation-demo'  # Permanent S3 Bucket
 MAIN_S3_BUCKET_REGION = 'us-east-1'
@@ -40,7 +47,6 @@ FILES_TO_S3 = ['jenkins/seed.xml.erb',
                'puppet/installJenkinsUsers.pp',
                'puppet/installJenkinsSecurity.pp',
                DOCKER_ZIPFILE]
-CFN_TEMPLATE = 'cloudformation-py.json'
 INGRESS_PORTS = ['22', '2222', '8080']
 ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 
@@ -62,7 +68,6 @@ WEB_ASG_NAME = 'NandoDemoWebASG'
 DEMO_RDS = 'NandoDemoMysql'
 DEMO_ELB = 'NandoDemoELB'
 DEMO_S3_BUCKET = 'NandoDemoBucket'  # Ephemeral Bucket
-DEMO_VPC = 'NandoDemoVPC'
 
 
 def ip_address_type(location):
@@ -75,25 +80,38 @@ def ip_address_type(location):
         return location
 
 
-def list_and_get_stack(cfn_connection):
-    stacks = cfn_connection.describe_stacks()
-    stacks = [stack for stack in stacks if
-              stack.stack_name.startswith(STACK_NAME_PREFIX)]
-    response = 0
-    custom_range = range(1, len(stacks)+1)
-    while response not in custom_range:
-        for index, stack in enumerate(stacks):
-            print "%s) %s (%s)" % (index + 1, stack.stack_name,
-                                   stack.stack_status)
-
-        response = raw_input("Which stack?  ")
-        if response in ['q', 'quit', 'exit']:
-            sys.exit(0)
-        try:
-            response = int(response)
-        except ValueError:
-            pass
-    return stacks[response - 1]
+def list_and_get_stacks(cfn_connection, allow_all=False):
+    stack_list = []
+    all_stacks = cfn_connection.describe_stacks()
+    for type in STACK_DATA:
+        match_stacks = [[stack, STACK_DATA[type]['type']] for
+                        stack in all_stacks if
+                        re.match('%s-(\d+)' % STACK_DATA[type]['prefix'],
+                                 stack.stack_name)]
+        stack_list = stack_list + match_stacks
+    if stack_list:
+        response = 0
+        custom_range = range(1, len(stack_list)+1)
+        while response not in custom_range:
+            for index, stack in enumerate(stack_list):
+                print "%s) %s (%s) - %s" % (index + 1, stack[0].stack_name,
+                                            stack[1], stack[0].stack_status)
+            if allow_all:
+                print "all) Select all."
+            print "q) Quit."
+            response = raw_input("Which stack?  ")
+            if response in ['q', 'quit', 'exit']:
+                sys.exit(0)
+            if response == 'all' and allow_all:
+                return stack_list
+            try:
+                response = int(response)
+            except ValueError:
+                pass
+        return [stack_list[response - 1]]
+    else:
+        print "No stacks found. Exiting."
+        sys.exit(0)
 
 
 def prepare_docker_zip():
@@ -178,6 +196,53 @@ def get_instagram_keys_from_env():
         sys.exit(1)
     else:
         return insta_id, insta_secret
+
+
+def create_cfn_stack(cfn_connection, stack_name, data, build_params=[],
+                     capabilities=['CAPABILITY_IAM'], disable_rollback='true'):
+    cfn_connection.create_stack(
+        stack_name,
+        template_body=json.dumps(data, indent=2),
+        parameters=build_params,
+        capabilities=capabilities,
+        disable_rollback=disable_rollback
+    )
+
+
+def get_stack_outputs(cfn_connection, stack_name):
+    outputs = ''
+    while not outputs:
+        stack = cfn_connection.describe_stacks(stack_name)[0]
+        outputs = stack.outputs
+        if not outputs:
+            time.sleep(2)
+    return outputs
+
+
+def get_or_create_stack(cfn_connection, stack_data, timestamp, full=False):
+    if full:
+        stacks = None
+    else:
+        stacks = cfn_connection.describe_stacks()
+        stacks = [stack for stack in stacks if
+                  stack.stack_name.startswith(stack_data['prefix']) and
+                  stack.stack_status == 'CREATE_COMPLETE']
+    if stacks:
+        # Default to first, complete stack
+        stack = stacks[0]
+        print "Using %s %s..." % (stack_data['type'], stack.stack_name)
+        return stack.stack_name, stack.outputs
+    else:
+        stack_name = '%s-%s' % (stack_data['prefix'], timestamp)
+        with open(stack_data['template']) as data_file:
+            data = json.load(data_file)
+        print "Creating %s stack %s..." % (stack_data['type'],
+                                           stack_name)
+        sys.stdout.flush()
+        create_cfn_stack(cfn_connection, stack_name, data)
+        get_resource_id(cfn_connection, stack_name)
+        outputs = get_stack_outputs(cfn_connection, stack_name)
+        return stack_name, outputs
 
 
 def create_ec2_key_pair(ec2_connection, key_pair_name):
@@ -284,36 +349,49 @@ def empty_related_buckets(s3_connection, stack, bucket_name=DEMO_S3_BUCKET):
         pass
 
 
-def get_resource_id(cfn_connection, stack_name, resource_name):
+def get_resource_id(cfn_connection, stack_name, resource_name=None):
     #  Initial Check
+    if resource_name:
+        resource_label = resource_name
+    else:
+        resource_label = stack_name
     try:
         #  FIXME: Must be a better way...
-        resource = cfn_connection.describe_stack_resource(stack_name,
-                                                          resource_name)
-        info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
-        status = info['ResourceStatus']
-        resource_id = info['PhysicalResourceId']
-    except BotoServerError:
-        status = "NOT STARTED"
-    while status != "CREATE_COMPLETE":
-        sys.stdout.write("\rWaiting for %s        " % resource_name)
-        sys.stdout.flush()
-        sleep(1)
-        sys.stdout.write("\rWaiting for %s.       " % resource_name)
-        sys.stdout.flush()
-        sleep(1)
-        sys.stdout.write("\rWaiting for %s..      " % resource_name)
-        sys.stdout.flush()
-        sleep(1)
-        sys.stdout.write("\rWaiting for %s...     " % resource_name)
-        sys.stdout.flush()
-        try:
-            #  FIXME: Must be a better way...
+        if resource_name:
             resource = cfn_connection.describe_stack_resource(stack_name,
                                                               resource_name)
             info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
             status = info['ResourceStatus']
             resource_id = info['PhysicalResourceId']
+        else:
+            status = cfn_connection.describe_stacks(stack_name)[0].stack_status
+            resource_id = cfn_connection.describe_stacks(
+                stack_name)[0].stack_id
+    except BotoServerError:
+        status = "NOT STARTED"
+    while status != "CREATE_COMPLETE":
+        sys.stdout.write("\rWaiting for %s        " % resource_label)
+        sys.stdout.flush()
+        sleep(1)
+        sys.stdout.write("\rWaiting for %s.       " % resource_label)
+        sys.stdout.flush()
+        sleep(1)
+        sys.stdout.write("\rWaiting for %s..      " % resource_label)
+        sys.stdout.flush()
+        sleep(1)
+        sys.stdout.write("\rWaiting for %s...     " % resource_label)
+        sys.stdout.flush()
+        try:
+            #  FIXME: Must be a better way...
+            if resource_name:
+                resource = cfn_connection.describe_stack_resource(
+                    stack_name, resource_name)
+                info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
+                status = info['ResourceStatus']
+                resource_id = info['PhysicalResourceId']
+            else:
+                status = cfn_connection.describe_stacks(
+                    stack_name)[0].stack_status
         except BotoServerError:
             status = "NOT STARTED"
         if status.endswith('FAILED'):
@@ -321,7 +399,7 @@ def get_resource_id(cfn_connection, stack_name, resource_name):
             print "Stack Failed. Exiting..."
             sys.exit(1)
         if status.endswith('COMPLETE'):
-            sys.stdout.write("\rWaiting for %s...Done!" % resource_name)
+            sys.stdout.write("\rWaiting for %s...Done!" % resource_label)
             sys.stdout.flush()
             sys.stdout.write("\n")
     return resource_id
@@ -334,7 +412,8 @@ def set_stack_name_in_s3(s3_connection, stack_name, dest_name, bucket):
     s3_key.set_contents_from_string(stack_name)
 
 
-def build(connections, region, locations, hash_id):
+def build(connections, region, locations, hash_id, full):
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     build_params = list()
     build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
     #  Setup Instagram Access
@@ -342,15 +421,20 @@ def build(connections, region, locations, hash_id):
     build_params.append(("InstagramId", instagram_id))
     build_params.append(("InstagramSecret", instagram_secret))
     #  Setup Stack
-    stack_name = "%s-%s" % (STACK_NAME_PREFIX,
-                            datetime.now().strftime('%Y%m%d%H%M%S'))
+    stack_name = "%s-%s" % (STACK_DATA['main']['prefix'], timestamp)
     build_params.append(("NandoDemoName", stack_name))
     build_params.append(("DemoRegion", region))
     build_params.append(("HashID", hash_id))
+    #  Get or create VPC
+    vpc_stack, vpc_outputs = get_or_create_stack(connections['cfn'],
+                                                 STACK_DATA['vpc'],
+                                                 timestamp, full)
+    for output in vpc_outputs:
+        build_params.append((output.key, output.value))
     #  Setup S3
     copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
     #  Setup Security Groups/Access
-    with open(CFN_TEMPLATE) as data_file:
+    with open(STACK_DATA['main']['template']) as data_file:
         data = json.load(data_file)
     #  Inject locations
     data = inject_locations(locations, data)
@@ -374,13 +458,7 @@ def build(connections, region, locations, hash_id):
     build_params.append(("CodeDeployDeploymentGroup", CGN))
     #  Create Stack
     sys.stdout.write("Launching CloudFormation Stack in %s..." % region)
-    connections['cfn'].create_stack(
-        stack_name,
-        template_body=json.dumps(data, indent=2),
-        parameters=build_params,
-        capabilities=['CAPABILITY_IAM'],
-        disable_rollback='true'
-    )
+    create_cfn_stack(connections['cfn'], stack_name, data, build_params)
     #  Upload stackname to S3
     dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
     set_stack_name_in_s3(connections['main_s3'], stack_name,
@@ -388,7 +466,6 @@ def build(connections, region, locations, hash_id):
     print "Done!"
     #  Give Feedback whilst we wait...
     get_resource_id(connections['cfn'], stack_name, DEMO_S3_BUCKET)
-    get_resource_id(connections['cfn'], stack_name, DEMO_VPC)
     get_resource_id(connections['cfn'], stack_name, DEMO_ELB)
     get_resource_id(connections['cfn'], stack_name, DEMO_RDS)
     asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
@@ -399,58 +476,55 @@ def build(connections, region, locations, hash_id):
                                        CAN, CGN, asg_id, role_arn)
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
     print "Gathering Stack Outputs...almost there!"
-    outputs = ''
-    while not outputs:
-        stack = connections['cfn'].describe_stacks(stack_name)[0]
-        outputs = stack.outputs
-        if not outputs:
-            time.sleep(3)
+    outputs = get_stack_outputs(connections['cfn'], stack_name)
     print "Outputs:"
     for output in outputs:
         print '%s = %s' % (output.key, output.value)
 
 
 def destroy(connections, region):
-    stack = list_and_get_stack(connections['cfn'])
-    if stack.stack_status == "DELETE_IN_PROGRESS":
-        print "Stack deletion already in progress. Exiting."
-        sys.exit(0)
-    if stack.stack_status == "DELETE_FAILED":
-        print "Delete stack previously failed:"
-        print "%s" % stack.stack_status_reason
-        print "Trying again..."
-    #  Fetch our Hash ID for this stack (probably a better way to find this)
-    for param in stack.parameters:
-        if param.key == "HashID":
-            hash_id = param.value
-    parameters = {x.key: x.value for x in stack.parameters}
-    #  Destroy CodeDeploy
-    delete_codedeploy_deployment_group(connections['codedeploy'],
-                                       parameters['CodeDeployAppName'],
-                                       parameters['CodeDeployDeploymentGroup'])
-    delete_codedeploy_application(connections['codedeploy'],
-                                  parameters['CodeDeployAppName'])
-    #  Empty S3 Bucket
-    empty_related_buckets(connections['s3'], stack)
-    #  Destroy Stack
-    sys.stdout.write("Deleting the CloudFormation Stack %s..." %
-                     stack.stack_name)
-    print "Deleting!"
-    connections['cfn'].delete_stack(stack.stack_name)
-    #  Destroy IAM Roles/Policies
-    IRN = "-".join((IAM_ROLE_NAME, region, hash_id))
-    IPN = "-".join((IAM_POLICY_NAME, region, hash_id))
-    delete_iam_policy(connections['iam'], IRN, IPN)
-    delete_iam_role(connections['iam'], IRN)
-    #  Destroy EC2 Key Pair
-    delete_ec2_key_pair(connections['ec2'], parameters['KeyName'])
-    #  Remove the stackname from S3
-    dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
-    delete_stack_name_from_s3(connections['main_s3'], MAIN_S3_BUCKET, dest_name)
+    stacks = list_and_get_stacks(connections['cfn'], allow_all=True)
+    for stack in stacks:
+        stack, type = stack
+        if stack.stack_status == "DELETE_IN_PROGRESS":
+            print "Stack %s deletion already in progress." % stack.stack_name
+            continue
+        if type == 'MAIN':
+            #  Fetch our Hash ID for this stack
+            for param in stack.parameters:
+                if param.key == "HashID":
+                    hash_id = param.value
+            parameters = {x.key: x.value for x in stack.parameters}
+            #  Destroy CodeDeploy
+            delete_codedeploy_deployment_group(
+                connections['codedeploy'],
+                parameters['CodeDeployAppName'],
+                parameters['CodeDeployDeploymentGroup'])
+            delete_codedeploy_application(connections['codedeploy'],
+                                          parameters['CodeDeployAppName'])
+            #  Empty S3 Bucket
+            empty_related_buckets(connections['s3'], stack)
+            #  Destroy IAM Roles/Policies
+            IRN = "-".join((IAM_ROLE_NAME, region, hash_id))
+            IPN = "-".join((IAM_POLICY_NAME, region, hash_id))
+            delete_iam_policy(connections['iam'], IRN, IPN)
+            delete_iam_role(connections['iam'], IRN)
+            #  Destroy EC2 Key Pair
+            delete_ec2_key_pair(connections['ec2'], parameters['KeyName'])
+            #  Remove the stackname from S3
+            dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
+            delete_stack_name_from_s3(connections['main_s3'], MAIN_S3_BUCKET,
+                                      dest_name)
+        #  Destroy Stack
+        sys.stdout.write("Deleting the CloudFormation Stack %s..." %
+                         stack.stack_name)
+        print "Deleting!"
+        connections['cfn'].delete_stack(stack.stack_name)
 
 
-def info(connections, region):
-    stack = list_and_get_stack(connections['cfn'])
+def info(connections):
+    stack = list_and_get_stacks(connections['cfn'])[0]
+    stack, _ = stack
     pprint(stack.parameters, indent=2)
     pprint(stack.outputs, indent=2)
 
@@ -471,11 +545,14 @@ def main():
                         help="""Define the hash to use for multiple
                         deployments.  If left blank, the hash will be
                         generated.""", default=new_hash)
+    parser.add_argument('--full', action='store_true',
+                        help="Always build all components. (VPC, RDS, etc.)")
     args = parser.parse_args()
+    full = args.full
     connections = dict()
     connections['cfn'] = cfn_connect(args.region)
     if args.action == "info":
-        info(connections, args.region)
+        info(connections)
         sys.exit(0)
     connections['codedeploy'] = codedeploy_connect(args.region)
     connections['ec2'] = ec2_connect(args.region)
@@ -484,14 +561,13 @@ def main():
     connections['s3'] = s3_connect(args.region)
     if args.action == "test":
         #  Test pieces here
-        import ipdb; ipdb.set_trace()
         sys.exit(0)
     if args.action == "build":
         if not args.locations:
             print "Please provide at least one IP Address."
             parser.print_help()
             sys.exit(1)
-        build(connections, args.region, args.locations, args.hash_id)
+        build(connections, args.region, args.locations, args.hash_id, full)
     elif args.action == "destroy":
         destroy(connections, args.region)
 

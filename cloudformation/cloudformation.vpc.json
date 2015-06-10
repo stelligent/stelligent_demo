@@ -1,136 +1,228 @@
 {
-	"AWSTemplateFormatVersion" : "2010-09-09",
- 	"Description" : "Nando Automation Demo",
-  	"Parameters" : {
-		"NandoDemoName" : { "Type" : "String" },
-		"PrivateKey" : { "Type" : "String" },
-    		"Location1" : { "Type": "String" },
-    		"Location2" : { "Type" : "String" },
-    		"Location3" : { "Type" : "String" },
-    		"Location4" : { "Type" : "String" },
-  	},
- 	"Mappings" : {
-  		"SubnetConfig" : {
-   			"VPC" : { "CIDR" : "10.200.0.0/16" },
-   			"Public" : { "CIDR" : "10.200.0.0/24" },
-   			"Private1" : { "CIDR" : "10.200.1.0/24" },
-   			"Private2" : { "CIDR" : "10.200.2.0/24" }
-  		},
-		"AvailabilityZone" : {
-			"Public" : { "AZ" : "us-east-1c" },
-			"Private1" : { "AZ" : "us-east-1d" },
-			"Private2" : { "AZ" : "us-east-1e" }
-		}
- 	}, 
- 	"Resources" : {
-    		"NandoDemoJenkinsEth0" : {
-      			"Type" : "AWS::EC2::NetworkInterface",
- 			"DependsOn" : "NandoDemoPublicSecurityGroup",
-      			"Properties" : {
-        			"Description" : "eth0jenkins",
-        			"SubnetId" : { "Ref" : "NandoDemoPublicSubnet" },
-        			"GroupSet" : [ { "Ref" : "NandoDemoPublicSecurityGroup" } ]
-      			}
-    		},
-    		"NandoDemoJenkinsEIP" :  {
-      			"Type" : "AWS::EC2::EIP",
-      			"Properties" : {
-        			"Domain" : "vpc"
-      			}
-    		},
-    		"NandoDemoJenkinsAssocEIP" : {
-      			"Type" : "AWS::EC2::EIPAssociation",
-			"DependsOn" : "NandoDemoJenkinsEIP",
-      			"Properties" : {
-        			"NetworkInterfaceId" : { "Ref" : "NandoDemoJenkinsEth0" },
-        			"AllocationId" : { "Fn::GetAtt" : [ "NandoDemoJenkinsEIP", "AllocationId" ] }
-      			}
-    		},
- 		"NandoDemoVPC" : {
-  			"Type" : "AWS::EC2::VPC",
-  			"Properties" : {
- 				"EnableDnsSupport" : "true",
- 				"EnableDnsHostnames" : "true",
- 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "VPC", "CIDR" ] },
- 				"Tags" : [ 
-					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
- 					{ "Key" : "Network", "Value" : "Public" }
- 				]
- 			}
- 		}, 
-		"NandoDemoPublicSubnet" : {
- 			"Type" : "AWS::EC2::Subnet",
-			"DependsOn" : "NandoDemoVPC",
- 			"Properties" : {
-				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Public", "AZ" ] },
- 				"VpcId" : { "Ref" : "NandoDemoVPC" },
- 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Public", "CIDR" ] },
- 				"Tags" : [
- 					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
- 					{ "Key" : "Network", "Value" : "Public" }
- 				]
- 			}
- 		}, 
-		"NandoDemoPrivateSubnet1" : {
- 			"Type" : "AWS::EC2::Subnet",
-			"DependsOn" : "NandoDemoVPC",
- 			"Properties" : {
-				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Private1", "AZ" ] },
- 				"VpcId" : { "Ref" : "NandoDemoVPC" },
- 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private1", "CIDR" ] },
- 				"Tags" : [
- 					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
- 					{ "Key" : "Network", "Value" : "Private1" }
- 				]
- 			}
- 		}, 
-		"NandoDemoPrivateSubnet2" : {
- 			"Type" : "AWS::EC2::Subnet",
-			"DependsOn" : "NandoDemoVPC",
- 			"Properties" : {
-				"AvailabilityZone" : { "Fn::FindInMap" : [ "AvailabilityZone", "Private2", "AZ" ] },
- 				"VpcId" : { "Ref" : "NandoDemoVPC" },
- 				"CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private2", "CIDR" ] },
- 				"Tags" : [
- 					{ "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
- 					{ "Key" : "Network", "Value" : "Private2" }
- 				]
- 			}
- 		}, 
-		"NandoDemoInternetGateway" : {
- 			"Type" : "AWS::EC2::InternetGateway"
-		}, 
-		"NandoDemoInternetGatewayAttach" : {
- 			"Type" : "AWS::EC2::VPCGatewayAttachment",
-			"DependsOn" : "NandoDemoInternetGateway",
- 			"Properties" : {
- 				"VpcId" : { "Ref" : "NandoDemoVPC" },
- 				"InternetGatewayId" : { "Ref" : "NandoDemoInternetGateway" }
- 			}
- 		}, 
-		"NandoDemoPublicRouteTable" : {
- 			"Type" : "AWS::EC2::RouteTable",
-			"DependsOn" : "NandoDemoVPC",
- 			"Properties" : {
- 				"VpcId" : { "Ref" : "NandoDemoVPC" }
- 			}
- 		}, 
-		"NandoDemoPublicRoute" : {
- 			"Type" : "AWS::EC2::Route",
- 			"DependsOn" : "NandoDemoInternetGatewayAttach",
- 			"Properties" : {
- 				"RouteTableId" : { "Ref" : "NandoDemoPublicRouteTable" },
- 				"DestinationCidrBlock" : "0.0.0.0/0",
- 				"GatewayId" : { "Ref" : "NandoDemoInternetGateway" }
- 			}
- 		}, 
-		"NandoDemoPublicRouteTableAssociation" : {
- 			"Type" : "AWS::EC2::SubnetRouteTableAssociation",
-			"DependsOn" : "NandoDemoPublicRoute",
- 			"Properties" : {
- 				"SubnetId" : { "Ref" : "NandoDemoPublicSubnet" },
- 				"RouteTableId" : { "Ref" : "NandoDemoPublicRouteTable" }
- 			}
- 		} 
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Stelligent Demo: VPC",
+  "Parameters": {},
+  "Mappings": {
+	"SubnetConfig": {
+	  "VPC": {
+		"CIDR": "10.200.0.0/16"
+	  },
+	  "Public": {
+		"CIDR": "10.200.0.0/24"
+	  },
+	  "Private1": {
+		"CIDR": "10.200.1.0/24"
+	  },
+	  "Private2": {
+		"CIDR": "10.200.2.0/24"
+	  }
+	},
+	"AvailabilityZone": {
+	  "us-east-1": {
+		"Public": "us-east-1c",
+		"Private1": "us-east-1d",
+		"Private2": "us-east-1e"
+	  },
+	  "us-west-2": {
+		"Public": "us-west-2a",
+		"Private1": "us-west-2b",
+		"Private2": "us-west-2c"
+	  }
 	}
+  },
+  "Resources": {
+    "StelligentDemoVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "SubnetConfig",
+            "VPC",
+            "CIDR"
+          ]
+        },
+        "Tags": [{
+          "Key": "Application",
+          "Value": {
+            "Ref": "AWS::StackName"
+          }
+        }, {
+          "Key": "Network",
+          "Value": "Public"
+        }]
+      }
+    },
+    "StelligentDemoPublicSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": "StelligentDemoVPC",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::FindInMap": [
+            "AvailabilityZone", {
+              "Ref": "AWS::Region"
+            },
+            "Public"
+          ]
+        },
+        "VpcId": {
+          "Ref": "StelligentDemoVPC"
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "SubnetConfig",
+            "Public",
+            "CIDR"
+          ]
+        },
+        "Tags": [{
+          "Key": "Application",
+          "Value": {
+            "Ref": "AWS::StackName"
+          }
+        }, {
+          "Key": "Network",
+          "Value": "Public"
+        }]
+      }
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": "StelligentDemoVPC",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::FindInMap": [
+            "AvailabilityZone", {
+              "Ref": "AWS::Region"
+            },
+            "Private1"
+          ]
+        },
+        "VpcId": {
+          "Ref": "StelligentDemoVPC"
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "SubnetConfig",
+            "Private1",
+            "CIDR"
+          ]
+        },
+        "Tags": [{
+          "Key": "Application",
+          "Value": {
+            "Ref": "AWS::StackName"
+          }
+        }, {
+          "Key": "Network",
+          "Value": "Private1"
+        }]
+      }
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "DependsOn": "StelligentDemoVPC",
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::FindInMap": [
+            "AvailabilityZone", {
+              "Ref": "AWS::Region"
+            },
+            "Private2"
+          ]
+        },
+        "VpcId": {
+          "Ref": "StelligentDemoVPC"
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "SubnetConfig",
+            "Private2",
+            "CIDR"
+          ]
+        },
+        "Tags": [{
+          "Key": "Application",
+          "Value": {
+            "Ref": "AWS::StackName"
+          }
+        }, {
+          "Key": "Network",
+          "Value": "Private2"
+        }]
+      }
+    },
+    "StelligentDemoInternetGateway": {
+      "Type": "AWS::EC2::InternetGateway"
+    },
+    "StelligentDemoInternetGatewayAttach": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "DependsOn": "StelligentDemoInternetGateway",
+      "Properties": {
+        "VpcId": {
+          "Ref": "StelligentDemoVPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "StelligentDemoInternetGateway"
+        }
+      }
+    },
+    "StelligentDemoPublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "DependsOn": "StelligentDemoVPC",
+      "Properties": {
+        "VpcId": {
+          "Ref": "StelligentDemoVPC"
+        }
+      }
+    },
+    "StelligentDemoPublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "StelligentDemoInternetGatewayAttach",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "StelligentDemoPublicRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "StelligentDemoInternetGateway"
+        }
+      }
+    },
+    "StelligentDemoPublicRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "DependsOn": "StelligentDemoPublicRoute",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "StelligentDemoPublicSubnet"
+        },
+        "RouteTableId": {
+          "Ref": "StelligentDemoPublicRouteTable"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "StelligentDemoVPC": {
+      "Value": {
+        "Ref": "StelligentDemoVPC"
+      }
+    },
+    "StelligentDemoPublicSubnet": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSubnet"
+      }
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet1"
+      }
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet2"
+      }
+    }
+  }
 }
