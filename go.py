@@ -492,6 +492,7 @@ def destroy(connections, region):
         #  Destroy CodeDeploy
         delete_codedeploy_deployment_group(
             connections['codedeploy'],
+            parameters['CodeDeployAppName'],
             parameters['CodeDeployDeploymentGroup'])
         delete_codedeploy_application(connections['codedeploy'],
                                       parameters['CodeDeployAppName'])
@@ -515,8 +516,9 @@ def destroy(connections, region):
     connections['cfn'].delete_stack(stack.stack_name)
 
 
-def info(connections, region):
-    stack = list_and_get_stack(connections['cfn'])
+def info(connections):
+    stack_data = list_and_get_stack_type()
+    stack = list_and_get_stack(connections['cfn'], stack_data['prefix'])
     pprint(stack.parameters, indent=2)
     pprint(stack.outputs, indent=2)
 
@@ -541,7 +543,7 @@ def main():
     connections = dict()
     connections['cfn'] = cfn_connect(args.region)
     if args.action == "info":
-        info(connections, args.region)
+        info(connections)
         sys.exit(0)
     connections['codedeploy'] = codedeploy_connect(args.region)
     connections['ec2'] = ec2_connect(args.region)
