@@ -71,7 +71,6 @@ IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
 #  Resource Logical IDs
 JENKINS_INSTANCE = "NandoDemoJenkins"
 WEB_ASG_NAME = 'NandoDemoWebASG'
-EB_DOCKER_APP = 'NandoDemoDockerApp'
 DEMO_RDS = 'NandoDemoMysql'
 DEMO_ELB = 'NandoDemoELB'
 DEMO_S3_BUCKET = 'NandoDemoBucket'  # Ephemeral Bucket
@@ -515,7 +514,7 @@ def build(connections, region, locations, hash_id, full):
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
-    get_resource_id(connections['cfn'], stack_name, EB_DOCKER_APP)
+    get_resource_id(connections['cfn'], stack_name)
     print "Gathering Stack Outputs...almost there!"
     outputs = get_stack_outputs(connections['cfn'], stack_name)
     print "Outputs:"

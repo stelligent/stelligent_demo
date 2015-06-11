@@ -119,6 +119,8 @@
         },
         "GroupSet": [{
           "Ref": "StelligentDemoPublicLockedSecurityGroup"
+        }, {
+          "Ref": "StelligentDemoPublicSecurityGroup"
         }]
       }
     },
