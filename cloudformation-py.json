@@ -1319,16 +1319,18 @@
     },
     "NandoDemoDockerCNAME": {
       "Value": {
-        "Fn::Join": ["", ["https://", {
-          "Fn::GetAtt": ["NandoDemoBucket", "DomainName"]
+        "Fn::Join": ["", ["http://nando-automation-demo-docker-", {
+          "Ref": "DemoRegion" }, "-", {
+          "Ref": "HashID" }, ".", {
+          "Ref": "NandoDemoZoneName"
         }]]
       }
     },
     "NandoDemoJenkinsCNAME": {
       "Value": {
         "Fn::Join": ["", ["http://nando-automation-demo-jenkins-", {
-          "Ref": "DemoRegion"
-        }, ".", {
+          "Ref": "DemoRegion" }, "-", {
+          "Ref": "HashID" }, ".", {
           "Ref": "NandoDemoZoneName"
         }, ":8080"]]
       }
