@@ -2,6 +2,42 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Nando Automation Demo",
   "Parameters": {
+    "StelligentDemoVPC": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSubnet": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroup": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroupSSH": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroupMySQL": {
+      "Type": "String"
+    },
+    "StelligentDemoDBHost": {
+      "Type": "String"
+    },
+    "StelligentDemoDBName": {
+      "Type": "String"
+    },
+    "StelligentDemoDBUser": {
+      "Type": "String"
+    },
+    "StelligentDemoDBPass": {
+      "Type": "String"
+    },
     "PrimaryPermanentS3Bucket": {
       "Type": "String"
     },
@@ -28,18 +64,6 @@
       "Type": "String",
       "Default": "elasticoperations.com."
     },
-    "NandoDemoDBName": {
-      "Type": "String",
-      "Default": "NandoDemoDB"
-    },
-    "NandoDemoDBUser": {
-      "Type": "String",
-      "Default": "NandoDemoDBUser"
-    },
-    "NandoDemoDBPass": {
-      "Type": "String",
-      "Default": "NandoDemoDBPass"
-    },
     "KeyName": {
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
@@ -59,18 +83,6 @@
       "Type": "String"
     },
     "CodeDeployDeploymentGroup": {
-      "Type": "String"
-    },
-    "StelligentDemoVPC": {
-      "Type": "String"
-    },
-    "StelligentDemoPublicSubnet": {
-      "Type": "String"
-    },
-    "StelligentDemoPrivateSubnet1": {
-      "Type": "String"
-    },
-    "StelligentDemoPrivateSubnet2": {
       "Type": "String"
     }
   },
@@ -99,14 +111,14 @@
   "Resources": {
     "NandoDemoJenkinsEth0": {
       "Type": "AWS::EC2::NetworkInterface",
-      "DependsOn": "NandoDemoPublicSecurityGroup",
+      "DependsOn": "StelligentDemoPublicLockedSecurityGroup",
       "Properties": {
         "Description": "eth0jenkins",
         "SubnetId": {
           "Ref": "StelligentDemoPublicSubnet"
         },
         "GroupSet": [{
-          "Ref": "NandoDemoPublicSecurityGroup"
+          "Ref": "StelligentDemoPublicLockedSecurityGroup"
         }]
       }
     },
@@ -154,7 +166,7 @@
           "Timeout": "4"
         },
         "SecurityGroups": [{
-          "Ref": "NandoDemoPublicSecurityGroup"
+          "Ref": "StelligentDemoPublicSecurityGroup"
         }]
       }
     },
@@ -679,10 +691,7 @@
             "files": {
               "/etc/cfn/NandoDemoDBHost": {
                 "content": {
-                  "Fn::GetAtt": [
-                    "NandoDemoMysql",
-                    "Endpoint.Address"
-                  ]
+                  "Ref":  "StelligentDemoDBHost"
                 },
                 "mode": "000644",
                 "owner": "root",
@@ -690,7 +699,7 @@
               },
               "/etc/cfn/NandoDemoDBName": {
                 "content": {
-                  "Ref": "NandoDemoDBName"
+                  "Ref": "StelligentDemoDBName"
                 },
                 "mode": "000644",
                 "owner": "root",
@@ -698,7 +707,7 @@
               },
               "/etc/cfn/NandoDemoDBUser": {
                 "content": {
-                  "Ref": "NandoDemoDBUser"
+                  "Ref": "StelligentDemoDBUser"
                 },
                 "mode": "000644",
                 "owner": "root",
@@ -706,7 +715,7 @@
               },
               "/etc/cfn/NandoDemoDBPass": {
                 "content": {
-                  "Ref": "NandoDemoDBPass"
+                  "Ref": "StelligentDemoDBPass"
                 },
                 "mode": "000644",
                 "owner": "root",
@@ -789,7 +798,7 @@
           "Ref": "NandoDemoASGInstanceProfile"
         },
         "SecurityGroups": [{
-          "Ref": "NandoDemoPublicSecurityGroup"
+          "Ref": "StelligentDemoPublicSecurityGroup"
         }],
         "UserData": {
           "Fn::Base64": {
@@ -827,114 +836,14 @@
         }
       }
     },
-    "NandoDemoMysql": {
-      "Type": "AWS::RDS::DBInstance",
-      "DependsOn": [
-        "NandoDemoMysqlSubnetGroup"
-      ],
-      "Properties": {
-        "DBName": {
-          "Ref": "NandoDemoDBName"
-        },
-        "MasterUsername": {
-          "Ref": "NandoDemoDBUser"
-        },
-        "MasterUserPassword": {
-          "Ref": "NandoDemoDBPass"
-        },
-        "Engine": "MySQL",
-        "DBInstanceClass": "db.t2.micro",
-        "MultiAZ": "true",
-        "AllocatedStorage": "5",
-        "VPCSecurityGroups": [{
-          "Fn::GetAtt": [
-            "NandoDemoPrivateSecurityGroup",
-            "GroupId"
-          ]
-        }],
-        "DBSubnetGroupName": {
-          "Ref": "NandoDemoMysqlSubnetGroup"
-        }
-      }
-    },
-    "NandoDemoMysqlSubnetGroup": {
-      "Type": "AWS::RDS::DBSubnetGroup",
-      "Properties": {
-        "SubnetIds": [{
-          "Ref": "StelligentDemoPrivateSubnet1"
-        }, {
-          "Ref": "StelligentDemoPrivateSubnet2"
-        }],
-        "DBSubnetGroupDescription": "NandoDemoMysqlSubnetGroup"
-      }
-    },
-    "NandoDemoPublicSecurityGroup": {
+    "StelligentDemoPublicLockedSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
-        "GroupDescription": "nando-demo-public",
+        "GroupDescription": "stelligent-demo-public-locked",
         "VpcId": {
           "Ref": "StelligentDemoVPC"
         },
-        "SecurityGroupIngress": [{
-          "IpProtocol": "tcp",
-          "FromPort": "80",
-          "ToPort": "80",
-          "CidrIp": "0.0.0.0/0"
-        }, {
-          "IpProtocol": "tcp",
-          "FromPort": "22",
-          "ToPort": "22",
-          "CidrIp": "10.200.0.0/16"
-        }]
-      }
-    },
-    "NandoDemoPrivateSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "nando-demo-private",
-        "VpcId": {
-          "Ref": "StelligentDemoVPC"
-        }
-      }
-    },
-    "NandoDemoPrivateSecurityGroupSSH": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "IpProtocol": "tcp",
-        "FromPort": "22",
-        "ToPort": "22",
-        "SourceSecurityGroupId": {
-          "Fn::GetAtt": [
-            "NandoDemoPublicSecurityGroup",
-            "GroupId"
-          ]
-        },
-        "GroupId": {
-          "Fn::GetAtt": [
-            "NandoDemoPrivateSecurityGroup",
-            "GroupId"
-          ]
-        }
-      }
-    },
-    "NandoDemoPrivateSecurityGroupMysql": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "IpProtocol": "tcp",
-        "FromPort": "3306",
-        "ToPort": "3306",
-        "SourceSecurityGroupId": {
-          "Fn::GetAtt": [
-            "NandoDemoPublicSecurityGroup",
-            "GroupId"
-          ]
-        },
-        "GroupId": {
-          "Fn::GetAtt": [
-            "NandoDemoPrivateSecurityGroup",
-            "GroupId"
-          ]
-        }
+        "SecurityGroupIngress": []
       }
     },
     "NandoDemoJenkinsRole": {
@@ -1237,24 +1146,24 @@
         "Ref": "NandoDemoJenkinsEIP"
       }
     },
-    "NandoDemoDBName": {
+    "StelligentDemoDBName": {
       "Value": {
-        "Ref": "NandoDemoDBName"
+        "Ref": "StelligentDemoDBName"
       }
     },
-    "NandoDemoDBUser": {
+    "StelligentDemoDBUser": {
       "Value": {
-        "Ref": "NandoDemoDBUser"
+        "Ref": "StelligentDemoDBUser"
       }
     },
-    "NandoDemoDBPass": {
+    "StelligentDemoDBPass": {
       "Value": {
-        "Ref": "NandoDemoDBPass"
+        "Ref": "StelligentDemoDBPass"
       }
     },
-    "NandoDemoDBHost": {
+    "StelligentDemoDBHost": {
       "Value": {
-        "Fn::GetAtt": ["NandoDemoMysql", "Endpoint.Address"]
+        "Ref": "StelligentDemoDBHost"
       }
     },
     "NandoDemoJenkinsURL": {

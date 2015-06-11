@@ -1,0 +1,140 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Stelligent Demo: SG",
+  "Parameters": {
+      "StelligentDemoVPC": {
+        "Type": "String"
+      },
+      "StelligentDemoPublicSubnet": {
+        "Type": "String"
+      },
+      "StelligentDemoPrivateSubnet1": {
+        "Type": "String"
+      },
+      "StelligentDemoPrivateSubnet2": {
+        "Type": "String"
+      }
+  },
+  "Mappings": {},
+  "Resources": {
+    "StelligentDemoPublicSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "stelligent-demo-public",
+        "VpcId": {
+          "Ref": "StelligentDemoVPC"
+        },
+        "SecurityGroupIngress": [{
+          "IpProtocol": "tcp",
+          "FromPort": "80",
+          "ToPort": "80",
+          "CidrIp": "0.0.0.0/0"
+        }, {
+          "IpProtocol": "tcp",
+          "FromPort": "22",
+          "ToPort": "22",
+          "CidrIp": "10.200.0.0/16"
+        }]
+      }
+    },
+    "StelligentDemoPrivateSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "stelligent-demo-private",
+        "VpcId": {
+          "Ref": "StelligentDemoVPC"
+        }
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupSSH": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "IpProtocol": "tcp",
+        "FromPort": "22",
+        "ToPort": "22",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "StelligentDemoPublicSecurityGroup",
+            "GroupId"
+          ]
+        },
+        "GroupId": {
+          "Fn::GetAtt": [
+            "StelligentDemoPrivateSecurityGroup",
+            "GroupId"
+          ]
+        }
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupMySQL": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties": {
+        "IpProtocol": "tcp",
+        "FromPort": "3306",
+        "ToPort": "3306",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "StelligentDemoPublicSecurityGroup",
+            "GroupId"
+          ]
+        },
+        "GroupId": {
+          "Fn::GetAtt": [
+            "StelligentDemoPrivateSecurityGroup",
+            "GroupId"
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "StelligentDemoVPC": {
+      "Value": {
+        "Ref": "StelligentDemoVPC"
+      }
+    },
+    "StelligentDemoPublicSubnet": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSubnet"
+      }
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet1"
+      }
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet2"
+      }
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSecurityGroup"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroup": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroup"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupId": {
+      "Value": {
+        "Fn::GetAtt": [
+          "StelligentDemoPrivateSecurityGroup",
+          "GroupId"
+        ]
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupSSH": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroupSSH"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupMySQL": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroupMySQL"
+      }
+    }
+  }
+}

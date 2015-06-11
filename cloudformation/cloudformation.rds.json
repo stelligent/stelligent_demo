@@ -1,86 +1,151 @@
 {
-	"AWSTemplateFormatVersion" : "2010-09-09",
- 	"Description" : "Nando Automation Demo",
-  	"Parameters" : {
-		"NandoDemoZoneName" : {
-			"Type" : "String",
-			"Default" : "elasticoperations.com."	
-		},
-      		"NandoDemoDBName" : { 
-			"Type" : "String",
-			"Default" : "NandoDemoDB"
-		},
-      		"NandoDemoDBUser" : {
-			"Type" : "String",
-			"Default" : "NandoDemoDBUser"
-		},
-		"NandoDemoDBPass": { 
-			"Type" : "String",
-			"Default"  : "NandoDemoDBPass" 
-		}, 
-    		"KeyName": { "Type" : "AWS::EC2::KeyPair::KeyName" },
-		"NandoDemoName" : { "Type" : "String" },
-  	},
- 	"Mappings" : {
-  		"SubnetConfig" : {
-   			"VPC" : { "CIDR" : "10.200.0.0/16" },
-   			"Public" : { "CIDR" : "10.200.0.0/24" },
-   			"Private1" : { "CIDR" : "10.200.1.0/24" },
-   			"Private2" : { "CIDR" : "10.200.2.0/24" }
-  		},
-		"AvailabilityZone" : {
-			"Public" : { "AZ" : "us-east-1c" },
-			"Private1" : { "AZ" : "us-east-1d" },
-			"Private2" : { "AZ" : "us-east-1e" }
-		}
- 	}, 
- 	"Resources" : {
-		"NandoDemoMysql" : {
-    			"Type" : "AWS::RDS::DBInstance",
-			"DependsOn" : [ "NandoDemoMysqlSubnetGroup" ],
-    			"Properties": {
-      				"DBName" : { "Ref" : "NandoDemoDBName" },
-      				"MasterUsername" : { "Ref" : "NandoDemoDBUser" },
-				"MasterUserPassword": { "Ref" : "NandoDemoDBPass" }, 
-      				"Engine" : "MySQL",
-      				"DBInstanceClass" : "db.t2.micro",
-				"MultiAZ" : "true",
-      				"AllocatedStorage" : "5", 
-				"VPCSecurityGroups" : [ { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] } ],
-				"DBSubnetGroupName" : { "Ref" : "NandoDemoMysqlSubnetGroup" }
-    			}
-  		},		
-		"NandoDemoMysqlSubnetGroup" : {
-   			"Type" : "AWS::RDS::DBSubnetGroup",
-   			"Properties" : { 
-				"SubnetIds" : [ 
-					{ "Ref" : "NandoDemoPrivateSubnet1" }, 
-					{ "Ref" : "NandoDemoPrivateSubnet2" } 
-				], 
-				"DBSubnetGroupDescription" : "NandoDemoMysqlSubnetGroup"
-			}
-		}, 
-		"NandoDemoPrivateSecurityGroup" : {
-                        "Type" : "AWS::EC2::SecurityGroup",
-                        "Properties" : {
-                                "GroupDescription" : "nando-demo-private",
-                                "VpcId" : { "Ref" : "NandoDemoVPC" }
-			}
-		},
- 		"NandoDemoPrivateSecurityGroupMysql" : {
-      			"Type" : "AWS::EC2::SecurityGroupIngress",
-      			"Properties" : {
-                                        "IpProtocol" : "tcp", "FromPort" : "3306", "ToPort" : "3306", "SourceSecurityGroupId" : 
-          					{ "Fn::GetAtt": [ "NandoDemoPublicSecurityGroup", "GroupId" ] },
-                                        "GroupId": { "Fn::GetAtt": [ "NandoDemoPrivateSecurityGroup", "GroupId" ] }
-                        }
-                }
-	},
-  	"Outputs" : {
-		"NandoDemoName" : { "Value" : { "Ref" : "NandoDemoName" } },
-		"NandoDemoDBName" : { "Value" : { "Ref" : "NandoDemoDBName" } },
-		"NandoDemoDBUser" : { "Value" : { "Ref" : "NandoDemoDBUser" } },
-		"NandoDemoDBPass" : { "Value" : { "Ref" : "NandoDemoDBPass" } },
-		"NandoDemoDBHost" : { "Value" : { "Fn::GetAtt" : [ "NandoDemoMysql", "Endpoint.Address" ] } },
-  	}
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Stelligent Demo: RDS",
+  "Parameters" : {
+    "StelligentDemoVPC": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSubnet": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroup": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroupId": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroupSSH": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroupMySQL": {
+      "Type": "String"
+    },
+    "StelligentDemoDBName": {
+      "Type": "String",
+      "Default": "StelligentDemoDB"
+    },
+    "StelligentDemoDBUser": {
+      "Type": "String",
+      "Default": "StelligentDemoDBUser"
+    },
+    "StelligentDemoDBPass": {
+      "Type": "String",
+      "Default": "StelligentDemoDBPass"
+    }
+  },
+  "Mappings" : {},
+  "Resources" : {
+    "StelligentDemoRDS": {
+      "Type": "AWS::RDS::DBInstance",
+      "DependsOn": [
+        "StelligentDemoRDSSubnetGroup"
+      ],
+      "Properties": {
+        "DBName": {
+          "Ref": "StelligentDemoDBName"
+        },
+        "MasterUsername": {
+          "Ref": "StelligentDemoDBUser"
+        },
+        "MasterUserPassword": {
+          "Ref": "StelligentDemoDBPass"
+        },
+        "Engine": "MySQL",
+        "DBInstanceClass": "db.t2.micro",
+        "MultiAZ": "true",
+        "AllocatedStorage": "5",
+        "VPCSecurityGroups": [{
+          "Ref": "StelligentDemoPrivateSecurityGroupId"
+        }],
+        "DBSubnetGroupName": {
+          "Ref": "StelligentDemoRDSSubnetGroup"
+        }
+      }
+    },
+    "StelligentDemoRDSSubnetGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "SubnetIds": [{
+          "Ref": "StelligentDemoPrivateSubnet1"
+        }, {
+          "Ref": "StelligentDemoPrivateSubnet2"
+        }],
+        "DBSubnetGroupDescription": "StelligentDemoRDSSubnetGroup"
+      }
+    }
+  },
+  "Outputs" : {
+    "StelligentDemoVPC": {
+      "Value": {
+        "Ref": "StelligentDemoVPC"
+      }
+    },
+    "StelligentDemoPublicSubnet": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSubnet"
+      }
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet1"
+      }
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet2"
+      }
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSecurityGroup"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroup": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroup"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupSSH": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroupSSH"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupMySQL": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroupMySQL"
+      }
+    },
+    "StelligentDemoDBHost": {
+      "Value": {
+        "Fn::GetAtt": [
+          "StelligentDemoRDS",
+          "Endpoint.Address"
+        ]
+      }
+    },
+    "StelligentDemoDBName": {
+      "Value": {
+        "Ref": "StelligentDemoDBName"
+      }
+    },
+    "StelligentDemoDBUser": {
+      "Value": {
+        "Ref": "StelligentDemoDBUser"
+      }
+    },
+    "StelligentDemoDBPass": {
+      "Value": {
+        "Ref": "StelligentDemoDBPass"
+      }
+    }
+  }
 }
