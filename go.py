@@ -71,6 +71,7 @@ IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
 #  Resource Logical IDs
 JENKINS_INSTANCE = "NandoDemoJenkins"
 WEB_ASG_NAME = 'NandoDemoWebASG'
+EB_DOCKER_APP = 'NandoDemoDockerApp'
 DEMO_RDS = 'NandoDemoMysql'
 DEMO_ELB = 'NandoDemoELB'
 DEMO_S3_BUCKET = 'NandoDemoBucket'  # Ephemeral Bucket
@@ -204,8 +205,9 @@ def get_instagram_keys_from_env():
         return insta_id, insta_secret
 
 
-def create_cfn_stack(cfn_connection, stack_name, data, build_params=[],
+def create_cfn_stack(cfn_connection, stack_name, data, build_params=None,
                      capabilities=['CAPABILITY_IAM'], disable_rollback='true'):
+    build_params = build_params or list()
     cfn_connection.create_stack(
         stack_name,
         template_body=json.dumps(data, indent=2),
@@ -239,7 +241,9 @@ def get_or_create_stack(cfn_connection, all_stacks, stack_data, timestamp,
     if stacks:
         if check_outputs:
             for check_stack in stacks:
-                if set(check_outputs).issubset(check_stack.outputs):
+                subset = [x.value for x in check_outputs]
+                fullset = [x.value for x in check_stack.outputs]
+                if set(subset).issubset(fullset):
                     stack = check_stack
                     break
         else:
@@ -429,7 +433,8 @@ def set_stack_name_in_s3(s3_connection, stack_name, dest_name, bucket):
     s3_key.set_contents_from_string(stack_name)
 
 
-def outputs_to_parameters(outputs, params=[]):
+def outputs_to_parameters(outputs, params=None):
+    params = params or list()
     for output in outputs:
         params.append((output.key, output.value))
     return params
@@ -510,6 +515,7 @@ def build(connections, region, locations, hash_id, full):
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
+    get_resource_id(connections['cfn'], stack_name, EB_DOCKER_APP)
     print "Gathering Stack Outputs...almost there!"
     outputs = get_stack_outputs(connections['cfn'], stack_name)
     print "Outputs:"
