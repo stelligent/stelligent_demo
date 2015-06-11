@@ -226,15 +226,16 @@ def get_stack_outputs(cfn_connection, stack_name):
 
 
 def get_or_create_stack(cfn_connection, all_stacks, stack_data, timestamp,
-                        check_outputs=None, full=False):
+                        build_params=None, check_outputs=None, full=False):
     stack = None
     created = False
     if full:
         stacks = None
     else:
-        stacks = [stack for stack in all_stacks if
-                  stack.stack_name.startswith(stack_data['prefix']) and
-                  stack.stack_status == 'CREATE_COMPLETE']
+        stacks = [stack_match for stack_match in all_stacks if
+                  re.match('%s-(\d+)' % stack_data['prefix'],
+                           stack_match.stack_name) and
+                  stack_match.stack_status == 'CREATE_COMPLETE']
     if stacks:
         if check_outputs:
             for check_stack in stacks:
@@ -254,8 +255,8 @@ def get_or_create_stack(cfn_connection, all_stacks, stack_data, timestamp,
             data = json.load(data_file)
         print "Creating %s stack %s..." % (stack_data['type'],
                                            stack_name)
-        sys.stdout.flush()
-        create_cfn_stack(cfn_connection, stack_name, data)
+        create_cfn_stack(cfn_connection, stack_name, data,
+                         build_params=build_params)
         get_resource_id(cfn_connection, stack_name)
         outputs = get_stack_outputs(cfn_connection, stack_name)
         return stack_name, outputs, created
@@ -445,14 +446,16 @@ def build(connections, region, locations, hash_id, full):
         full=full
     )
     # Get or create SG
+    sg_params = outputs_to_parameters(vpc_outputs)
     sg_stack, sg_outputs, sg_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['sg'], timestamp,
-        check_outputs=vpc_outputs, full=vpc_created
+        build_params=sg_params, check_outputs=vpc_outputs, full=vpc_created
     )
     # Get or create RDS
+    rds_params = outputs_to_parameters(sg_outputs)
     rds_stack, rds_outputs, rds_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['rds'], timestamp,
-        check_outputs=sg_outputs, full=sg_created
+        build_params=rds_params, check_outputs=sg_outputs, full=sg_created
     )
     build_params = outputs_to_parameters(rds_outputs)
     build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
@@ -500,7 +503,6 @@ def build(connections, region, locations, hash_id, full):
     #  Give Feedback whilst we wait...
     get_resource_id(connections['cfn'], stack_name, DEMO_S3_BUCKET)
     get_resource_id(connections['cfn'], stack_name, DEMO_ELB)
-    get_resource_id(connections['cfn'], stack_name, DEMO_RDS)
     asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     #  Setup CodeDeploy
     create_codedeploy_application(connections['codedeploy'],
