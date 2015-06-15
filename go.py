@@ -548,7 +548,7 @@ def build(connections, region, locations, hash_id, full):
     print "Gathering Stack Outputs...almost there!"
     outputs = get_stack_outputs(connections['cfn'], stack_name)
     # Upload index.html to transient demo bucket
-    print "Creating index.html in ephemeral demo bucket"
+    print "Creating index.html in ephemeral demo bucket..."
     create_and_upload_index_to_s3(connections['s3'], outputs)
     print "Outputs:"
     for output in outputs:
