@@ -147,6 +147,32 @@ def copy_files_to_s3(s3_connection, bucket):
     print "Done!"
 
 
+def create_and_upload_index_to_s3(s3, outputs=dict()):
+    output_key = "NandoDemoBucketURL"
+    bucket_url = ([output.value for output in outputs
+                  if output.key == output_key])[0]
+    bucket_name = re.sub(r'http://(.*).s3-website.*', r'\1', bucket_url)
+    contents = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>Demo Index File in S3 Bucket</title>
+</head>
+
+<body>
+<h1>Stelligent Demo Stack</h1>
+<pre>"""
+    for output in outputs:
+        contents += "%40s : %s\n" % (output.key, output.value)
+    s3_bucket = s3.get_bucket(bucket_name)
+    s3_key = S3Key(s3_bucket)
+    s3_key.key = "index.html"
+    s3_key.set_metadata('Content-Type', 'text/html')
+    s3_key.set_contents_from_string(contents)
+    s3_key.set_acl('public-read')
+
+
 def delete_stack_name_from_s3(s3_connection, bucket, target):
     s3_bucket = s3_connection.get_bucket(bucket)
     s3_key = target
@@ -521,6 +547,9 @@ def build(connections, region, locations, hash_id, full):
     get_resource_id(connections['cfn'], stack_name, DEMO_DOCKER_ENV)
     print "Gathering Stack Outputs...almost there!"
     outputs = get_stack_outputs(connections['cfn'], stack_name)
+    # Upload index.html to transient demo bucket
+    print "Creating index.html in ephemeral demo bucket"
+    create_and_upload_index_to_s3(connections['s3'], outputs)
     print "Outputs:"
     for output in outputs:
         print '%s = %s' % (output.key, output.value)

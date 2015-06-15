@@ -62,7 +62,7 @@
     },
     "NandoDemoZoneName": {
       "Type": "String",
-      "Default": "elasticoperations.com."
+      "Default": "elasticoperations.com"
     },
     "KeyName": {
       "Type": "AWS::EC2::KeyPair::KeyName"
@@ -177,7 +177,7 @@
       "DependsOn": "NandoDemoELB",
       "Properties": {
         "HostedZoneName": {
-          "Ref": "NandoDemoZoneName"
+          "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
         },
         "RecordSets": [{
           "Name": {
@@ -193,7 +193,7 @@
                   ]
                 ]
               }, {
-                "Ref": "NandoDemoZoneName"
+                "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
               }]
             ]
           },
@@ -220,7 +220,7 @@
       "DependsOn": "NandoDemoJenkinsEIP",
       "Properties": {
         "HostedZoneName": {
-          "Ref": "NandoDemoZoneName"
+          "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
         },
         "RecordSets": [{
           "Name": {
@@ -236,7 +236,7 @@
                   ]
                 ]
               }, {
-                "Ref": "NandoDemoZoneName"
+                "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
               }]
             ]
           },
@@ -253,7 +253,7 @@
       "DependsOn": "NandoDemoDockerEnvironment",
       "Properties": {
         "HostedZoneName": {
-          "Ref": "NandoDemoZoneName"
+          "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
         },
         "RecordSets": [{
           "Name": {
@@ -269,7 +269,7 @@
                   ]
                 ]
               }, {
-                "Ref": "NandoDemoZoneName"
+                "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
               }]
             ]
           },
@@ -289,7 +289,7 @@
       "DependsOn": "NandoDemoBucket",
       "Properties": {
         "HostedZoneName": {
-          "Ref": "NandoDemoZoneName"
+          "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
         },
         "RecordSets": [{
           "Name": {
@@ -298,23 +298,22 @@
                 "Fn::Join": [
                   "-", [
                     "nando-automation-demo-bucket", {
-                      "Ref": "DemoRegion"
-                    }, {
+                      "Ref": "DemoRegion" }, {
                       "Ref": "HashID"
                     }
                   ]
                 ]
               }, {
-                "Ref": "NandoDemoZoneName"
+                "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
               }]
             ]
           },
           "Type": "CNAME",
           "TTL": "900",
           "ResourceRecords": [{
-            "Fn::GetAtt": [
-              "NandoDemoBucket",
-              "DomainName"
+            "Fn::Join": [ "", [ { "Ref": "NandoDemoBucket" }, ".s3-website-", 
+                                { "Ref": "DemoRegion" }, ".amazonaws.com"
+                              ]
             ]
           }]
         }]
@@ -974,8 +973,10 @@
               "autoscaling:Describe*",
               "cloudformation:DescribeStacks",
               "ec2:Describe*",
-              "elasticbeanstalk:*",
-              "codedeploy:*"
+              "codedeploy:Get*",
+              "codedeploy:List*",
+              "codedeploy:CreateDeployment",
+              "codedeploy:RegisterApplicationRevision"
             ],
             "Effect": "Allow",
             "Resource": "*"
@@ -1254,9 +1255,7 @@
     },
     "NandoDemoBucketURL": {
       "Value": {
-        "Fn::Join": ["", ["https://", {
-          "Fn::GetAtt": ["NandoDemoBucket", "DomainName"]
-        }]]
+        "Fn::GetAtt": ["NandoDemoBucket", "WebsiteURL"]
       }
     },
     "NandoDemoDockerURL": {
@@ -1271,8 +1270,7 @@
         "Fn::Join": [".", [{
           "Fn::Join": ["-", [
             "http://nando-automation-demo", {
-              "Ref": "DemoRegion"
-            }, {
+              "Ref": "DemoRegion" }, {
               "Ref": "HashID"
             }
           ]]
@@ -1286,8 +1284,7 @@
         "Fn::Join": [".", [{
           "Fn::Join": ["-", [
             "http://nando-automation-demo-bucket", {
-              "Ref": "DemoRegion"
-            }, {
+              "Ref": "DemoRegion" }, {
               "Ref": "HashID"
             }
           ]]
@@ -1298,16 +1295,18 @@
     },
     "NandoDemoDockerCNAME": {
       "Value": {
-        "Fn::Join": ["", ["https://", {
-          "Fn::GetAtt": ["NandoDemoBucket", "DomainName"]
+        "Fn::Join": ["", ["http://nando-automation-demo-docker-", {
+          "Ref": "DemoRegion" }, "-", {
+          "Ref": "HashID" }, ".", {
+          "Ref": "NandoDemoZoneName"
         }]]
       }
     },
     "NandoDemoJenkinsCNAME": {
       "Value": {
         "Fn::Join": ["", ["http://nando-automation-demo-jenkins-", {
-          "Ref": "DemoRegion"
-        }, ".", {
+          "Ref": "DemoRegion" }, "-", {
+          "Ref": "HashID" }, ".", {
           "Ref": "NandoDemoZoneName"
         }, ":8080"]]
       }
