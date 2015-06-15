@@ -408,12 +408,14 @@
         "AWS::CloudFormation::Init": {
           "configSets": {
             "quick": [
+              "cfg-db",
               "cfg-files",
               "cfg-jenkins-commands",
               "cfg-services"
             ],
             "full": [
               "cfg-packages",
+              "cfg-db",
               "cfg-files",
               "cfg-sys-commands",
               "cfg-jenkins-commands",
@@ -427,6 +429,74 @@
             "packages": {
               "rpm": {
                 "jenkins": "http://pkg.jenkins-ci.org/redhat/jenkins-1.596-1.1.noarch.rpm"
+              }
+            }
+          },
+          "cfg-db": {
+            "packages": {
+              "yum": {
+                "mysql": []
+              }
+            },
+            "files": {
+              "/root/createDB.sh": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "#!/bin/bash\n",
+                      "mysql",
+                      " -h ",
+                      {
+                        "Ref": "StelligentDemoDBHost"
+                      },
+                      " -u ",
+                      {
+                        "Ref": "StelligentDemoDBUser"
+                      },
+                      " -p",
+                      {
+                        "Ref": "StelligentDemoDBPass"
+                      },
+                      " < /root/createDB.mysql\n"
+                    ]
+                  ]
+                },
+                "mode": "000444",
+                "owner": "root",
+                "group": "root"
+              },
+              "/root/createDB.mysql": {
+                "content": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "CREATE DATABASE ",
+                      {
+                        "Ref": "StelligentDemoDBName"
+                      },
+                      ";\n",
+                      "GRANT ALL ON ",
+                      {
+                        "Ref": "StelligentDemoDBName"
+                      },
+                      ".* TO '",
+                      {
+                        "Ref": "StelligentDemoDBUser"
+                      },
+                      "'@'localhost';\n",
+                      "FLUSH PRIVILEGES;\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            },
+            "commands": {
+              "createDatabase": {
+                "command": "/bin/bash /root/createDB.sh"
               }
             }
           },

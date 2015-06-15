@@ -74,6 +74,7 @@ WEB_ASG_NAME = 'NandoDemoWebASG'
 DEMO_RDS = 'NandoDemoMysql'
 DEMO_ELB = 'NandoDemoELB'
 DEMO_S3_BUCKET = 'NandoDemoBucket'  # Ephemeral Bucket
+DEMO_DOCKER_ENV = 'NandoDemoDockerEnvironment'
 
 
 def ip_address_type(location):
@@ -496,6 +497,9 @@ def build(connections, region, locations, hash_id, full):
     CGN = "-".join((CODEDEPLOY_GROUP_NAME, region, hash_id))
     build_params.append(("CodeDeployAppName", CAN))
     build_params.append(("CodeDeployDeploymentGroup", CGN))
+    #  Inject Database name
+    dbname = "%s%s" % (STACK_DATA['rds']['prefix'].replace('-', ''), timestamp)
+    build_params.append(("StelligentDemoDBName", dbname))
     #  Create Stack
     sys.stdout.write("Launching CloudFormation Stack in %s..." % region)
     create_cfn_stack(connections['cfn'], stack_name, data, build_params)
@@ -514,7 +518,7 @@ def build(connections, region, locations, hash_id, full):
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
-    get_resource_id(connections['cfn'], stack_name)
+    get_resource_id(connections['cfn'], stack_name, DEMO_DOCKER_ENV)
     print "Gathering Stack Outputs...almost there!"
     outputs = get_stack_outputs(connections['cfn'], stack_name)
     print "Outputs:"

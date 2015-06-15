@@ -132,11 +132,6 @@
         ]
       }
     },
-    "StelligentDemoDBName": {
-      "Value": {
-        "Ref": "StelligentDemoDBName"
-      }
-    },
     "StelligentDemoDBUser": {
       "Value": {
         "Ref": "StelligentDemoDBUser"
