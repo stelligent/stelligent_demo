@@ -38,7 +38,8 @@ STACK_DATA = {
     'sg': {'prefix': 'stelligent-demo-sg',
             'template': 'cloudformation/cloudformation.sg.json',
             'type': 'SG'},
-    'rds': {'prefix': 'stelligent-demo-rds',
+    'rds': {'db_prefix': 'stelligent',
+            'prefix': 'stelligent-demo-rds',
             'template': 'cloudformation/cloudformation.rds.json',
             'type': 'RDS'}
 }
@@ -124,6 +125,7 @@ def list_and_get_stacks(cfn_connection, allow_all=False):
 
 def prepare_docker_zip():
     sys.stdout.write("Repacking %s..." % DOCKER_ZIPFILE)
+    sys.stdout.flush()
     try:
         os.remove(DOCKER_ZIPFILE)
     except OSError:
@@ -139,6 +141,7 @@ def prepare_docker_zip():
 def copy_files_to_s3(s3_connection, bucket):
     prepare_docker_zip()
     sys.stdout.write("Sending files to S3...")
+    sys.stdout.flush()
     s3_bucket = s3_connection.get_bucket(bucket)
     s3_key = S3Key(s3_bucket)
     for f in FILES_TO_S3:
@@ -202,6 +205,7 @@ def inject_custom_ami(resource, data, parameters, ec2_connection, region):
 
 def inject_locations(locations, data):
     sys.stdout.write("Setting security source(s) to %s..." % locations)
+    sys.stdout.flush()
     for location in locations:
         # Add CIDR Subnet
         if location == '0.0.0.0':
@@ -294,9 +298,11 @@ def get_or_create_stack(cfn_connection, all_stacks, stack_data, timestamp,
 
 def create_ec2_key_pair(ec2_connection, key_pair_name):
     sys.stdout.write("Creating EC2 Key Pair %s..." % key_pair_name)
+    sys.stdout.flush()
     kp = ec2_connection.create_key_pair(key_pair_name)
     print "Done!"
     sys.stdout.write("Creating private key %s.pem locally..." % key_pair_name)
+    sys.stdout.flush()
     kp.save('.')
     print "Done!"
     return kp.material
@@ -304,6 +310,7 @@ def create_ec2_key_pair(ec2_connection, key_pair_name):
 
 def delete_ec2_key_pair(ec2_connection, key_pair_name):
     sys.stdout.write("Deleting EC2 Key Pair %s..." % key_pair_name)
+    sys.stdout.flush()
     ec2_connection.delete_key_pair(key_pair_name)
     print "Done!"
     key_file = '%s.pem' % key_pair_name
@@ -314,6 +321,7 @@ def delete_ec2_key_pair(ec2_connection, key_pair_name):
 
 def create_iam_role(iam_connection, role_name, role_doc):
     sys.stdout.write("Creating IAM Role %s..." % role_name)
+    sys.stdout.flush()
     with open(role_doc) as doc:
         result = iam_connection.create_role(
             role_name, assume_role_policy_document=doc.read())
@@ -323,6 +331,7 @@ def create_iam_role(iam_connection, role_name, role_doc):
 
 def delete_iam_role(iam_connection, role_name):
     sys.stdout.write("Deleting IAM Role %s..." % role_name)
+    sys.stdout.flush()
     try:
         iam_connection.delete_role(role_name)
     except BotoServerError:
@@ -333,6 +342,7 @@ def delete_iam_role(iam_connection, role_name):
 def put_iam_role_policy(iam_connection, role_name, policy_name,
                         policy_doc):
     sys.stdout.write("Adding policy %s ..." % policy_name)
+    sys.stdout.flush()
     with open(policy_doc) as doc:
         iam_connection.put_role_policy(role_name, policy_name, doc.read())
     print "Done!"
@@ -340,6 +350,7 @@ def put_iam_role_policy(iam_connection, role_name, policy_name,
 
 def delete_iam_policy(iam_connection, role_name, policy_name):
     sys.stdout.write("Deleting policy %s..." % policy_name)
+    sys.stdout.flush()
     try:
         iam_connection.delete_role_policy(role_name, policy_name)
     except BotoServerError:
@@ -349,12 +360,14 @@ def delete_iam_policy(iam_connection, role_name, policy_name):
 
 def create_codedeploy_application(codedeploy_connection, app_name):
     sys.stdout.write("Creating CodeDeploy Application %s..." % app_name)
+    sys.stdout.flush()
     codedeploy_connection.create_application(app_name)
     print "Done!"
 
 
 def delete_codedeploy_application(codedeploy_connection, app_name):
     sys.stdout.write("Deleting CodeDeploy Application %s..." % app_name)
+    sys.stdout.flush()
     codedeploy_connection.delete_application(app_name)
     print "Done!"
 
@@ -362,6 +375,7 @@ def delete_codedeploy_application(codedeploy_connection, app_name):
 def create_codedeploy_deployment_group(codedeploy_connection, app_name,
                                        group_name, asg_id, service_role):
     sys.stdout.write("Creating CodeDeploy Deployment Group %s..." % group_name)
+    sys.stdout.flush()
     codedeploy_connection.create_deployment_group(
         app_name,
         group_name,
@@ -375,6 +389,7 @@ def create_codedeploy_deployment_group(codedeploy_connection, app_name,
 def delete_codedeploy_deployment_group(codedeploy_connection, app_name,
                                        group_name):
     sys.stdout.write("Deleting CodeDeploy Deployment Group %s..." % group_name)
+    sys.stdout.flush()
     codedeploy_connection.delete_deployment_group(app_name, group_name)
     print "Done!"
 
@@ -524,10 +539,11 @@ def build(connections, region, locations, hash_id, full):
     build_params.append(("CodeDeployAppName", CAN))
     build_params.append(("CodeDeployDeploymentGroup", CGN))
     #  Inject Database name
-    dbname = "%s%s" % (STACK_DATA['rds']['prefix'].replace('-', ''), timestamp)
-    build_params.append(("StelligentDemoDBName", dbname))
+    db_name = "%s%s" % (STACK_DATA['rds']['db_prefix'], timestamp)
+    build_params.append(("StelligentDemoDBName", db_name))
     #  Create Stack
     sys.stdout.write("Launching CloudFormation Stack in %s..." % region)
+    sys.stdout.flush()
     create_cfn_stack(connections['cfn'], stack_name, data, build_params)
     #  Upload stackname to S3
     dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
@@ -548,7 +564,6 @@ def build(connections, region, locations, hash_id, full):
     outputs = get_stack_outputs(connections['cfn'], stack_name)
     outputs = sorted(outputs, key=lambda k: k.key)
     # Upload index.html to transient demo bucket
-    print "Creating index.html in ephemeral demo bucket..."
     create_and_upload_index_to_s3(connections['s3'], outputs)
     print "Outputs:"
     for output in outputs:
