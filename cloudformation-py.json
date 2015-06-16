@@ -295,14 +295,11 @@
           "Name": {
             "Fn::Join": [
               ".", [{
-                "Fn::Join": [
-                  "-", [
-                    "nando-automation-demo-bucket", {
-                      "Ref": "DemoRegion" }, {
-                      "Ref": "HashID"
-                    }
-                  ]
-                ]
+                  "Fn::Join": ["", [{
+                    "Ref": "AWS::StackName" }, "-", {
+                    "Ref": "HashID"
+                  }
+                ]]
               }, {
                 "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
               }]
@@ -1118,6 +1115,13 @@
     "NandoDemoBucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
+        "BucketName": { 
+          "Fn::Join": ["", [{
+              "Ref": "AWS::StackName" }, "-", {
+              "Ref": "HashID" },
+              ".elasticoperations.com"
+          ]]
+        },
         "WebsiteConfiguration": {
           "IndexDocument": "index.html"
         }
@@ -1282,9 +1286,9 @@
     "NandoDemoBucketCNAME": {
       "Value": {
         "Fn::Join": [".", [{
-          "Fn::Join": ["-", [
-            "http://nando-automation-demo-bucket", {
-              "Ref": "DemoRegion" }, {
+          "Fn::Join": ["", [
+              "http://", {
+              "Ref": "AWS::StackName" }, "-", {
               "Ref": "HashID"
             }
           ]]
