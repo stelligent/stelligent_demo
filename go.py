@@ -33,7 +33,13 @@ STACK_DATA = {
              'type': 'MAIN'},
     'vpc': {'prefix': 'stelligent-demo-vpc',
             'template': 'cloudformation/cloudformation.vpc.json',
-            'type': 'VPC'}
+            'type': 'VPC'},
+    'sg': {'prefix': 'stelligent-demo-sg',
+            'template': 'cloudformation/cloudformation.sg.json',
+            'type': 'SG'},
+    'rds': {'prefix': 'stelligent-demo-rds',
+            'template': 'cloudformation/cloudformation.rds.json',
+            'type': 'RDS'}
 }
 DEFAULT_REGION = 'us-east-1'
 MAIN_S3_BUCKET = 'nando-automation-demo'  # Permanent S3 Bucket
@@ -68,6 +74,7 @@ WEB_ASG_NAME = 'NandoDemoWebASG'
 DEMO_RDS = 'NandoDemoMysql'
 DEMO_ELB = 'NandoDemoELB'
 DEMO_S3_BUCKET = 'NandoDemoBucket'  # Ephemeral Bucket
+DEMO_DOCKER_ENV = 'NandoDemoDockerEnvironment'
 
 
 def ip_address_type(location):
@@ -206,7 +213,7 @@ def inject_locations(locations, data):
                     'FromPort': port,
                     'ToPort': port,
                     'CidrIp': '%s' % location}
-            data['Resources']['NandoDemoPublicSecurityGroup']['Properties']['SecurityGroupIngress'].append(item)
+            data['Resources']['StelligentDemoPublicLockedSecurityGroup']['Properties']['SecurityGroupIngress'].append(item)
         data['Resources']['NandoDemoBucketPolicy']['Properties']['PolicyDocument']['Statement'][0]['Condition']['IpAddress']['aws:SourceIp'].append(location)
     print "Done!"
     return data
@@ -224,8 +231,9 @@ def get_instagram_keys_from_env():
         return insta_id, insta_secret
 
 
-def create_cfn_stack(cfn_connection, stack_name, data, build_params=[],
+def create_cfn_stack(cfn_connection, stack_name, data, build_params=None,
                      capabilities=['CAPABILITY_IAM'], disable_rollback='true'):
+    build_params = build_params or list()
     cfn_connection.create_stack(
         stack_name,
         template_body=json.dumps(data, indent=2),
@@ -245,30 +253,43 @@ def get_stack_outputs(cfn_connection, stack_name):
     return outputs
 
 
-def get_or_create_stack(cfn_connection, stack_data, timestamp, full=False):
+def get_or_create_stack(cfn_connection, all_stacks, stack_data, timestamp,
+                        build_params=None, check_outputs=None, full=False):
+    stack = None
+    created = False
     if full:
         stacks = None
     else:
-        stacks = cfn_connection.describe_stacks()
-        stacks = [stack for stack in stacks if
-                  stack.stack_name.startswith(stack_data['prefix']) and
-                  stack.stack_status == 'CREATE_COMPLETE']
+        stacks = [stack_match for stack_match in all_stacks if
+                  re.match('%s-(\d+)' % stack_data['prefix'],
+                           stack_match.stack_name) and
+                  stack_match.stack_status == 'CREATE_COMPLETE']
     if stacks:
-        # Default to first, complete stack
-        stack = stacks[0]
+        if check_outputs:
+            for check_stack in stacks:
+                subset = [x.value for x in check_outputs]
+                fullset = [x.value for x in check_stack.outputs]
+                if set(subset).issubset(fullset):
+                    stack = check_stack
+                    break
+        else:
+            # Default to first, complete stack
+            stack = stacks[0]
+    if stack:
         print "Using %s %s..." % (stack_data['type'], stack.stack_name)
-        return stack.stack_name, stack.outputs
+        return stack.stack_name, stack.outputs, created
     else:
+        created = True
         stack_name = '%s-%s' % (stack_data['prefix'], timestamp)
         with open(stack_data['template']) as data_file:
             data = json.load(data_file)
         print "Creating %s stack %s..." % (stack_data['type'],
                                            stack_name)
-        sys.stdout.flush()
-        create_cfn_stack(cfn_connection, stack_name, data)
+        create_cfn_stack(cfn_connection, stack_name, data,
+                         build_params=build_params)
         get_resource_id(cfn_connection, stack_name)
         outputs = get_stack_outputs(cfn_connection, stack_name)
-        return stack_name, outputs
+        return stack_name, outputs, created
 
 
 def create_ec2_key_pair(ec2_connection, key_pair_name):
@@ -438,12 +459,38 @@ def set_stack_name_in_s3(s3_connection, stack_name, dest_name, bucket):
     s3_key.set_contents_from_string(stack_name)
 
 
+def outputs_to_parameters(outputs, params=None):
+    params = params or list()
+    for output in outputs:
+        params.append((output.key, output.value))
+    return params
+
+
 def build(connections, region, locations, hash_id, full):
+    instagram_id, instagram_secret = get_instagram_keys_from_env()
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    build_params = list()
+    all_stacks = connections['cfn'].describe_stacks()
+    #  Cascading Outputs/Parameters
+    #  Get or create VPC
+    vpc_stack, vpc_outputs, vpc_created = get_or_create_stack(
+        connections['cfn'], all_stacks, STACK_DATA['vpc'], timestamp,
+        full=full
+    )
+    # Get or create SG
+    sg_params = outputs_to_parameters(vpc_outputs)
+    sg_stack, sg_outputs, sg_created = get_or_create_stack(
+        connections['cfn'], all_stacks, STACK_DATA['sg'], timestamp,
+        build_params=sg_params, check_outputs=vpc_outputs, full=vpc_created
+    )
+    # Get or create RDS
+    rds_params = outputs_to_parameters(sg_outputs)
+    rds_stack, rds_outputs, rds_created = get_or_create_stack(
+        connections['cfn'], all_stacks, STACK_DATA['rds'], timestamp,
+        build_params=rds_params, check_outputs=sg_outputs, full=sg_created
+    )
+    build_params = outputs_to_parameters(rds_outputs)
     build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
     #  Setup Instagram Access
-    instagram_id, instagram_secret = get_instagram_keys_from_env()
     build_params.append(("InstagramId", instagram_id))
     build_params.append(("InstagramSecret", instagram_secret))
     #  Setup Stack
@@ -451,12 +498,6 @@ def build(connections, region, locations, hash_id, full):
     build_params.append(("NandoDemoName", stack_name))
     build_params.append(("DemoRegion", region))
     build_params.append(("HashID", hash_id))
-    #  Get or create VPC
-    vpc_stack, vpc_outputs = get_or_create_stack(connections['cfn'],
-                                                 STACK_DATA['vpc'],
-                                                 timestamp, full)
-    for output in vpc_outputs:
-        build_params.append((output.key, output.value))
     #  Setup S3
     copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
     #  Setup Security Groups/Access
@@ -482,6 +523,9 @@ def build(connections, region, locations, hash_id, full):
     CGN = "-".join((CODEDEPLOY_GROUP_NAME, region, hash_id))
     build_params.append(("CodeDeployAppName", CAN))
     build_params.append(("CodeDeployDeploymentGroup", CGN))
+    #  Inject Database name
+    dbname = "%s%s" % (STACK_DATA['rds']['prefix'].replace('-', ''), timestamp)
+    build_params.append(("StelligentDemoDBName", dbname))
     #  Create Stack
     sys.stdout.write("Launching CloudFormation Stack in %s..." % region)
     create_cfn_stack(connections['cfn'], stack_name, data, build_params)
@@ -493,7 +537,6 @@ def build(connections, region, locations, hash_id, full):
     #  Give Feedback whilst we wait...
     get_resource_id(connections['cfn'], stack_name, DEMO_S3_BUCKET)
     get_resource_id(connections['cfn'], stack_name, DEMO_ELB)
-    get_resource_id(connections['cfn'], stack_name, DEMO_RDS)
     asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     #  Setup CodeDeploy
     create_codedeploy_application(connections['codedeploy'],
@@ -501,10 +544,11 @@ def build(connections, region, locations, hash_id, full):
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
+    get_resource_id(connections['cfn'], stack_name, DEMO_DOCKER_ENV)
     print "Gathering Stack Outputs...almost there!"
     outputs = get_stack_outputs(connections['cfn'], stack_name)
     # Upload index.html to transient demo bucket
-    print "Creating index.html in ephemeral demo bucket"
+    print "Creating index.html in ephemeral demo bucket..."
     create_and_upload_index_to_s3(connections['s3'], outputs)
     print "Outputs:"
     for output in outputs:
