@@ -1,7 +1,7 @@
 {
-  "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "Stelligent Demo: RDS",
-  "Parameters" : {
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Stelligent Demo: RDS",
+  "Parameters": {
     "StelligentDemoVPC": {
       "Type": "String"
     },
@@ -42,8 +42,8 @@
       "Default": "StelligentDemoDBPass"
     }
   },
-  "Mappings" : {},
-  "Resources" : {
+  "Mappings": {},
+  "Resources": {
     "StelligentDemoRDS": {
       "Type": "AWS::RDS::DBInstance",
       "DependsOn": [
@@ -83,7 +83,7 @@
       }
     }
   },
-  "Outputs" : {
+  "Outputs": {
     "StelligentDemoVPC": {
       "Value": {
         "Ref": "StelligentDemoVPC"

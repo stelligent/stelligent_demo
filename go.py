@@ -28,7 +28,8 @@ CUSTOM_AMI_MAP = {
     'us-west-2': 'ami-bf9ea08f'
 }
 STACK_DATA = {
-    'main': {'prefix': 'nando-demo',
+    'main': {'key_prefix': 'stelligent-demo',
+             'prefix': 'nando-demo',
              'template': 'cloudformation-py.json',
              'type': 'MAIN'},
     'vpc': {'prefix': 'stelligent-demo-vpc',
@@ -153,16 +154,15 @@ def create_and_upload_index_to_s3(s3, outputs=dict()):
                   if output.key == output_key])[0]
     bucket_name = re.sub(r'http://(.*).s3-website.*', r'\1', bucket_url)
     contents = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <title>Demo Index File in S3 Bucket</title>
+    </head>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-    <title>Demo Index File in S3 Bucket</title>
-</head>
-
-<body>
-<h1>Stelligent Demo Stack</h1>
-<pre>"""
+    <body>
+    <h1>Stelligent Demo Stack</h1>
+    <pre>"""
     for output in outputs:
         contents += "%40s : %s\n" % (output.key, output.value)
     s3_bucket = s3.get_bucket(bucket_name)
@@ -509,7 +509,7 @@ def build(connections, region, locations, hash_id, full):
     data, build_params = inject_custom_ami(
         JENKINS_INSTANCE, data, build_params, connections['ec2'], region)
     #  Setup EC2 Key Pair
-    key_pair_name = stack_name
+    key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
     private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
     build_params.append(("KeyName", key_pair_name))
     build_params.append(("PrivateKey", private_key))
@@ -546,11 +546,12 @@ def build(connections, region, locations, hash_id, full):
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
     print "Gathering Stack Outputs...almost there!"
     outputs = get_stack_outputs(connections['cfn'], stack_name)
+    outputs = sorted(outputs, key=lambda k: k.key)
     # Upload index.html to transient demo bucket
     print "Creating index.html in ephemeral demo bucket..."
     create_and_upload_index_to_s3(connections['s3'], outputs)
     print "Outputs:"
-    for output in sorted(outputs):
+    for output in outputs:
         print '%s = %s' % (output.key, output.value)
 
 

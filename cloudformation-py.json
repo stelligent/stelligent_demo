@@ -177,7 +177,13 @@
       "DependsOn": "NandoDemoELB",
       "Properties": {
         "HostedZoneName": {
-          "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
+          "Fn::Join": [
+            "", [{
+                "Ref": "StelligentDemoZoneName"
+              },
+              "."
+            ]
+          ]
         },
         "RecordSets": [{
           "Name": {
@@ -193,7 +199,13 @@
                   ]
                 ]
               }, {
-                "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
+                "Fn::Join": [
+                  "", [{
+                      "Ref": "StelligentDemoZoneName"
+                    },
+                    "."
+                  ]
+                ]
               }]
             ]
           },
@@ -220,7 +232,13 @@
       "DependsOn": "NandoDemoJenkinsEIP",
       "Properties": {
         "HostedZoneName": {
-          "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
+          "Fn::Join": [
+            "", [{
+                "Ref": "StelligentDemoZoneName"
+              },
+              "."
+            ]
+          ]
         },
         "RecordSets": [{
           "Name": {
@@ -236,7 +254,13 @@
                   ]
                 ]
               }, {
-                "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
+                "Fn::Join": [
+                  "", [{
+                      "Ref": "StelligentDemoZoneName"
+                    },
+                    "."
+                  ]
+                ]
               }]
             ]
           },
@@ -253,28 +277,50 @@
       "DependsOn": "NandoDemoBucket",
       "Properties": {
         "HostedZoneName": {
-          "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
+          "Fn::Join": [
+            "", [{
+                "Ref": "StelligentDemoZoneName"
+              },
+              "."
+            ]
+          ]
         },
         "RecordSets": [{
           "Name": {
             "Fn::Join": [
               ".", [{
-                  "Fn::Join": ["", [{
-                    "Ref": "AWS::StackName" }, "-", {
-                    "Ref": "HashID"
-                  }
-                ]]
+                "Fn::Join": [
+                  "", [{
+                      "Ref": "AWS::StackName"
+                    },
+                    "-", {
+                      "Ref": "HashID"
+                    }
+                  ]
+                ]
               }, {
-                "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
+                "Fn::Join": [
+                  "", [{
+                      "Ref": "StelligentDemoZoneName"
+                    },
+                    "."
+                  ]
+                ]
               }]
             ]
           },
           "Type": "CNAME",
           "TTL": "900",
           "ResourceRecords": [{
-            "Fn::Join": [ "", [ { "Ref": "NandoDemoBucket" }, ".s3-website-", 
-                                { "Ref": "DemoRegion" }, ".amazonaws.com"
-                              ]
+            "Fn::Join": [
+              "", [{
+                  "Ref": "NandoDemoBucket"
+                },
+                ".s3-website-", {
+                  "Ref": "DemoRegion"
+                },
+                ".amazonaws.com"
+              ]
             ]
           }]
         }]
@@ -402,20 +448,16 @@
               "/root/createDB.sh": {
                 "content": {
                   "Fn::Join": [
-                    "",
-                    [
+                    "", [
                       "#!/bin/bash\n",
                       "mysql",
-                      " -h ",
-                      {
+                      " -h ", {
                         "Ref": "StelligentDemoDBHost"
                       },
-                      " -u ",
-                      {
+                      " -u ", {
                         "Ref": "StelligentDemoDBUser"
                       },
-                      " -p",
-                      {
+                      " -p", {
                         "Ref": "StelligentDemoDBPass"
                       },
                       " < /root/createDB.mysql\n"
@@ -429,19 +471,15 @@
               "/root/createDB.mysql": {
                 "content": {
                   "Fn::Join": [
-                    "",
-                    [
-                      "CREATE DATABASE ",
-                      {
+                    "", [
+                      "CREATE DATABASE ", {
                         "Ref": "StelligentDemoDBName"
                       },
                       ";\n",
-                      "GRANT ALL ON ",
-                      {
+                      "GRANT ALL ON ", {
                         "Ref": "StelligentDemoDBName"
                       },
-                      ".* TO '",
-                      {
+                      ".* TO '", {
                         "Ref": "StelligentDemoDBUser"
                       },
                       "'@'localhost';\n",
@@ -723,7 +761,7 @@
             "files": {
               "/etc/cfn/NandoDemoDBHost": {
                 "content": {
-                  "Ref":  "StelligentDemoDBHost"
+                  "Ref": "StelligentDemoDBHost"
                 },
                 "mode": "000644",
                 "owner": "root",
@@ -834,31 +872,36 @@
         }],
         "UserData": {
           "Fn::Base64": {
-            "Fn::Join": ["", [
-              "#!/bin/bash -xe\n",
-              "yum update -y aws-cfn-bootstrap aws-cli\n",
-              "aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region ", {
-                "Ref": "DemoRegion"
-              }, "\n",
-              "chmod +x ./install\n",
-              "./install auto\n",
-              "/opt/aws/bin/cfn-init -v ",
-              "         --stack ", {
-                "Ref": "AWS::StackName"
-              },
-              "         --resource NandoDemoWebLaunchConfig ",
-              "         --region ", {
-                "Ref": "AWS::Region"
-              }, "\n",
-              "/opt/aws/bin/cfn-signal -e $? ",
-              "         --stack ", {
-                "Ref": "AWS::StackName"
-              },
-              "         --resource NandoDemoWebLaunchConfig ",
-              "         --region ", {
-                "Ref": "AWS::Region"
-              }, "\n"
-            ]]
+            "Fn::Join": [
+              "", [
+                "#!/bin/bash -xe\n",
+                "yum update -y aws-cfn-bootstrap aws-cli\n",
+                "aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region ", {
+                  "Ref": "DemoRegion"
+                },
+                "\n",
+                "chmod +x ./install\n",
+                "./install auto\n",
+                "/opt/aws/bin/cfn-init -v ",
+                "         --stack ", {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource NandoDemoWebLaunchConfig ",
+                "         --region ", {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "/opt/aws/bin/cfn-signal -e $? ",
+                "         --stack ", {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource NandoDemoWebLaunchConfig ",
+                "         --region ", {
+                  "Ref": "AWS::Region"
+                },
+                "\n"
+              ]
+            ]
           }
         }
       },
@@ -1079,12 +1122,17 @@
     "NandoDemoBucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
-        "BucketName": { 
-          "Fn::Join": ["", [{
-              "Ref": "AWS::StackName" }, "-", {
-              "Ref": "HashID" },
+        "BucketName": {
+          "Fn::Join": [
+            "", [{
+                "Ref": "AWS::StackName"
+              },
+              "-", {
+                "Ref": "HashID"
+              },
               ".elasticoperations.com"
-          ]]
+            ]
+          ]
         },
         "WebsiteConfiguration": {
           "IndexDocument": "index.html"
@@ -1135,71 +1183,106 @@
     },
     "StelligentDemoJenkinsURL": {
       "Value": {
-        "Fn::Join": ["", ["http://", {
-          "Fn::GetAtt": ["NandoDemoJenkins", "PublicDnsName"]
-        }, ":8080"]]
+        "Fn::Join": [
+          "", [
+            "http://", {
+              "Fn::GetAtt": [
+                "NandoDemoJenkins",
+                "PublicDnsName"
+              ]
+            },
+            ":8080"
+          ]
+        ]
       }
     },
     "StelligentDemoELBDNSNAME": {
       "Value": {
-        "Fn::Join": ["", ["http://", {
-          "Fn::GetAtt": ["NandoDemoELB", "DNSName"]
-        }]]
+        "Fn::Join": [
+          "", [
+            "http://", {
+              "Fn::GetAtt": [
+                "NandoDemoELB",
+                "DNSName"
+              ]
+            }
+          ]
+        ]
       }
     },
     "StelligentDemoBucketURL": {
       "Value": {
-        "Fn::GetAtt": ["NandoDemoBucket", "WebsiteURL"]
+        "Fn::GetAtt": [
+          "NandoDemoBucket",
+          "WebsiteURL"
+        ]
       }
     },
     "StelligentDemoCNAME": {
       "Value": {
-        "Fn::Join": [".", [{
-          "Fn::Join": ["-", [
-            "http://nando-automation-demo", {
-              "Ref": "DemoRegion" }, {
-              "Ref": "HashID"
-            }
-          ]]
-        }, {
-          "Ref": "StelligentDemoZoneName"
-        }]]
+        "Fn::Join": [
+          ".", [{
+            "Fn::Join": [
+              "-", [
+                "http://nando-automation-demo", {
+                  "Ref": "DemoRegion"
+                }, {
+                  "Ref": "HashID"
+                }
+              ]
+            ]
+          }, {
+            "Ref": "StelligentDemoZoneName"
+          }]
+        ]
       }
     },
     "StelligentDemoBucketCNAME": {
       "Value": {
-        "Fn::Join": [".", [{
-          "Fn::Join": ["", [
-              "http://", {
-              "Ref": "AWS::StackName" }, "-", {
-              "Ref": "HashID"
-            }
-          ]]
-        }, {
-          "Ref": "StelligentDemoZoneName"
-        }]]
+        "Fn::Join": [
+          ".", [{
+            "Fn::Join": [
+              "", [
+                "http://", {
+                  "Ref": "AWS::StackName"
+                },
+                "-", {
+                  "Ref": "HashID"
+                }
+              ]
+            ]
+          }, {
+            "Ref": "StelligentDemoZoneName"
+          }]
+        ]
       }
     },
     "StelligentDemoJenkinsCNAME": {
       "Value": {
-        "Fn::Join": ["", ["http://nando-automation-demo-jenkins-", {
-          "Ref": "DemoRegion" }, "-", {
-          "Ref": "HashID" }, ".", {
-          "Ref": "StelligentDemoZoneName"
-        }, ":8080"]]
+        "Fn::Join": [
+          "", [
+            "http://nando-automation-demo-jenkins-", {
+              "Ref": "DemoRegion"
+            },
+            "-", {
+              "Ref": "HashID"
+            },
+            ".", {
+              "Ref": "StelligentDemoZoneName"
+            },
+            ":8080"
+          ]
+        ]
       }
     },
     "SSHCommandToJenkins": {
       "Value": {
         "Fn::Join": [
-          "",
-          [
-            "ssh -i ",
-            {
-              "Ref": "NandoDemoName"
+          "", [
+            "ssh -i ", {
+              "Ref": "KeyName"
             },
-            ".pem ec2-user@",
-            {
+            ".pem ec2-user@", {
               "Ref": "NandoDemoJenkinsEIP"
             }
           ]

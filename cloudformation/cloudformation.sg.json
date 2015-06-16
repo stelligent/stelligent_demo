@@ -2,18 +2,18 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Stelligent Demo: SG",
   "Parameters": {
-      "StelligentDemoVPC": {
-        "Type": "String"
-      },
-      "StelligentDemoPublicSubnet": {
-        "Type": "String"
-      },
-      "StelligentDemoPrivateSubnet1": {
-        "Type": "String"
-      },
-      "StelligentDemoPrivateSubnet2": {
-        "Type": "String"
-      }
+    "StelligentDemoVPC": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSubnet": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Type": "String"
+    }
   },
   "Mappings": {},
   "Resources": {
