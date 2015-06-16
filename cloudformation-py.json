@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Nando Automation Demo",
+  "Description": "Stelligent Demo",
   "Parameters": {
     "StelligentDemoVPC": {
       "Type": "String"
@@ -60,7 +60,7 @@
       "Type": "String",
       "Default": "default"
     },
-    "NandoDemoZoneName": {
+    "StelligentDemoZoneName": {
       "Type": "String",
       "Default": "elasticoperations.com"
     },
@@ -177,7 +177,7 @@
       "DependsOn": "NandoDemoELB",
       "Properties": {
         "HostedZoneName": {
-          "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
+          "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
         },
         "RecordSets": [{
           "Name": {
@@ -193,7 +193,7 @@
                   ]
                 ]
               }, {
-                "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
+                "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
               }]
             ]
           },
@@ -220,7 +220,7 @@
       "DependsOn": "NandoDemoJenkinsEIP",
       "Properties": {
         "HostedZoneName": {
-          "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
+          "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
         },
         "RecordSets": [{
           "Name": {
@@ -236,7 +236,7 @@
                   ]
                 ]
               }, {
-                "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
+                "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
               }]
             ]
           },
@@ -248,48 +248,12 @@
         }]
       }
     },
-    "NandoDemoDockerDNS": {
-      "Type": "AWS::Route53::RecordSetGroup",
-      "DependsOn": "NandoDemoDockerEnvironment",
-      "Properties": {
-        "HostedZoneName": {
-          "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
-        },
-        "RecordSets": [{
-          "Name": {
-            "Fn::Join": [
-              ".", [{
-                "Fn::Join": [
-                  "-", [
-                    "nando-automation-demo-docker", {
-                      "Ref": "DemoRegion"
-                    }, {
-                      "Ref": "HashID"
-                    }
-                  ]
-                ]
-              }, {
-                "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
-              }]
-            ]
-          },
-          "Type": "CNAME",
-          "TTL": "900",
-          "ResourceRecords": [{
-            "Fn::GetAtt": [
-              "NandoDemoDockerEnvironment",
-              "EndpointURL"
-            ]
-          }]
-        }]
-      }
-    },
     "NandoDemoBucketDNS": {
       "Type": "AWS::Route53::RecordSetGroup",
       "DependsOn": "NandoDemoBucket",
       "Properties": {
         "HostedZoneName": {
-          "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
+          "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
         },
         "RecordSets": [{
           "Name": {
@@ -301,7 +265,7 @@
                   }
                 ]]
               }, {
-                "Fn::Join": [ "", [ { "Ref": "NandoDemoZoneName" }, "." ]]
+                "Fn::Join": [ "", [ { "Ref": "StelligentDemoZoneName" }, "." ]]
               }]
             ]
           },
@@ -1126,99 +1090,25 @@
           "IndexDocument": "index.html"
         }
       }
-    },
-    "NandoDemoDockerApp": {
-      "Type": "AWS::ElasticBeanstalk::Application",
-      "Properties": {
-        "ApplicationName": {
-          "Fn::Join": [
-            "-", [
-              "NandoDemoDockerApp", {
-                "Ref": "DemoRegion"
-              }, {
-                "Ref": "HashID"
-              }
-            ]
-          ]
-        },
-        "Description": "NandoDemoDockerApp"
-      }
-    },
-    "NandoDemoDockerVersion": {
-      "Type": "AWS::ElasticBeanstalk::ApplicationVersion",
-      "Properties": {
-        "ApplicationName": {
-          "Ref": "NandoDemoDockerApp"
-        },
-        "Description": "NandoDemoDockerVersion",
-        "SourceBundle": {
-          "S3Bucket": "nando-automation-demo",
-          "S3Key": "nando-demo.zip"
-        }
-      }
-    },
-    "NandoDemoDockerTemplate": {
-      "Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
-      "Properties": {
-        "ApplicationName": {
-          "Ref": "NandoDemoDockerApp"
-        },
-        "Description": "NandoDemoDockerTemplate",
-        "OptionSettings": [{
-          "Namespace": "aws:autoscaling:asg",
-          "OptionName": "MinSize",
-          "Value": "1"
-        }, {
-          "Namespace": "aws:autoscaling:asg",
-          "OptionName": "MaxSize",
-          "Value": "2"
-        }, {
-          "Namespace": "aws:elasticbeanstalk:environment",
-          "OptionName": "EnvironmentType",
-          "Value": "LoadBalanced"
-        }, {
-          "Namespace": "aws:autoscaling:launchconfiguration",
-          "OptionName": "EC2KeyName",
-          "Value": {
-            "Ref": "KeyName"
-          }
-        }],
-        "SolutionStackName": "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0"
-      }
-    },
-    "NandoDemoDockerEnvironment": {
-      "Type": "AWS::ElasticBeanstalk::Environment",
-      "Properties": {
-        "ApplicationName": {
-          "Ref": "NandoDemoDockerApp"
-        },
-        "Description": "NandoDemoDockerEnvironment",
-        "TemplateName": {
-          "Ref": "NandoDemoDockerTemplate"
-        },
-        "VersionLabel": {
-          "Ref": "NandoDemoDockerVersion"
-        }
-      }
     }
   },
   "Outputs": {
-    "NandoDemoName": {
+    "StelligentDemoName": {
       "Value": {
         "Ref": "NandoDemoName"
       }
     },
-    "NandoDemoBucket": {
+    "StelligentDemoBucket": {
       "Value": {
         "Ref": "NandoDemoBucket"
       }
     },
-    "NandoDemoWebASG": {
+    "StelligentDemoWebASG": {
       "Value": {
         "Ref": "NandoDemoWebASG"
       }
     },
-    "NandoDemoJenkinsEIP": {
+    "StelligentDemoJenkinsEIP": {
       "Value": {
         "Ref": "NandoDemoJenkinsEIP"
       }
@@ -1243,33 +1133,26 @@
         "Ref": "StelligentDemoDBHost"
       }
     },
-    "NandoDemoJenkinsURL": {
+    "StelligentDemoJenkinsURL": {
       "Value": {
         "Fn::Join": ["", ["http://", {
           "Fn::GetAtt": ["NandoDemoJenkins", "PublicDnsName"]
         }, ":8080"]]
       }
     },
-    "NandoDemoELBDNSNAME": {
+    "StelligentDemoELBDNSNAME": {
       "Value": {
         "Fn::Join": ["", ["http://", {
           "Fn::GetAtt": ["NandoDemoELB", "DNSName"]
         }]]
       }
     },
-    "NandoDemoBucketURL": {
+    "StelligentDemoBucketURL": {
       "Value": {
         "Fn::GetAtt": ["NandoDemoBucket", "WebsiteURL"]
       }
     },
-    "NandoDemoDockerURL": {
-      "Value": {
-        "Fn::Join": ["", ["http://", {
-          "Fn::GetAtt": ["NandoDemoDockerEnvironment", "EndpointURL"]
-        }]]
-      }
-    },
-    "NandoDemoCNAME": {
+    "StelligentDemoCNAME": {
       "Value": {
         "Fn::Join": [".", [{
           "Fn::Join": ["-", [
@@ -1279,11 +1162,11 @@
             }
           ]]
         }, {
-          "Ref": "NandoDemoZoneName"
+          "Ref": "StelligentDemoZoneName"
         }]]
       }
     },
-    "NandoDemoBucketCNAME": {
+    "StelligentDemoBucketCNAME": {
       "Value": {
         "Fn::Join": [".", [{
           "Fn::Join": ["", [
@@ -1293,26 +1176,34 @@
             }
           ]]
         }, {
-          "Ref": "NandoDemoZoneName"
+          "Ref": "StelligentDemoZoneName"
         }]]
       }
     },
-    "NandoDemoDockerCNAME": {
-      "Value": {
-        "Fn::Join": ["", ["http://nando-automation-demo-docker-", {
-          "Ref": "DemoRegion" }, "-", {
-          "Ref": "HashID" }, ".", {
-          "Ref": "NandoDemoZoneName"
-        }]]
-      }
-    },
-    "NandoDemoJenkinsCNAME": {
+    "StelligentDemoJenkinsCNAME": {
       "Value": {
         "Fn::Join": ["", ["http://nando-automation-demo-jenkins-", {
           "Ref": "DemoRegion" }, "-", {
           "Ref": "HashID" }, ".", {
-          "Ref": "NandoDemoZoneName"
+          "Ref": "StelligentDemoZoneName"
         }, ":8080"]]
+      }
+    },
+    "SSHCommandToJenkins": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "ssh -i ",
+            {
+              "Ref": "NandoDemoName"
+            },
+            ".pem ec2-user@",
+            {
+              "Ref": "NandoDemoJenkinsEIP"
+            }
+          ]
+        ]
       }
     }
   }

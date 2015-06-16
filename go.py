@@ -148,7 +148,7 @@ def copy_files_to_s3(s3_connection, bucket):
 
 
 def create_and_upload_index_to_s3(s3, outputs=dict()):
-    output_key = "NandoDemoBucketURL"
+    output_key = "StelligentDemoBucketURL"
     bucket_url = ([output.value for output in outputs
                   if output.key == output_key])[0]
     bucket_name = re.sub(r'http://(.*).s3-website.*', r'\1', bucket_url)
@@ -544,14 +544,13 @@ def build(connections, region, locations, hash_id, full):
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
-    get_resource_id(connections['cfn'], stack_name, DEMO_DOCKER_ENV)
     print "Gathering Stack Outputs...almost there!"
     outputs = get_stack_outputs(connections['cfn'], stack_name)
     # Upload index.html to transient demo bucket
     print "Creating index.html in ephemeral demo bucket..."
     create_and_upload_index_to_s3(connections['s3'], outputs)
     print "Outputs:"
-    for output in outputs:
+    for output in sorted(outputs):
         print '%s = %s' % (output.key, output.value)
 
 
