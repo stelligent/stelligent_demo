@@ -341,7 +341,7 @@ def delete_iam_role(iam_connection, role_name):
 
 def put_iam_role_policy(iam_connection, role_name, policy_name,
                         policy_doc):
-    sys.stdout.write("Adding policy %s ..." % policy_name)
+    sys.stdout.write("Adding policy %s..." % policy_name)
     sys.stdout.flush()
     with open(policy_doc) as doc:
         iam_connection.put_role_policy(role_name, policy_name, doc.read())
