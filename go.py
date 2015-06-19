@@ -31,7 +31,9 @@ STACK_DATA = {
     'main': {'key_prefix': 'stelligent-demo',
              'prefix': 'nando-demo',
              'template': 'cloudformation-py.json',
-             'type': 'MAIN'},
+             'type': 'MAIN',
+             's3_prefix': 'stelligent-demo-s3',
+             's3_template': 'cloudformation/cloudformation.s3.json'},
     'vpc': {'prefix': 'stelligent-demo-vpc',
             'template': 'cloudformation/cloudformation.vpc.json',
             'type': 'VPC'},
@@ -44,6 +46,7 @@ STACK_DATA = {
             'type': 'RDS'}
 }
 DEFAULT_REGION = 'us-east-1'
+ROUTE53_DOMAIN = 'elasticoperations.com'
 MAIN_S3_BUCKET = 'nando-automation-demo'  # Permanent S3 Bucket
 MAIN_S3_BUCKET_REGION = 'us-east-1'
 DOCKER_ZIPFILE = 'nando-demo.zip'
@@ -203,22 +206,27 @@ def inject_custom_ami(resource, data, parameters, ec2_connection, region):
     return data, parameters
 
 
-def inject_locations(locations, data):
-    sys.stdout.write("Setting security source(s) to %s..." % locations)
-    sys.stdout.flush()
+def add_cidr_subnet(locations):
+    locations_with_cidr = list()
     for location in locations:
-        # Add CIDR Subnet
         if location == '0.0.0.0':
             location = '%s/0' % location
         else:
             location = '%s/32' % location
+        locations_with_cidr.append(location)
+    return locations_with_cidr
+
+
+def inject_locations(locations, data):
+    sys.stdout.write("Setting security source(s) to %s..." % locations)
+    sys.stdout.flush()
+    for location in locations:
         for port in INGRESS_PORTS:
             item = {'IpProtocol': 'tcp',
                     'FromPort': port,
                     'ToPort': port,
                     'CidrIp': '%s' % location}
             data['Resources']['StelligentDemoPublicLockedSecurityGroup']['Properties']['SecurityGroupIngress'].append(item)
-        data['Resources']['NandoDemoBucketPolicy']['Properties']['PolicyDocument']['Statement'][0]['Condition']['IpAddress']['aws:SourceIp'].append(location)
     print "Done!"
     return data
 
@@ -233,6 +241,39 @@ def get_instagram_keys_from_env():
         sys.exit(1)
     else:
         return insta_id, insta_secret
+
+
+def create_s3_stack(cfn_connection, locations, region, timestamp):
+    s3_stack_name = "%s-%s" % (STACK_DATA['main']['s3_prefix'], timestamp)
+    s3_params = list()
+    s3_params.append(("DemoRegion", region))
+    s3_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
+    with open(STACK_DATA['main']['s3_template']) as data_file:
+        data = json.load(data_file)
+    for location in locations:
+        data['Resources']['StelligentDemoBucketPolicy']['Properties']['PolicyDocument']['Statement'][0]['Condition']['IpAddress']['aws:SourceIp'].append(location)
+    create_cfn_stack(cfn_connection, s3_stack_name, data,
+                     build_params=s3_params)
+    get_resource_id(cfn_connection, s3_stack_name)
+    outputs = get_stack_outputs(cfn_connection, s3_stack_name)
+    return s3_stack_name, outputs
+
+
+def delete_s3_stack(cfn_connection, s3_connection, bucket_name):
+    s3_stack_name = bucket_name.replace('.%s' % ROUTE53_DOMAIN, '')
+    try:
+        bucket = s3_connection.get_bucket(bucket_name)
+        keys = bucket.get_all_keys()
+        if keys:
+            print "Deleting the following files from %s:" % bucket_name
+            print keys
+            bucket.delete_keys(keys)
+    except S3ResponseError:
+        pass
+    sys.stdout.write("Deleting S3 Stack %s..." % s3_stack_name)
+    sys.stdout.flush()
+    cfn_connection.delete_stack(s3_stack_name)
+    print "Deleting!"
 
 
 def create_cfn_stack(cfn_connection, stack_name, data, build_params=None,
@@ -484,6 +525,10 @@ def outputs_to_parameters(outputs, params=None):
 def build(connections, region, locations, hash_id, full):
     instagram_id, instagram_secret = get_instagram_keys_from_env()
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+    locations = add_cidr_subnet(locations)
+    s3_stack, s3_outputs = create_s3_stack(connections['cfn'], locations,
+                                           region, timestamp)
+    build_params = outputs_to_parameters(s3_outputs)
     all_stacks = connections['cfn'].describe_stacks()
     #  Cascading Outputs/Parameters
     #  Get or create VPC
@@ -503,7 +548,7 @@ def build(connections, region, locations, hash_id, full):
         connections['cfn'], all_stacks, STACK_DATA['rds'], timestamp,
         build_params=rds_params, check_outputs=sg_outputs, full=sg_created
     )
-    build_params = outputs_to_parameters(rds_outputs)
+    build_params += outputs_to_parameters(rds_outputs)
     build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
     #  Setup Instagram Access
     build_params.append(("InstagramId", instagram_id))
@@ -512,6 +557,7 @@ def build(connections, region, locations, hash_id, full):
     stack_name = "%s-%s" % (STACK_DATA['main']['prefix'], timestamp)
     build_params.append(("NandoDemoName", stack_name))
     build_params.append(("DemoRegion", region))
+    build_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
     build_params.append(("HashID", hash_id))
     #  Setup S3
     copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
@@ -551,7 +597,6 @@ def build(connections, region, locations, hash_id, full):
                          dest_name, MAIN_S3_BUCKET)
     print "Done!"
     #  Give Feedback whilst we wait...
-    get_resource_id(connections['cfn'], stack_name, DEMO_S3_BUCKET)
     get_resource_id(connections['cfn'], stack_name, DEMO_ELB)
     asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
     #  Setup CodeDeploy
@@ -573,16 +618,16 @@ def build(connections, region, locations, hash_id, full):
 def destroy(connections, region):
     stacks = list_and_get_stacks(connections['cfn'], allow_all=True)
     for stack in stacks:
-        stack, type = stack
+        stack, stack_type = stack
         if stack.stack_status == "DELETE_IN_PROGRESS":
             print "Stack %s deletion already in progress." % stack.stack_name
             continue
-        if type == 'MAIN':
-            #  Fetch our Hash ID for this stack
-            for param in stack.parameters:
-                if param.key == "HashID":
-                    hash_id = param.value
+        if stack_type == 'MAIN':
             parameters = {x.key: x.value for x in stack.parameters}
+            hash_id = parameters['HashID']
+            s3_bucket = parameters['StelligentDemoBucket']
+            #  Empty and delete S3 Bucket
+            delete_s3_stack(connections['cfn'], connections['s3'], s3_bucket)
             #  Destroy CodeDeploy
             delete_codedeploy_deployment_group(
                 connections['codedeploy'],
@@ -590,8 +635,6 @@ def destroy(connections, region):
                 parameters['CodeDeployDeploymentGroup'])
             delete_codedeploy_application(connections['codedeploy'],
                                           parameters['CodeDeployAppName'])
-            #  Empty S3 Bucket
-            empty_related_buckets(connections['s3'], stack)
             #  Destroy IAM Roles/Policies
             IRN = "-".join((IAM_ROLE_NAME, region, hash_id))
             IPN = "-".join((IAM_POLICY_NAME, region, hash_id))
