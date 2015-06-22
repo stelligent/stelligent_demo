@@ -41,7 +41,10 @@ STACK_DATA = {
     'rds': {'db_prefix': 'stelligent',
             'prefix': 'stelligent-demo-rds',
             'template': 'cloudformation/cloudformation.rds.json',
-            'type': 'RDS'}
+            'type': 'RDS'},
+    'ecs': {'prefix': 'stelligent-demo-ecs',
+            'template': 'cloudformation/cloudformation.ecs.json',
+            'type': 'ECS'}
 }
 DEFAULT_REGION = 'us-east-1'
 MAIN_S3_BUCKET = 'nando-automation-demo'  # Permanent S3 Bucket
@@ -75,6 +78,7 @@ JENKINS_INSTANCE = "NandoDemoJenkins"
 WEB_ASG_NAME = 'NandoDemoWebASG'
 DEMO_RDS = 'NandoDemoMysql'
 DEMO_ELB = 'NandoDemoELB'
+DEMO_ECS = 'StelligentDemoECS'
 DEMO_S3_BUCKET = 'NandoDemoBucket'  # Ephemeral Bucket
 DEMO_DOCKER_ENV = 'NandoDemoDockerEnvironment'
 
@@ -485,6 +489,9 @@ def build(connections, region, locations, hash_id, full):
     instagram_id, instagram_secret = get_instagram_keys_from_env()
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     all_stacks = connections['cfn'].describe_stacks()
+    #  Setup EC2 Key Pair
+    key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
+    private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
     #  Cascading Outputs/Parameters
     #  Get or create VPC
     vpc_stack, vpc_outputs, vpc_created = get_or_create_stack(
@@ -497,11 +504,19 @@ def build(connections, region, locations, hash_id, full):
         connections['cfn'], all_stacks, STACK_DATA['sg'], timestamp,
         build_params=sg_params, check_outputs=vpc_outputs, full=vpc_created
     )
+    # Get or create ECS
+    ecs_params = outputs_to_parameters(sg_outputs)
+    ecs_params.append(("KeyName", key_pair_name))
+    ecs_params.append(('StelligentDemoECSClusterName', DEMO_ECS))
+    ecs_stack, ecs_outputs, ecs_creates = get_or_create_stack(
+        connections['cfn'], all_stacks, STACK_DATA['ecs'], timestamp,
+        build_params=ecs_params, check_outputs=sg_outputs, full=True
+    )
     # Get or create RDS
-    rds_params = outputs_to_parameters(sg_outputs)
+    rds_params = outputs_to_parameters(ecs_outputs)
     rds_stack, rds_outputs, rds_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['rds'], timestamp,
-        build_params=rds_params, check_outputs=sg_outputs, full=sg_created
+        build_params=rds_params, check_outputs=ecs_outputs, full=sg_created
     )
     build_params = outputs_to_parameters(rds_outputs)
     build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
@@ -513,6 +528,8 @@ def build(connections, region, locations, hash_id, full):
     build_params.append(("NandoDemoName", stack_name))
     build_params.append(("DemoRegion", region))
     build_params.append(("HashID", hash_id))
+    build_params.append(("KeyName", key_pair_name))
+    build_params.append(("PrivateKey", private_key))
     #  Setup S3
     copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
     #  Setup Security Groups/Access
@@ -523,11 +540,6 @@ def build(connections, region, locations, hash_id, full):
     #  Inject Custom AMI
     data, build_params = inject_custom_ami(
         JENKINS_INSTANCE, data, build_params, connections['ec2'], region)
-    #  Setup EC2 Key Pair
-    key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
-    private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
-    build_params.append(("KeyName", key_pair_name))
-    build_params.append(("PrivateKey", private_key))
     #  Setup IAM Roles/Policies
     IRN = "-".join((IAM_ROLE_NAME, region, hash_id))
     IPN = "-".join((IAM_POLICY_NAME, region, hash_id))

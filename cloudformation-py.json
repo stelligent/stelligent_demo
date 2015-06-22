@@ -84,6 +84,12 @@
     },
     "CodeDeployDeploymentGroup": {
       "Type": "String"
+    },
+    "StelligentEcsInstanceAsgName": {
+      "Type": "String"
+    },
+    "StelligentEcsElbName": {
+      "Type": "String"
     }
   },
   "Mappings": {
@@ -1141,6 +1147,14 @@
     }
   },
   "Outputs": {
+    "StelligentEcsInstanceAsgName" : {
+      "Description" : "Auto Scaling Group Name for ECS Instances",
+      "Value" : { "Ref" : "StelligentEcsInstanceAsgName" }
+    },
+    "StelligentEcsElbName" : {
+      "Description" : "Load Balancer for Stelligent Demo ECS",
+      "Value" : { "Ref" : "StelligentEcsElbName" }
+    },
     "StelligentDemoName": {
       "Value": {
         "Ref": "NandoDemoName"
