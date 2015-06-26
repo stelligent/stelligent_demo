@@ -1,0 +1,314 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Stelligent Demo: ECS-Docker",
+  "Parameters" : {
+    "StelligentDemoZoneName": {
+        "Type": "String",
+        "Default": "elasticoperations.com"
+    },
+    "StelligentDemoVPC": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSubnet": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroup": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicRouteTableAssociation": {
+      "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroupSSH": {
+      "Type": "String"
+    },
+    "StelligentDemoECSInstanceType": {
+      "Type": "String",
+      "Default": "t2.medium"
+    },
+    "StelligentDemoECSClusterName": {
+      "Type": "String",
+      "Description": "Stelligent Demo ECS Cluster",
+      "Default": "default"
+    },
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "StelligentDemoPrivateSecurityGroupMySQL": {
+        "Type": "String"
+    },
+    "StelligentDemoPrivateSecurityGroupId": {
+        "Type": "String"
+    }
+  },
+  "Mappings": {
+    "AWSInstanceType2Arch" : {
+      "t2.micro"    : { "Arch" : "HVM64" },
+      "t2.small"    : { "Arch" : "HVM64" },
+      "t2.medium"   : { "Arch" : "HVM64" },
+      "t2.large"    : { "Arch" : "HVM64" },
+      "m3.medium"   : { "Arch" : "HVM64" },
+      "m3.large"    : { "Arch" : "HVM64" },
+      "m3.xlarge"   : { "Arch" : "HVM64" },
+      "m3.2xlarge"  : { "Arch" : "HVM64" },
+      "c3.large"    : { "Arch" : "HVM64" },
+      "c3.xlarge"   : { "Arch" : "HVM64" },
+      "c3.2xlarge"  : { "Arch" : "HVM64" },
+      "c3.4xlarge"  : { "Arch" : "HVM64" },
+      "c3.8xlarge"  : { "Arch" : "HVM64" },
+      "r3.large"    : { "Arch" : "HVM64" },
+      "r3.xlarge"   : { "Arch" : "HVM64" },
+      "r3.2xlarge"  : { "Arch" : "HVM64" },
+      "r3.4xlarge"  : { "Arch" : "HVM64" },
+      "r3.8xlarge"  : { "Arch" : "HVM64" },
+      "i2.xlarge"   : { "Arch" : "HVM64" },
+      "i2.2xlarge"  : { "Arch" : "HVM64" },
+      "i2.4xlarge"  : { "Arch" : "HVM64" },
+      "i2.8xlarge"  : { "Arch" : "HVM64" },
+      "hi1.4xlarge" : { "Arch" : "HVM64" },
+      "hs1.8xlarge" : { "Arch" : "HVM64" },
+      "cr1.8xlarge" : { "Arch" : "HVM64" },
+      "cc2.8xlarge" : { "Arch" : "HVM64" }
+    },
+
+    "AWSRegionArch2AMI" : {
+      "us-east-1"      : { "HVM64" : "ami-34ddbe5c" },
+      "us-west-2"      : { "HVM64" : "ami-c188b0f1" },
+      "eu-west-1"      : { "HVM64" : "ami-3db4ca4a" },
+      "ap-northeast-1" : { "HVM64" : "ami-ca01d8ca" },
+      "ap-southeast-1" : { "HVM64" : "ami-5b5d2661" }
+    },
+
+    "AvailabilityZone" : {
+      "us-east-1": {
+        "Public" : "us-east-1c",
+        "Private1" : "us-east-1d",
+        "Private2" : "us-east-1e"
+      },
+      "us-west-2": {
+        "Public": "us-west-2a",
+        "Private1": "us-west-2b",
+        "Private2": "us-west-2c"
+      }
+    }
+  },
+  "Resources": {
+    "StelligentDemoECSCluster": {
+        "Type": "AWS::ECS::Cluster"
+    },
+    "StelligentDemoECSELB": {
+        "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+        "Properties" : {                                        
+          "Subnets" : [ { "Ref" : "StelligentDemoPublicSubnet" } ],
+          "Listeners" : [                                 
+            { "LoadBalancerPort" : "80", "InstancePort" : "8011", "Protocol" : "HTTP" },
+            { "LoadBalancerPort" : "2222", "InstancePort" : "22", "Protocol" : "TCP" }
+          ],                                              
+          "HealthCheck" : {                               
+            "Target" : "HTTP:8011/",                  
+            "HealthyThreshold" : "2",               
+            "UnhealthyThreshold" : "5",             
+            "Interval" : "5",                       
+            "Timeout" : "4"                         
+          },                                              
+          "SecurityGroups" : [ { "Ref" : "StelligentDemoPublicSecurityGroup" } ]
+        }                                                       
+    },
+
+    "EcsInstanceAsg" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : [{
+          "Fn::FindInMap": [                                                    
+            "AvailabilityZone", {                                               
+              "Ref": "AWS::Region"                                              
+            },                                                                  
+            "Public"                                                            
+          ]
+        }],
+        "VPCZoneIdentifier" : [ { "Ref" : "StelligentDemoPublicSubnet" } ],
+        "LaunchConfigurationName": { "Ref": "StelligentDemoECSInstance" },
+        "LoadBalancerNames":  [ { "Ref": "StelligentDemoECSELB" } ],
+        "MinSize": "1",
+        "MaxSize": "2",
+        "DesiredCapacity": "1",
+        "Tags": [{
+            "Key": "Name",
+            "Value": { "Fn::Join"  : [ "-" , [ { "Ref" : "AWS::StackName" }, "docker" ] ] },
+            "PropagateAtLaunch": "true"
+        }]
+      }
+    },
+
+    "StelligentDemoECSInstance": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "DependsOn": [ "StelligentDemoECSInstanceProfile" ],
+      "Properties": {
+        "IamInstanceProfile" : { "Ref" : "StelligentDemoECSInstanceProfile" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "StelligentDemoECSInstanceType" }, "Arch" ] } ] },
+        "InstanceType"   : { "Ref": "StelligentDemoECSInstanceType" },
+        "KeyName"        : { "Ref": "KeyName" },
+        "AssociatePublicIpAddress": true,
+        "SecurityGroups": [{ "Ref": "StelligentDemoPublicLockedSecurityGroup" },
+                           { "Ref": "StelligentDemoECSSecurityGroup" }],
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+             "#!/bin/bash -xe\n",
+             "echo ECS_CLUSTER=", { "Ref" : "StelligentDemoECSCluster" },
+             " >> /etc/ecs/ecs.config\n"
+        ]]}}
+      },
+      "CreationPolicy" : {                                            
+        "ResourceSignal" : {                                        
+          "Timeout" : "PT5M"                                      
+        }                                                           
+      } 
+    },
+
+    "StelligentDemoPublicLockedSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "stelligent-demo-public-locked",
+        "VpcId": {
+          "Ref": "StelligentDemoVPC"
+        },
+        "SecurityGroupIngress": []
+      }
+    },
+
+    "StelligentDemoECSRole": {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement" : [ {
+            "Effect" : "Allow",
+            "Principal" : {
+              "Service" : [ "ec2.amazonaws.com" ]
+            },
+            "Action" : [ "sts:AssumeRole" ]
+          } ]
+        }
+      }
+    },
+
+    "StelligentDemoECSRolePolicy": {
+      "Type" : "AWS::IAM::Policy",
+      "DependsOn": "StelligentDemoECSRole",
+      "Properties" : {
+        "PolicyName": "StelligentDemoECSRolePolicy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [ {
+            "Effect": "Allow",
+            "Action": [
+              "ecs:CreateCluster",
+              "ecs:DeregisterContainerInstance",
+              "ecs:DiscoverPollEndpoint",
+              "ecs:Poll",
+              "ecs:RegisterContainerInstance",
+              "ecs:Submit*"
+            ],
+            "Resource": [ { "Fn::Join": [ "", [ 
+              "arn:aws:ecs:", {
+              "Ref": "AWS::Region" }, ":*:cluster/", {
+              "Ref": "StelligentDemoECSCluster" } ]
+            ]}]
+          } ]
+        },
+        "Roles": [{ "Ref": "StelligentDemoECSRole" }]
+      }
+    },
+
+    "StelligentDemoECSSecurityGroup": {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "VpcId": { "Ref": "StelligentDemoVPC" },
+        "GroupDescription" : "Enable HTTP, SSH and Docker App access",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "8011", "ToPort" : "8011", "CidrIp" : "0.0.0.0/0"}
+        ]
+      }
+    },
+
+    "StelligentDemoECSInstanceProfile": {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "DependsOn": "StelligentDemoECSRole",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [{ "Ref" : "StelligentDemoECSRole" }]
+      }
+    }
+
+  },
+  "Outputs": {
+    "StelligentEcsInstanceAsgName" : {
+      "Description" : "Auto Scaling Group Name for ECS Instances",
+      "Value" : { "Ref" : "EcsInstanceAsg" }
+    },
+    "StelligentEcsElbName" : {
+      "Description" : "Load Balancer for Stelligent Demo ECS",
+      "Value" : { "Ref" : "StelligentDemoECSELB" }
+    },
+    "StelligentDemoVPC": {
+      "Value": {
+        "Ref": "StelligentDemoVPC"
+      }
+    },
+    "StelligentDemoPublicSubnet": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSubnet"
+      }
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet1"
+      }
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet2"
+      }
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSecurityGroup"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroup": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroup"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupId": {
+      "Value": {
+          "Ref" : "StelligentDemoPrivateSecurityGroupId"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupSSH": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroupSSH"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupMySQL": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroupMySQL"
+      }
+    },
+    "StelligentDemoPublicRouteTableAssociation": {
+      "Value": {
+        "Ref": "StelligentDemoPublicRouteTableAssociation"
+      }
+    }
+  }
+}
