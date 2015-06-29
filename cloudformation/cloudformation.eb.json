@@ -3,10 +3,6 @@
   "Description": "Stelligent Demo: EB-Docker",
   "Parameters": {
     "StelligentDemoZoneName": {
-      "Type": "String",
-      "Default": "elasticoperations.com"
-    },
-    "StelligentDemoBucketDomainName": {
       "Type": "String"
     },
     "DemoRegion": {
@@ -137,18 +133,30 @@
     }
   },
   "Outputs": {
-    "StelligentDemoDockerURL": {
+    "StelligentDemoEBDockerURL": {
       "Value": {
         "Fn::Join": ["", ["http://", {
           "Fn::GetAtt": ["StelligentDemoDockerEnvironment", "EndpointURL"]
         }]]
       }
     },
-    "StelligentDemoDockerCNAME": {
+    "StelligentDemoEBDockerCNAME": {
       "Value": {
-        "Fn::Join": ["", ["https://", {
-          "Ref": "StelligentDemoBucketDomainName"
-        }]]
+        "Fn::Join": [
+          ".", [{
+            "Fn::Join": [
+              "-", [
+                "http://stelligent-demo-docker", {
+                  "Ref": "DemoRegion"
+                }, {
+                  "Ref": "HashID"
+                }
+              ]
+            ]
+          }, {
+            "Ref": "StelligentDemoZoneName"
+          }]
+        ]
       }
     }
   }
