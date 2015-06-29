@@ -2,6 +2,18 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Stelligent Demo",
   "Parameters": {
+    "StelligentDemoBucket": {
+      "Type": "String"
+    },
+    "StelligentDemoBucketURL": {
+      "Type": "String"
+    },
+    "StelligentDemoBucketDomainName": {
+      "Type": "String"
+    },
+    "StelligentDemoBucketCNAME": {
+      "Type": "String"
+    },
     "StelligentDemoVPC": {
       "Type": "String"
     },
@@ -61,8 +73,7 @@
       "Default": "default"
     },
     "StelligentDemoZoneName": {
-      "Type": "String",
-      "Default": "elasticoperations.com"
+      "Type": "String"
     },
     "KeyName": {
       "Type": "AWS::EC2::KeyPair::KeyName"
@@ -83,12 +94,6 @@
       "Type": "String"
     },
     "CodeDeployDeploymentGroup": {
-      "Type": "String"
-    },
-    "StelligentEcsInstanceAsgName": {
-      "Type": "String"
-    },
-    "StelligentEcsElbName": {
       "Type": "String"
     }
   },
@@ -274,60 +279,6 @@
           "TTL": "900",
           "ResourceRecords": [{
             "Ref": "NandoDemoJenkinsEIP"
-          }]
-        }]
-      }
-    },
-    "NandoDemoBucketDNS": {
-      "Type": "AWS::Route53::RecordSetGroup",
-      "DependsOn": "NandoDemoBucket",
-      "Properties": {
-        "HostedZoneName": {
-          "Fn::Join": [
-            "", [{
-                "Ref": "StelligentDemoZoneName"
-              },
-              "."
-            ]
-          ]
-        },
-        "RecordSets": [{
-          "Name": {
-            "Fn::Join": [
-              ".", [{
-                "Fn::Join": [
-                  "", [{
-                      "Ref": "AWS::StackName"
-                    },
-                    "-", {
-                      "Ref": "HashID"
-                    }
-                  ]
-                ]
-              }, {
-                "Fn::Join": [
-                  "", [{
-                      "Ref": "StelligentDemoZoneName"
-                    },
-                    "."
-                  ]
-                ]
-              }]
-            ]
-          },
-          "Type": "CNAME",
-          "TTL": "900",
-          "ResourceRecords": [{
-            "Fn::Join": [
-              "", [{
-                  "Ref": "NandoDemoBucket"
-                },
-                ".s3-website-", {
-                  "Ref": "DemoRegion"
-                },
-                ".amazonaws.com"
-              ]
-            ]
           }]
         }]
       }
@@ -1015,7 +966,7 @@
               "Fn::Join": [
                 "", [
                   "arn:aws:s3:::", {
-                    "Ref": "NandoDemoBucket"
+                    "Ref": "StelligentDemoBucket"
                   },
                   "/*"
                 ]
@@ -1088,73 +1039,9 @@
           "Ref": "NandoDemoASGRole"
         }]
       }
-    },
-    "NandoDemoBucketPolicy": {
-      "Type": "AWS::S3::BucketPolicy",
-      "DependsOn": "NandoDemoBucket",
-      "Properties": {
-        "PolicyDocument": {
-          "Id": "NandoDemoBucketPolicy",
-          "Version": "2012-10-17",
-          "Statement": [{
-            "Sid": "allowTrustedIPs",
-            "Action": [
-              "s3:*"
-            ],
-            "Effect": "Allow",
-            "Resource": {
-              "Fn::Join": [
-                "", [
-                  "arn:aws:s3:::", {
-                    "Ref": "NandoDemoBucket"
-                  },
-                  "/*"
-                ]
-              ]
-            },
-            "Principal": "*",
-            "Condition": {
-              "IpAddress": {
-                "aws:SourceIp": []
-              }
-            }
-          }]
-        },
-        "Bucket": {
-          "Ref": "NandoDemoBucket"
-        }
-      }
-    },
-    "NandoDemoBucket": {
-      "Type": "AWS::S3::Bucket",
-      "Properties": {
-        "BucketName": {
-          "Fn::Join": [
-            "", [{
-                "Ref": "AWS::StackName"
-              },
-              "-", {
-                "Ref": "HashID"
-              },
-              ".elasticoperations.com"
-            ]
-          ]
-        },
-        "WebsiteConfiguration": {
-          "IndexDocument": "index.html"
-        }
-      }
     }
   },
   "Outputs": {
-    "StelligentEcsInstanceAsgName" : {
-      "Description" : "Auto Scaling Group Name for ECS Instances",
-      "Value" : { "Ref" : "StelligentEcsInstanceAsgName" }
-    },
-    "StelligentEcsElbName" : {
-      "Description" : "Load Balancer for Stelligent Demo ECS",
-      "Value" : { "Ref" : "StelligentEcsElbName" }
-    },
     "StelligentDemoName": {
       "Value": {
         "Ref": "NandoDemoName"
@@ -1162,7 +1049,7 @@
     },
     "StelligentDemoBucket": {
       "Value": {
-        "Ref": "NandoDemoBucket"
+        "Ref": "StelligentDemoBucket"
       }
     },
     "StelligentDemoWebASG": {
@@ -1226,10 +1113,7 @@
     },
     "StelligentDemoBucketURL": {
       "Value": {
-        "Fn::GetAtt": [
-          "NandoDemoBucket",
-          "WebsiteURL"
-        ]
+        "Ref": "StelligentDemoBucketURL"
       }
     },
     "StelligentDemoCNAME": {
@@ -1253,22 +1137,7 @@
     },
     "StelligentDemoBucketCNAME": {
       "Value": {
-        "Fn::Join": [
-          ".", [{
-            "Fn::Join": [
-              "", [
-                "http://", {
-                  "Ref": "AWS::StackName"
-                },
-                "-", {
-                  "Ref": "HashID"
-                }
-              ]
-            ]
-          }, {
-            "Ref": "StelligentDemoZoneName"
-          }]
-        ]
+        "Ref": "StelligentDemoBucketCNAME"
       }
     },
     "StelligentDemoJenkinsCNAME": {
