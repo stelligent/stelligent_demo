@@ -45,6 +45,9 @@ STACK_DATA = {
             'prefix': 'stelligent-demo-rds',
             'template': 'cloudformation/cloudformation.rds.json',
             'type': 'RDS'},
+    'eb': {'prefix': 'stelligent-demo-eb',
+            'template': 'cloudformation/cloudformation.eb.json',
+            'type': 'EB'},
     'ecs': {'prefix': 'stelligent-demo-ecs',
             'template': 'cloudformation/cloudformation.ecs.json',
             'type': 'ECS'}
@@ -508,31 +511,41 @@ def build(connections, region, locations, hash_id, full):
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     locations = add_cidr_subnet(locations)
     all_stacks = connections['cfn'].describe_stacks()
+    #  Setup EC2 Key Pair
+    key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
+    private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
+    #  Launch ElasticBeanstalk Stack, don't wait
+    eb_params = list()
+    eb_params.append(("HashID", hash_id))
+    eb_params.append(("DemoRegion", region))
+    eb_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
+    eb_params.append(("KeyName", key_pair_name))
+    eb_stack, eb_outputs, eb_created = get_or_create_stack(
+        connections['cfn'], all_stacks, STACK_DATA['eb'], timestamp,
+        build_params=eb_params, create=True, wait=False
+    )
+    #  Launch S3 Stack, don't wait
     s3_params = list()
     s3_params.append(("DemoRegion", region))
     s3_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
     s3_stack, s3_outputs, s3_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['s3'], timestamp,
-        build_params=s3_params, create=True, locations=locations
+        build_params=s3_params, create=True, wait=False, locations=locations
     )
-    build_params = outputs_to_parameters(s3_outputs)
-    #  Setup EC2 Key Pair
-    key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
-    private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
     #  Cascading Outputs/Parameters
     #  Get or create VPC
     vpc_stack, vpc_outputs, vpc_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['vpc'], timestamp,
         create=full
     )
-    # Get or create SG
+    #  Get or create SG
     sg_params = outputs_to_parameters(vpc_outputs)
     sg_stack, sg_outputs, sg_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['sg'], timestamp,
         build_params=sg_params, check_outputs=vpc_outputs, create=vpc_created
     )
-    # Create ECS
-    ecs_params = rds_params = outputs_to_parameters(sg_outputs)
+    #  Launch ECS Stack, don't wait
+    ecs_params = outputs_to_parameters(sg_outputs)
     ecs_params.append(("KeyName", key_pair_name))
     ecs_params.append(('StelligentDemoECSClusterName', DEMO_ECS))
     ecs_stack, ecs_outputs, ecs_created = get_or_create_stack(
@@ -540,27 +553,30 @@ def build(connections, region, locations, hash_id, full):
         build_params=ecs_params, check_outputs=sg_outputs, create=True,
         wait=False
     )
-    # Get or create RDS
+    #  Get or create RDS
+    rds_params = outputs_to_parameters(sg_outputs)
     rds_stack, rds_outputs, rds_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['rds'], timestamp,
         build_params=rds_params, check_outputs=sg_outputs, create=sg_created
     )
+    #  Wait for S3
+    get_resource_id(connections['cfn'], s3_stack)
+    s3_outputs = get_stack_outputs(connections['cfn'], s3_stack)
+    #  Setup Main Stack
+    stack_name = "%s-%s" % (STACK_DATA['main']['prefix'], timestamp)
+    build_params = outputs_to_parameters(s3_outputs)
     build_params += outputs_to_parameters(rds_outputs)
     build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
     #  Setup Instagram Access
     build_params.append(("InstagramId", instagram_id))
     build_params.append(("InstagramSecret", instagram_secret))
-    #  Setup Stack
-    stack_name = "%s-%s" % (STACK_DATA['main']['prefix'], timestamp)
     build_params.append(("NandoDemoName", stack_name))
     build_params.append(("DemoRegion", region))
     build_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
     build_params.append(("HashID", hash_id))
     build_params.append(("KeyName", key_pair_name))
     build_params.append(("PrivateKey", private_key))
-    #  Setup S3
     copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
-    #  Setup Security Groups/Access
     with open(STACK_DATA['main']['template']) as data_file:
         data = json.load(data_file)
     #  Inject locations
@@ -585,7 +601,7 @@ def build(connections, region, locations, hash_id, full):
     sys.stdout.write("Launching CloudFormation Stack in %s..." % region)
     sys.stdout.flush()
     create_cfn_stack(connections['cfn'], stack_name, data, build_params)
-    #  Upload stackname to S3
+    #  Upload stack name to S3
     dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
     set_stack_name_in_s3(connections['main_s3'], stack_name,
                          dest_name, MAIN_S3_BUCKET)
@@ -599,10 +615,13 @@ def build(connections, region, locations, hash_id, full):
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
     get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
+    # Wait for Elastic Beanstalk
+    get_resource_id(connections['cfn'], eb_stack)
     print "Gathering Stack Outputs...almost there!"
     main_outputs = get_stack_outputs(connections['cfn'], stack_name)
+    eb_outputs = get_stack_outputs(connections['cfn'], eb_stack)
     ecs_outputs = get_stack_outputs(connections['cfn'], ecs_stack)
-    outputs = main_outputs + ecs_outputs
+    outputs = main_outputs + eb_outputs + ecs_outputs
     outputs = sorted(outputs, key=lambda k: k.key)
     # Upload index.html to transient demo bucket
     create_and_upload_index_to_s3(connections['s3'], outputs)

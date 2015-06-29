@@ -5,7 +5,7 @@ deliveryPipelineView('Continuous Delivery Pipeline') {
     enableManualTriggers()
     pipelines {
         component('Image Selector Application', 'ISA-poll-version-control')
-        //component('Image Slide Show', 'DockerStage')
+        component('Image Slide Show', 'DockerStage')
         component('Instagram Image Processing', 'InstagramImageGet')
     }
 }
