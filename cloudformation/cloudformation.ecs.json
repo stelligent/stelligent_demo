@@ -259,56 +259,6 @@
     "StelligentEcsElbName" : {
       "Description" : "Load Balancer for Stelligent Demo ECS",
       "Value" : { "Ref" : "StelligentDemoECSELB" }
-    },
-    "StelligentDemoVPC": {
-      "Value": {
-        "Ref": "StelligentDemoVPC"
-      }
-    },
-    "StelligentDemoPublicSubnet": {
-      "Value": {
-        "Ref": "StelligentDemoPublicSubnet"
-      }
-    },
-    "StelligentDemoPrivateSubnet1": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSubnet1"
-      }
-    },
-    "StelligentDemoPrivateSubnet2": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSubnet2"
-      }
-    },
-    "StelligentDemoPublicSecurityGroup": {
-      "Value": {
-        "Ref": "StelligentDemoPublicSecurityGroup"
-      }
-    },
-    "StelligentDemoPrivateSecurityGroup": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSecurityGroup"
-      }
-    },
-    "StelligentDemoPrivateSecurityGroupId": {
-      "Value": {
-          "Ref" : "StelligentDemoPrivateSecurityGroupId"
-      }
-    },
-    "StelligentDemoPrivateSecurityGroupSSH": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSecurityGroupSSH"
-      }
-    },
-    "StelligentDemoPrivateSecurityGroupMySQL": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSecurityGroupMySQL"
-      }
-    },
-    "StelligentDemoPublicRouteTableAssociation": {
-      "Value": {
-        "Ref": "StelligentDemoPublicRouteTableAssociation"
-      }
     }
   }
 }

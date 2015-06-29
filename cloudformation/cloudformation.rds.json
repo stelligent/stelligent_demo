@@ -41,12 +41,6 @@
       "Type": "String",
       "Default": "StelligentDemoDBPass"
     },
-    "StelligentEcsInstanceAsgName": {
-      "Type": "String"
-    },
-    "StelligentEcsElbName": {
-      "Type": "String"
-    },
     "StelligentDemoPublicRouteTableAssociation": {
       "Type": "String"
     }
@@ -150,14 +144,6 @@
       "Value": {
         "Ref": "StelligentDemoDBPass"
       }
-    },
-    "StelligentEcsInstanceAsgName" : {
-      "Description" : "Auto Scaling Group Name for ECS Instances",
-      "Value" : { "Ref" : "StelligentEcsInstanceAsgName" }
-    },
-    "StelligentEcsElbName" : {
-      "Description" : "Load Balancer for Stelligent Demo ECS",
-      "Value" : { "Ref" : "StelligentEcsElbName" }
     }
   }
 }
