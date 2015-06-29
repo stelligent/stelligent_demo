@@ -223,6 +223,11 @@
       "Value": {
         "Ref": "StelligentDemoPrivateSubnet2"
       }
+    },
+    "StelligentDemoPublicRouteTableAssociation": {
+      "Value": {
+        "Ref": "StelligentDemoPublicRouteTableAssociation"
+      }
     }
   }
 }
