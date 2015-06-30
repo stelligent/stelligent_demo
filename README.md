@@ -44,8 +44,8 @@ To destroy a stack created by this script run:
 ```
 A list of launched stacks will be displayed from which you can select the one to destroy.
 ## Demo Architecture
-![demo architecture](https://s3.amazonaws.com/stelligent-demo/stelligent-demo-001.png)
-![demo architecture](https://s3.amazonaws.com/stelligent-demo/stelligent-demo-002.png)
+![demo architecture](http://stelligent-demo.s3.amazonaws.com/public/stelligent-demo-001.png)
+![demo architecture](http://stelligent-demo.s3.amazonaws.com/public/stelligent-demo-002.png)
 
 - Cloud Deployment with [CloudFormation](http://aws.amazon.com/cloudformation/).
 
