@@ -54,9 +54,9 @@ STACK_DATA = {
 }
 DEFAULT_REGION = 'us-east-1'
 ROUTE53_DOMAIN = 'elasticoperations.com'
-MAIN_S3_BUCKET = 'nando-automation-demo'  # Permanent S3 Bucket
+MAIN_S3_BUCKET = 'stelligent-demo'  # Permanent S3 Bucket
 MAIN_S3_BUCKET_REGION = 'us-east-1'
-DOCKER_ZIPFILE = 'nando-demo.zip'
+DOCKER_ZIPFILE = 'stelligent-demo.zip'
 DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
 FILES_TO_S3 = ['jenkins/seed.xml.erb',
                'puppet/installJenkins.pp',

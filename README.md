@@ -44,8 +44,8 @@ To destroy a stack created by this script run:
 ```
 A list of launched stacks will be displayed from which you can select the one to destroy.
 ## Demo Architecture
-![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-001.png)
-![demo architecture](http://nando-automation-demo.s3.amazonaws.com/public/nando-automation-demo-002.png)
+![demo architecture](http://stelligent-demo.s3.amazonaws.com/public/stelligent-demo-001.png)
+![demo architecture](http://stelligent-demo.s3.amazonaws.com/public/stelligent-demo-002.png)
 
 - Cloud Deployment with [CloudFormation](http://aws.amazon.com/cloudformation/).
 
@@ -76,7 +76,7 @@ homepage screenshot:
 
 [![Demo CountPages alpha](http://share.gifyoutube.com/KzB6Gb.gif)](https://www.youtube.com/watch?v=ek1j272iAmc)
 
-http://nando-automation-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). Based on the user's selections, an Instagram image slideshow is generated and displayed (Docker).  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the Continuous Delivey Pipeline. 
+http://stelligent-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). Based on the user's selections, an Instagram image slideshow is generated and displayed (Docker).  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the Continuous Delivey Pipeline. 
 
 Jenkins jobs running Video:
 
