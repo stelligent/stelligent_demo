@@ -8,8 +8,8 @@ end
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   	config.vm.box_url = "https://github.com/2creatives/vagrant-centos/releases/download/v6.5.3/centos65-x86_64-20140116.box"
         config.vm.define "mysql" do |mysql|
-                mysql.vm.hostname = "nando-demo-mysql"
-                mysql.vm.box = "nando-demo-mysql"
+                mysql.vm.hostname = "stelligent-demo-mysql"
+                mysql.vm.box = "stelligent-demo-mysql"
                 mysql.vm.network :private_network, ip: "10.201.0.14"
                 mysql.vm.network :forwarded_port, guest: 3306, host: 8013
   		mysql.vm.synced_folder "../puppet", "/etc/puppet/manifests"
@@ -31,8 +31,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 end
         end
 	config.vm.define "codedeploy" do |codedeploy|
-		codedeploy.vm.hostname = "nando-demo-codedeploy"
-		codedeploy.vm.box = "nando-demo-codedeploy"
+		codedeploy.vm.hostname = "stelligent-demo-codedeploy"
+		codedeploy.vm.box = "stelligent-demo-codedeploy"
   		codedeploy.vm.network :private_network, ip: "10.201.0.11"
   		codedeploy.vm.network :forwarded_port, guest: 80, host: 8012
   		codedeploy.vm.synced_folder "../codedeploy", "/var/www/html", 
@@ -56,8 +56,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 end
 	end
         config.vm.define "jenkins" do |jenkins|
-                jenkins.vm.hostname = "nando-demo-jenkins"
-                jenkins.vm.box = "nando-demo-jenkins"
+                jenkins.vm.hostname = "stelligent-demo-jenkins"
+                jenkins.vm.box = "stelligent-demo-jenkins"
                 jenkins.vm.network :private_network, ip: "10.201.0.13"
   		jenkins.vm.network :forwarded_port, guest: 8080, host: 8010
   		jenkins.vm.synced_folder "../puppet", "/etc/puppet/manifests"

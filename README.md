@@ -1,4 +1,4 @@
-# nando_automation_demo
+# stelligent_demo
 ## Running the Demo 
 ####Prerequisites:####
 Python, pip, boto, and awscli are required to be installed and configured.
@@ -25,8 +25,8 @@ Amazon Linux/Redhat/CentOS/Fedora:
 ```
 Prepare to launch command (replace XXXX with your instagram keys):
 ```
-==> git clone https://github.com/stelligent/nando_automation_demo.git
-==> cd nando_automation_demo
+==> git clone https://github.com/stelligent/stelligent_demo.git
+==> cd stelligent_demo
 ==> export INSTAGRAM_CLIENT_ID=XXXXXXXXXXXXXXXXXXXXXXXX
 ==> export INSTAGRAM_CLIENT_SECRET=XXXXXXXXXXXXXXXXXXXXXXXX
 ```
@@ -91,7 +91,7 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 - deploy-pipeline-1-command (Bash script launches all jobs and resources)
 - provision-environment (CloudFormation)
 - node-configuration (Packages, Files, Services)
-- poll-version-control (GitHub every minute https://github.com/stelligent/nando_automation_demo)
+- poll-version-control (GitHub every minute https://github.com/stelligent/stelligent_demo)
 - app-deployment: (CodeDeploy and Docker)
 - configure-local-environment-1-command: (Vagrant and Docker) 
 
@@ -180,8 +180,6 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 - Use [delivery pipeline](https://wiki.jenkins-ci.org/display/JENKINS/Delivery+Pipeline+Plugin) plugin?
 - Diagram of the stages and activities in the deployment pipeline?
 - Deployment time?
-- How do you get feedback after running the ```deploy.nando.automation.demo.sh``` script? For example, the URL of the working application?
-- It seems that Jenkins gets launched with the ```deploy.nando.automation.demo.sh``` script?
 - How does Vagrant get launched by the user/developer?
 - Use [Dashing](http://dashing.io/) dashboard  to show metrics? (Jonny has a CFN template)?
 - Make CloudFormation work in multiple regions and AZs

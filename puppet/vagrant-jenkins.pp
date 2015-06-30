@@ -1,10 +1,10 @@
-node /^nando-demo-jenkins.*/ {
+node /^stelligent-demo-jenkins.*/ {
 
 	Exec { path => "/bin:/sbin:/usr/bin:/usr/sbin" }
 	
 	class { jenkins: lts => true, }
 
-        jenkins::plugin { 'python': }
+	jenkins::plugin { 'python': }
 	jenkins::plugin { 'credentials': }
 	jenkins::plugin { 'github': }
 	jenkins::plugin { 'ssh-credentials': }

@@ -9,7 +9,7 @@ from boto.codedeploy import connect_to_region as codedeploy_connect
 from boto.cloudformation import connect_to_region as cfn_connect
 
 CFN_HUP_LOCATION = '/etc/cfn/cfn-hup.conf'
-GITHUB_REPOSITORY = 'stelligent/nando_automation_demo'
+GITHUB_REPOSITORY = 'stelligent/stelligent_demo'
 TIMEOUT = 600
 SLEEP_SECONDS = 10
 

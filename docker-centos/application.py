@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 
 def hello_world():
-    return "nando-automation-demo via docker"
+    return "stelligent-demo via docker"
 
 app.wsgi_app = ProxyFix(app.wsgi_app)
 

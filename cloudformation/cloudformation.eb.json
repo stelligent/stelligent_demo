@@ -42,8 +42,8 @@
         },
         "Description": "StelligentDemoDockerVersion",
         "SourceBundle": {
-          "S3Bucket": "nando-automation-demo",
-          "S3Key": "nando-demo.zip"
+          "S3Bucket": "stelligent-demo",
+          "S3Key": "stelligent-demo.zip"
         }
       }
     },

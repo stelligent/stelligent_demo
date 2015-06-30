@@ -7,7 +7,7 @@ freeStyleJob ('DockerProduction') {
 
 freeStyleJob ('DockerStage') {
 	scm {
-		git('https://github.com/stelligent/nando_automation_demo', 'master')
+		git('https://github.com/stelligent/stelligent_demo', 'master')
 	}
 	triggers {
 		scm('* * * * *')

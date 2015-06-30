@@ -1,11 +1,11 @@
-node /^nando-demo-mysql.*/ {
+node /^stelligent-demo-mysql.*/ {
   		
 	Exec { path => "/bin:/sbin:/usr/bin:/usr/sbin" }
 	
 	class { '::mysql::server':
-  		#root_password    => 'mysql-root-password',
+	  #root_password    => 'mysql-root-password',
 		remove_default_accounts => true,
-  		override_options => { 
+		override_options => {
 			'mysqld' => { 
 				'max_connections' => '1024',
 				'bind_address' => '0.0.0.0' 
@@ -13,11 +13,11 @@ node /^nando-demo-mysql.*/ {
 		},
 	}
 	
-	mysql::db { 'nando-demo':
-		user		=> "nando-demo-user",
-		password	=> "nando-demo-pass",
-  		host     => '%',
-  		grant    => ['SELECT', 'UPDATE']
+	mysql::db { 'stelligent-demo':
+		user		=> "stelligent-demo-user",
+		password	=> "stelligent-demo-pass",
+		host     => '%',
+		grant    => ['SELECT', 'UPDATE']
 	}
 }
 

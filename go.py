@@ -29,7 +29,7 @@ CUSTOM_AMI_MAP = {
 }
 STACK_DATA = {
     'main': {'key_prefix': 'stelligent-demo',
-             'prefix': 'nando-demo',
+             'prefix': 'stelligent-demo',
              'template': 'cloudformation.json',
              'type': 'MAIN'},
     's3': {'prefix': 'stelligent-demo-s3',
@@ -69,25 +69,25 @@ INGRESS_PORTS = ['22', '2222', '8080']
 ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 
 #  FIXME: These are hard-coded elsewhere, make dynamic everywhere.
-CODEDEPLOY_APP_NAME = 'nando-demo'
-CODEDEPLOY_GROUP_NAME = 'nando-demo'
+CODEDEPLOY_APP_NAME = 'stelligent-demo'
+CODEDEPLOY_GROUP_NAME = 'stelligent-demo'
 
 
 #  Note: IAM_ROLE_NAME and IAM_POLICY_NAME will have the region and hash
-#        appended as 'NandoDemoRole-us-east-1' to allow multi-region support
-IAM_ROLE_NAME = 'NandoDemoCodeDeployRole'
-IAM_ROLE_DOC = 'codedeploy/NandoDemoCodeDeployRole.json'
-IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
-IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
+#        appended as 'StelligentDemoRole-us-east-1' to allow multi-region support
+IAM_ROLE_NAME = 'StelligentDemoCodeDeployRole'
+IAM_ROLE_DOC = 'codedeploy/StelligentDemoCodeDeployRole.json'
+IAM_POLICY_NAME = 'StelligentDemoCodeDeployPolicy'
+IAM_POLICY_DOC = 'codedeploy/StelligentDemoCodeDeployPolicy.json'
 
 #  Resource Logical IDs
 JENKINS_INSTANCE = "StelligentDemoJenkins"
-WEB_ASG_NAME = 'NandoDemoWebASG'
-DEMO_RDS = 'NandoDemoMysql'
-DEMO_ELB = 'NandoDemoELB'
+WEB_ASG_NAME = 'StelligentDemoWebASG'
+DEMO_RDS = 'StelligentDemoMysql'
+DEMO_ELB = 'StelligentDemoELB'
 DEMO_ECS = 'StelligentDemoECS'
-DEMO_S3_BUCKET = 'NandoDemoBucket'  # Ephemeral Bucket
-DEMO_DOCKER_ENV = 'NandoDemoDockerEnvironment'
+DEMO_S3_BUCKET = 'StelligentDemoBucket'  # Ephemeral Bucket
+DEMO_DOCKER_ENV = 'StelligentDemoDockerEnvironment'
 
 
 def ip_address_type(location):
@@ -570,7 +570,7 @@ def build(connections, region, locations, hash_id, full):
     #  Setup Instagram Access
     build_params.append(("InstagramId", instagram_id))
     build_params.append(("InstagramSecret", instagram_secret))
-    build_params.append(("NandoDemoName", stack_name))
+    build_params.append(("StelligentDemoName", stack_name))
     build_params.append(("DemoRegion", region))
     build_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
     build_params.append(("HashID", hash_id))

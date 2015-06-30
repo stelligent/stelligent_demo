@@ -1,4 +1,4 @@
-node /^nando-demo-jenkins.*/ {
+node /^stelligent-demo-jenkins.*/ {
 
 	include jenkins
         jenkins::job { 'seed':

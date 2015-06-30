@@ -3,10 +3,10 @@
 	ini_set('display_startup_errors',1);
 	error_reporting(-1);
 	date_default_timezone_set('America/New_York');
-	$dbName = trim(file_get_contents('/etc/cfn/NandoDemoDBName'));
-	$dbUser = trim(file_get_contents('/etc/cfn/NandoDemoDBUser'));
-	$dbPass = trim(file_get_contents('/etc/cfn/NandoDemoDBPass'));
-	$dbHost = trim(file_get_contents('/etc/cfn/NandoDemoDBHost'));
+	$dbName = trim(file_get_contents('/etc/cfn/StelligentDemoDBName'));
+	$dbUser = trim(file_get_contents('/etc/cfn/StelligentDemoDBUser'));
+	$dbPass = trim(file_get_contents('/etc/cfn/StelligentDemoDBPass'));
+	$dbHost = trim(file_get_contents('/etc/cfn/StelligentDemoDBHost'));
 	$placeImage1 = rand(1,8);
 	$placeImage2 = rand(1,8);
 	if ($placeImage1 == $placeImage2) { $placeImage2++; }
@@ -44,8 +44,8 @@
  	echo "<br><p><table border=0 width=100%><tr>";
 	for ($placeHolder = 0; $placeHolder < 8; $placeHolder++) { 
 		if ($placeHolder % 4 == 0) { echo "</tr><tr>"; }
-		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=http://nando-automation-demo.s3.amazonaws.com/public/AWS-logo.jpg width=100></td>"; }
-    		elseif ($placeHolder == $placeImage2) { echo "<td width=20% align=center><img src=http://nando-automation-demo.s3.amazonaws.com/public/AWS-logo.jpg width=100></td>"; }
+		if ($placeHolder == $placeImage1) { echo "<td width=20% align=center><img src=http://stelligent-demo.s3.amazonaws.com/public/AWS-logo.jpg width=100></td>"; }
+    		elseif ($placeHolder == $placeImage2) { echo "<td width=20% align=center><img src=http://stelligent-demo.s3.amazonaws.com/public/AWS-logo.jpg width=100></td>"; }
 		else { 
 			echo "<td width=20% align=center>"; 
     			for ($tddata = 0; $tddata < 8; $tddata++) {
@@ -55,6 +55,6 @@
 		}
 	}
 	echo "</tr></table><p>";
-        echo "<img src=http://nando-automation-demo.s3.amazonaws.com/public/stelligent.gif width=65% align=right>";
+        echo "<img src=http://stelligent-demo.s3.amazonaws.com/public/stelligent.gif width=65% align=right>";
 	echo "</body></html>";
 ?>

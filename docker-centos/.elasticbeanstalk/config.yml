@@ -3,7 +3,7 @@ branch-defaults:
     environment: null
 global:
   application_name: help
-  default_ec2_keyname: ../nando-demo-20150512005231
+  default_ec2_keyname: ../stelligent-demo-20150512005231
   default_platform: docker
   default_region: us-west-2
   profile: null

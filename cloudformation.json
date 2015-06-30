@@ -78,7 +78,7 @@
     "KeyName": {
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
-    "NandoDemoName": {
+    "StelligentDemoName": {
       "Type": "String"
     },
     "PrivateKey": {
@@ -120,7 +120,7 @@
     }
   },
   "Resources": {
-    "NandoDemoJenkinsEth0": {
+    "StelligentDemoJenkinsEth0": {
       "Type": "AWS::EC2::NetworkInterface",
       "DependsOn": "StelligentDemoPublicLockedSecurityGroup",
       "Properties": {
@@ -135,28 +135,28 @@
         }]
       }
     },
-    "NandoDemoJenkinsEIP": {
+    "StelligentDemoJenkinsEIP": {
       "Type": "AWS::EC2::EIP",
       "Properties": {
         "Domain": "vpc"
       }
     },
-    "NandoDemoJenkinsAssocEIP": {
+    "StelligentDemoJenkinsAssocEIP": {
       "Type": "AWS::EC2::EIPAssociation",
-      "DependsOn": "NandoDemoJenkinsEIP",
+      "DependsOn": "StelligentDemoJenkinsEIP",
       "Properties": {
         "NetworkInterfaceId": {
-          "Ref": "NandoDemoJenkinsEth0"
+          "Ref": "StelligentDemoJenkinsEth0"
         },
         "AllocationId": {
           "Fn::GetAtt": [
-            "NandoDemoJenkinsEIP",
+            "StelligentDemoJenkinsEIP",
             "AllocationId"
           ]
         }
       }
     },
-    "NandoDemoELB": {
+    "StelligentDemoELB": {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties": {
         "Subnets": [{
@@ -183,9 +183,9 @@
         }]
       }
     },
-    "NandoDemoELBDNS": {
+    "StelligentDemoELBDNS": {
       "Type": "AWS::Route53::RecordSetGroup",
-      "DependsOn": "NandoDemoELB",
+      "DependsOn": "StelligentDemoELB",
       "Properties": {
         "HostedZoneName": {
           "Fn::Join": [
@@ -202,7 +202,7 @@
               ".", [{
                 "Fn::Join": [
                   "-", [
-                    "nando-automation-demo", {
+                    "stelligent-demo", {
                       "Ref": "DemoRegion"
                     }, {
                       "Ref": "HashID"
@@ -224,13 +224,13 @@
           "AliasTarget": {
             "HostedZoneId": {
               "Fn::GetAtt": [
-                "NandoDemoELB",
+                "StelligentDemoELB",
                 "CanonicalHostedZoneNameID"
               ]
             },
             "DNSName": {
               "Fn::GetAtt": [
-                "NandoDemoELB",
+                "StelligentDemoELB",
                 "CanonicalHostedZoneName"
               ]
             }
@@ -238,9 +238,9 @@
         }]
       }
     },
-    "NandoDemoJenkinsDNS": {
+    "StelligentDemoJenkinsDNS": {
       "Type": "AWS::Route53::RecordSetGroup",
-      "DependsOn": "NandoDemoJenkinsEIP",
+      "DependsOn": "StelligentDemoJenkinsEIP",
       "Properties": {
         "HostedZoneName": {
           "Fn::Join": [
@@ -257,7 +257,7 @@
               ".", [{
                 "Fn::Join": [
                   "-", [
-                    "nando-automation-demo-jenkins", {
+                    "stelligent-demo-jenkins", {
                       "Ref": "DemoRegion"
                     }, {
                       "Ref": "HashID"
@@ -278,14 +278,14 @@
           "Type": "A",
           "TTL": "900",
           "ResourceRecords": [{
-            "Ref": "NandoDemoJenkinsEIP"
+            "Ref": "StelligentDemoJenkinsEIP"
           }]
         }]
       }
     },
     "StelligentDemoJenkins": {
       "Type": "AWS::EC2::Instance",
-      "DependsOn": "NandoDemoWebASG",
+      "DependsOn": "StelligentDemoWebASG",
       "Properties": {
         "KeyName": {
           "Ref": "KeyName"
@@ -310,11 +310,11 @@
           ]
         },
         "IamInstanceProfile": {
-          "Ref": "NandoDemoJenkinsInstanceProfile"
+          "Ref": "StelligentDemoJenkinsInstanceProfile"
         },
         "NetworkInterfaces": [{
           "NetworkInterfaceId": {
-            "Ref": "NandoDemoJenkinsEth0"
+            "Ref": "StelligentDemoJenkinsEth0"
           },
           "DeviceIndex": "0"
         }],
@@ -356,15 +356,15 @@
         }
       },
       "Metadata": {
-        "Comment": "Nando Demo Jenkins",
+        "Comment": "Stelligent Demo Jenkins",
         "AWS::CloudFormation::Authentication": {
           "S3AccessCreds": {
             "type": "S3",
             "roleName": {
-              "Ref": "NandoDemoJenkinsRole"
+              "Ref": "StelligentDemoJenkinsRole"
             },
             "buckets": [
-              "nando-automation-demo"
+              "stelligent-demo"
             ]
           }
         },
@@ -499,42 +499,42 @@
                 }
               },
               "/etc/puppet/manifests/installJenkins.pp": {
-                "source": "http://nando-automation-demo.s3.amazonaws.com/installJenkins.pp",
+                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkins.pp",
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsJob.pp": {
-                "source": "http://nando-automation-demo.s3.amazonaws.com/installJenkinsJob.pp",
+                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkinsJob.pp",
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsPlugins.pp": {
-                "source": "http://nando-automation-demo.s3.amazonaws.com/installJenkinsPlugins.pp",
+                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkinsPlugins.pp",
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsUsers.pp": {
-                "source": "http://nando-automation-demo.s3.amazonaws.com/installJenkinsUsers.pp",
+                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkinsUsers.pp",
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsSecurity.pp": {
-                "source": "http://nando-automation-demo.s3.amazonaws.com/installJenkinsSecurity.pp",
+                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkinsSecurity.pp",
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/templates/seed.xml.erb": {
-                "source": "http://nando-automation-demo.s3.amazonaws.com/seed.xml.erb",
+                "source": "http://stelligent-demo.s3.amazonaws.com/seed.xml.erb",
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
@@ -544,7 +544,7 @@
                 "source": {
                   "Fn::Join": [
                     "-", [
-                      "http://nando-automation-demo.s3.amazonaws.com/cloudformation.stack.name", {
+                      "http://stelligent-demo.s3.amazonaws.com/cloudformation.stack.name", {
                         "Ref": "DemoRegion"
                       }, {
                         "Ref": "HashID"
@@ -573,7 +573,7 @@
                 "owner": "root",
                 "group": "root"
               },
-              "/var/lib/jenkins/nando-demo.pem": {
+              "/var/lib/jenkins/stelligent-demo.pem": {
                 "content": {
                   "Ref": "PrivateKey"
                 },
@@ -668,10 +668,10 @@
         }
       }
     },
-    "NandoDemoWebASG": {
+    "StelligentDemoWebASG": {
       "Type": "AWS::AutoScaling::AutoScalingGroup",
       "DependsOn": [
-        "NandoDemoWebLaunchConfig"
+        "StelligentDemoWebLaunchConfig"
       ],
       "Version": "2009-05-15",
       "Properties": {
@@ -684,10 +684,10 @@
           ]
         }],
         "LaunchConfigurationName": {
-          "Ref": "NandoDemoWebLaunchConfig"
+          "Ref": "StelligentDemoWebLaunchConfig"
         },
         "LoadBalancerNames": [{
-          "Ref": "NandoDemoELB"
+          "Ref": "StelligentDemoELB"
         }],
         "VPCZoneIdentifier": [{
           "Ref": "StelligentDemoPublicSubnet"
@@ -709,14 +709,14 @@
         }]
       }
     },
-    "NandoDemoWebLaunchConfig": {
+    "StelligentDemoWebLaunchConfig": {
       "Type": "AWS::AutoScaling::LaunchConfiguration",
       "Metadata": {
-        "Comment": "NandoDemoWebLaunchConfig",
+        "Comment": "StelligentDemoWebLaunchConfig",
         "AWS::CloudFormation::Init": {
           "config": {
             "files": {
-              "/etc/cfn/NandoDemoDBHost": {
+              "/etc/cfn/StelligentDemoDBHost": {
                 "content": {
                   "Ref": "StelligentDemoDBHost"
                 },
@@ -724,7 +724,7 @@
                 "owner": "root",
                 "group": "root"
               },
-              "/etc/cfn/NandoDemoDBName": {
+              "/etc/cfn/StelligentDemoDBName": {
                 "content": {
                   "Ref": "StelligentDemoDBName"
                 },
@@ -732,7 +732,7 @@
                 "owner": "root",
                 "group": "root"
               },
-              "/etc/cfn/NandoDemoDBUser": {
+              "/etc/cfn/StelligentDemoDBUser": {
                 "content": {
                   "Ref": "StelligentDemoDBUser"
                 },
@@ -740,7 +740,7 @@
                 "owner": "root",
                 "group": "root"
               },
-              "/etc/cfn/NandoDemoDBPass": {
+              "/etc/cfn/StelligentDemoDBPass": {
                 "content": {
                   "Ref": "StelligentDemoDBPass"
                 },
@@ -774,12 +774,12 @@
                     "", [
                       "[cfn-auto-reloader-hook]\n",
                       "triggers=post.update\n",
-                      "path=Resources.NandoDemoWebASG.Metadata.AWS::CloudFormation::Init\n",
+                      "path=Resources.StelligentDemoWebASG.Metadata.AWS::CloudFormation::Init\n",
                       "action=/opt/aws/bin/cfn-init -v ",
                       "         --stack ", {
                         "Ref": "AWS::StackName"
                       },
-                      "         --resource NandoDemoWebLaunchConfig ",
+                      "         --resource StelligentDemoWebLaunchConfig ",
                       "         --region ", {
                         "Ref": "AWS::Region"
                       },
@@ -822,7 +822,7 @@
         },
         "AssociatePublicIpAddress": "true",
         "IamInstanceProfile": {
-          "Ref": "NandoDemoASGInstanceProfile"
+          "Ref": "StelligentDemoASGInstanceProfile"
         },
         "SecurityGroups": [{
           "Ref": "StelligentDemoPublicSecurityGroup"
@@ -843,7 +843,7 @@
                 "         --stack ", {
                   "Ref": "AWS::StackName"
                 },
-                "         --resource NandoDemoWebLaunchConfig ",
+                "         --resource StelligentDemoWebLaunchConfig ",
                 "         --region ", {
                   "Ref": "AWS::Region"
                 },
@@ -852,7 +852,7 @@
                 "         --stack ", {
                   "Ref": "AWS::StackName"
                 },
-                "         --resource NandoDemoWebLaunchConfig ",
+                "         --resource StelligentDemoWebLaunchConfig ",
                 "         --region ", {
                   "Ref": "AWS::Region"
                 },
@@ -878,7 +878,7 @@
         "SecurityGroupIngress": []
       }
     },
-    "NandoDemoJenkinsRole": {
+    "StelligentDemoJenkinsRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -900,7 +900,7 @@
         "Path": "/"
       }
     },
-    "NandoDemoASGRole": {
+    "StelligentDemoASGRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
         "AssumeRolePolicyDocument": {
@@ -922,11 +922,11 @@
         "Path": "/"
       }
     },
-    "NandoDemoJenkinsIAMPolicy": {
+    "StelligentDemoJenkinsIAMPolicy": {
       "Type": "AWS::IAM::Policy",
-      "DependsOn": "NandoDemoJenkinsRole",
+      "DependsOn": "StelligentDemoJenkinsRole",
       "Properties": {
-        "PolicyName": "nando-demo-jenkins-policy",
+        "PolicyName": "stelligent-demo-jenkins-policy",
         "PolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [{
@@ -975,15 +975,15 @@
           }]
         },
         "Roles": [{
-          "Ref": "NandoDemoJenkinsRole"
+          "Ref": "StelligentDemoJenkinsRole"
         }]
       }
     },
-    "NandoDemoASGIAM": {
+    "StelligentDemoASGIAM": {
       "Type": "AWS::IAM::Policy",
-      "DependsOn": "NandoDemoASGRole",
+      "DependsOn": "StelligentDemoASGRole",
       "Properties": {
-        "PolicyName": "nando-demo-asg-policy",
+        "PolicyName": "stelligent-demo-asg-policy",
         "PolicyDocument": {
           "Version": "2012-10-17",
           "Statement": [{
@@ -1010,33 +1010,33 @@
             ],
             "Effect": "Allow",
             "Resource": [
-              "arn:aws:s3:::nando-automation-demo/*",
+              "arn:aws:s3:::stelligent-demo/*",
               "arn:aws:s3:::aws-codedeploy-us-east-1/*"
             ]
           }]
         },
         "Roles": [{
-          "Ref": "NandoDemoASGRole"
+          "Ref": "StelligentDemoASGRole"
         }]
       }
     },
-    "NandoDemoJenkinsInstanceProfile": {
+    "StelligentDemoJenkinsInstanceProfile": {
       "Type": "AWS::IAM::InstanceProfile",
-      "DependsOn": "NandoDemoJenkinsRole",
+      "DependsOn": "StelligentDemoJenkinsRole",
       "Properties": {
         "Path": "/",
         "Roles": [{
-          "Ref": "NandoDemoJenkinsRole"
+          "Ref": "StelligentDemoJenkinsRole"
         }]
       }
     },
-    "NandoDemoASGInstanceProfile": {
+    "StelligentDemoASGInstanceProfile": {
       "Type": "AWS::IAM::InstanceProfile",
-      "DependsOn": "NandoDemoASGRole",
+      "DependsOn": "StelligentDemoASGRole",
       "Properties": {
         "Path": "/",
         "Roles": [{
-          "Ref": "NandoDemoASGRole"
+          "Ref": "StelligentDemoASGRole"
         }]
       }
     }
@@ -1044,7 +1044,7 @@
   "Outputs": {
     "StelligentDemoName": {
       "Value": {
-        "Ref": "NandoDemoName"
+        "Ref": "StelligentDemoName"
       }
     },
     "StelligentDemoBucket": {
@@ -1054,12 +1054,12 @@
     },
     "StelligentDemoWebASG": {
       "Value": {
-        "Ref": "NandoDemoWebASG"
+        "Ref": "StelligentDemoWebASG"
       }
     },
     "StelligentDemoJenkinsEIP": {
       "Value": {
-        "Ref": "NandoDemoJenkinsEIP"
+        "Ref": "StelligentDemoJenkinsEIP"
       }
     },
     "StelligentDemoDBName": {
@@ -1103,7 +1103,7 @@
           "", [
             "http://", {
               "Fn::GetAtt": [
-                "NandoDemoELB",
+                "StelligentDemoELB",
                 "DNSName"
               ]
             }
@@ -1122,7 +1122,7 @@
           ".", [{
             "Fn::Join": [
               "-", [
-                "http://nando-automation-demo", {
+                "http://stelligent-demo", {
                   "Ref": "DemoRegion"
                 }, {
                   "Ref": "HashID"
@@ -1144,7 +1144,7 @@
       "Value": {
         "Fn::Join": [
           "", [
-            "http://nando-automation-demo-jenkins-", {
+            "http://stelligent-demo-jenkins-", {
               "Ref": "DemoRegion"
             },
             "-", {
@@ -1166,7 +1166,7 @@
               "Ref": "KeyName"
             },
             ".pem ec2-user@", {
-              "Ref": "NandoDemoJenkinsEIP"
+              "Ref": "StelligentDemoJenkinsEIP"
             }
           ]
         ]

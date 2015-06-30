@@ -1,36 +1,35 @@
 {
 	"AWSTemplateFormatVersion" : "2010-09-09",
- 	"Description" : "Nando Automation Demo :: Docker",                
+ 	"Description" : "Stelligent Demo :: Docker",
 	"Parameters" : {
     		"KeyName" : {
       			"Type" : "AWS::EC2::KeyPair::KeyName",
-			"Default" : "nando-demo-20150409171905"
     		}
 	},
 	"Resources" : {
-		"NandoDemoDockerApp" : { 
+		"StelligentDemoDockerApp" : {
 			"Type" : "AWS::ElasticBeanstalk::Application", 
 		   	"Properties" : { 
-				"ApplicationName" : "NandoDemoDockerApp", 
-				"Description" : "NandoDemoDockerApp"
+				"ApplicationName" : "StelligentDemoDockerApp",
+				"Description" : "StelligentDemoDockerApp"
 			}
 		},
-                "NandoDemoDockerVersion": {
+                "StelligentDemoDockerVersion": {
                         "Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
                         "Properties" : {
-                                "ApplicationName" : { "Ref": "NandoDemoDockerApp" },
-				"Description" : "NandoDemoDockerVersion",
+                                "ApplicationName" : { "Ref": "StelligentDemoDockerApp" },
+				"Description" : "StelligentDemoDockerVersion",
                                 "SourceBundle" : {
-                                        "S3Bucket" : "nando-automation-demo",
-                                        "S3Key" : "nando-demo.zip"
+                                        "S3Bucket" : "stelligent-demo",
+                                        "S3Key" : "stelligent-demo.zip"
                                 }
                         }
                 },
-                "NandoDemoDockerTemplate": {
+                "StelligentDemoDockerTemplate": {
                         "Type" : "AWS::ElasticBeanstalk::ConfigurationTemplate",
                         "Properties" : {
-                                "ApplicationName" : { "Ref": "NandoDemoDockerApp" },
-				"Description" : "NandoDemoDockerTemplate",
+                                "ApplicationName" : { "Ref": "StelligentDemoDockerApp" },
+				"Description" : "StelligentDemoDockerTemplate",
                                 "OptionSettings" : [
                                         { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MinSize", "Value" : "1" },
                                         { "Namespace" : "aws:autoscaling:asg", "OptionName" : "MaxSize", "Value" : "2" },
@@ -40,25 +39,25 @@
       				"SolutionStackName" : "64bit Amazon Linux 2014.09 v1.2.1 running Docker 1.5.0"
                         }
                 },
-                "NandoDemoDockerEnvironment" : {
+                "StelligentDemoDockerEnvironment" : {
                         "Type" : "AWS::ElasticBeanstalk::Environment",
                         "Properties" : {
-                                "ApplicationName" : { "Ref" : "NandoDemoDockerApp" },
-				"Description" : "NandoDemoDockerEnvironment",
-                                "TemplateName" : { "Ref" : "NandoDemoDockerTemplate" },
-                                "VersionLabel" : { "Ref" : "NandoDemoDockerVersion" }
+                                "ApplicationName" : { "Ref" : "StelligentDemoDockerApp" },
+				"Description" : "StelligentDemoDockerEnvironment",
+                                "TemplateName" : { "Ref" : "StelligentDemoDockerTemplate" },
+                                "VersionLabel" : { "Ref" : "StelligentDemoDockerVersion" }
                         }
                 },
-                "NandoDemoDockerDNS" : {
+                "StelligentDemoDockerDNS" : {
                         "Type" : "AWS::Route53::RecordSetGroup",
-                        "DependsOn" : "NandoDemoDockerEnvironment",
+                        "DependsOn" : "StelligentDemoDockerEnvironment",
                         "Properties" : {
                                 "HostedZoneName" : "elasticoperations.com.",
                                 "RecordSets" : [ {
-                                        "Name" : "nando-automation-demo-docker.elasticoperations.com.",
+                                        "Name" : "stelligent-demo-docker.elasticoperations.com.",
                                         "Type" : "CNAME",
 					"TTL" : "900",
-                                        "ResourceRecords" : [ { "Fn::GetAtt" : [ "NandoDemoDockerEnvironment", "EndpointURL" ] } ]
+                                        "ResourceRecords" : [ { "Fn::GetAtt" : [ "StelligentDemoDockerEnvironment", "EndpointURL" ] } ]
                                 } ]
                         }
                 }

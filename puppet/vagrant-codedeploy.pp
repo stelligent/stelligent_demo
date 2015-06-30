@@ -1,4 +1,4 @@
-node /^nando-demo-codedeploy.*/ {
+node /^stelligent-demo-codedeploy.*/ {
 
 	
 	Exec { path => "/bin:/sbin:/usr/bin:/usr/sbin" }
@@ -13,52 +13,52 @@ node /^nando-demo-codedeploy.*/ {
 
 	class { 'nginx': }
 
-	file { "NandoDemoDBName":
-		path	=> "/etc/cfn/NandoDemoDBName",
+	file { "StelligentDemoDBName":
+		path	=> "/etc/cfn/StelligentDemoDBName",
       		ensure  => present,
       		mode    => 0400,
-		source	=> "/vagrant/mysql/NandoDemoDBName",
+		source	=> "/vagrant/mysql/StelligentDemoDBName",
 		owner	=> "nginx",
 		require => [ File['/etc/cfn'], Class['nginx'] ]
     	}
 
-        file { "NandoDemoDBUser":
-                path    => "/etc/cfn/NandoDemoDBUser",
+        file { "StelligentDemoDBUser":
+                path    => "/etc/cfn/StelligentDemoDBUser",
                 ensure  => present,
                 mode    => 0400,
-		source	=> "/vagrant/mysql/NandoDemoDBUser",
+		source	=> "/vagrant/mysql/StelligentDemoDBUser",
                 owner   => "nginx",
                 require => [ File['/etc/cfn'], Class['nginx'] ]
         }
 
-        file { "NandoDemoDBPass":
-                path    => "/etc/cfn/NandoDemoDBPass",
+        file { "StelligentDemoDBPass":
+                path    => "/etc/cfn/StelligentDemoDBPass",
                 ensure  => present,
                 mode    => 0400,
-		source	=> "/vagrant/mysql/NandoDemoDBPass",
+		source	=> "/vagrant/mysql/StelligentDemoDBPass",
                 owner   => "nginx",
                 require => [ File['/etc/cfn'], Class['nginx'] ]
         }
 
-        file { "NandoDemoDBHost":
-                path    => "/etc/cfn/NandoDemoDBHost",
+        file { "StelligentDemoDBHost":
+                path    => "/etc/cfn/StelligentDemoDBHost",
                 ensure  => present,
                 mode    => 0400,
-		source	=> "/vagrant/mysql/NandoDemoDBHost",
+		source	=> "/vagrant/mysql/StelligentDemoDBHost",
                 owner   => "nginx",
                 require => [ File['/etc/cfn'], Class['nginx'] ]
         }
 
-        file { "NandoDemoDBPort":
-                path    => "/etc/cfn/NandoDemoDBPort",
+        file { "StelligentDemoDBPort":
+                path    => "/etc/cfn/StelligentDemoDBPort",
                 ensure  => present,
                 mode    => 0400,
-		source	=> "/vagrant/mysql/NandoDemoDBPort",
+		source	=> "/vagrant/mysql/StelligentDemoDBPort",
                 owner   => "nginx",
                 require => [ File['/etc/cfn'], Class['nginx'] ]
         }
 	
-  	nginx::resource::vhost { "nando-automation-demo":
+  	nginx::resource::vhost { "stelligent-demo":
     		ensure                => present,
     		listen_port           => 80,
     		www_root              => "/var/www/html",
@@ -68,7 +68,7 @@ node /^nando-demo-codedeploy.*/ {
 	nginx::resource::location { "${name}_root":
 		ensure          => present,
 		www_root        => "/var/www/html",
-		vhost		=> "nando-automation-demo",
+		vhost		=> "stelligent-demo",
      		location        => '~ \.php$',
      		index_files     => ['index.php', 'index.html', 'index.htm'],
      		proxy           => undef,
