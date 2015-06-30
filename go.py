@@ -30,7 +30,7 @@ CUSTOM_AMI_MAP = {
 STACK_DATA = {
     'main': {'key_prefix': 'stelligent-demo',
              'prefix': 'nando-demo',
-             'template': 'cloudformation-py.json',
+             'template': 'cloudformation.json',
              'type': 'MAIN'},
     's3': {'prefix': 'stelligent-demo-s3',
            'template': 'cloudformation/cloudformation.s3.json',
@@ -81,7 +81,7 @@ IAM_POLICY_NAME = 'NandoDemoCodeDeployPolicy'
 IAM_POLICY_DOC = 'codedeploy/NandoDemoCodeDeployPolicy.json'
 
 #  Resource Logical IDs
-JENKINS_INSTANCE = "NandoDemoJenkins"
+JENKINS_INSTANCE = "StelligentDemoJenkins"
 WEB_ASG_NAME = 'NandoDemoWebASG'
 DEMO_RDS = 'NandoDemoMysql'
 DEMO_ELB = 'NandoDemoELB'
