@@ -506,32 +506,38 @@ def outputs_to_parameters(outputs, params=None):
     return params
 
 
-def build(connections, region, locations, hash_id, full):
+def build(connections, region, locations, hash_id, full, warm):
     instagram_id, instagram_secret = get_instagram_keys_from_env()
-    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     locations = add_cidr_subnet(locations)
+    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     all_stacks = connections['cfn'].describe_stacks()
-    #  Setup EC2 Key Pair
-    key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
-    private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
-    #  Launch ElasticBeanstalk Stack, don't wait
-    eb_params = list()
-    eb_params.append(("HashID", hash_id))
-    eb_params.append(("DemoRegion", region))
-    eb_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
-    eb_params.append(("KeyName", key_pair_name))
-    eb_stack, eb_outputs, eb_created = get_or_create_stack(
-        connections['cfn'], all_stacks, STACK_DATA['eb'], timestamp,
-        build_params=eb_params, create=True, wait=False
-    )
-    #  Launch S3 Stack, don't wait
-    s3_params = list()
-    s3_params.append(("DemoRegion", region))
-    s3_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
-    s3_stack, s3_outputs, s3_created = get_or_create_stack(
-        connections['cfn'], all_stacks, STACK_DATA['s3'], timestamp,
-        build_params=s3_params, create=True, wait=False, locations=locations
-    )
+    if warm:
+        print "Only launching VPC, SG, and RDS in %s..." % region
+    else:
+        #  Setup EC2 Key Pair
+        key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
+        private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
+        #  Copy files to S3
+        copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
+        #  Launch ElasticBeanstalk Stack, don't wait
+        eb_params = list()
+        eb_params.append(("HashID", hash_id))
+        eb_params.append(("DemoRegion", region))
+        eb_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
+        eb_params.append(("KeyName", key_pair_name))
+        eb_stack, eb_outputs, eb_created = get_or_create_stack(
+            connections['cfn'], all_stacks, STACK_DATA['eb'], timestamp,
+            build_params=eb_params, create=True, wait=False
+        )
+        #  Launch S3 Stack, don't wait
+        s3_params = list()
+        s3_params.append(("DemoRegion", region))
+        s3_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
+        s3_stack, s3_outputs, s3_created = get_or_create_stack(
+            connections['cfn'], all_stacks, STACK_DATA['s3'], timestamp,
+            build_params=s3_params, create=True, wait=False,
+            locations=locations
+        )
     #  Cascading Outputs/Parameters
     #  Get or create VPC
     vpc_stack, vpc_outputs, vpc_created = get_or_create_stack(
@@ -544,21 +550,25 @@ def build(connections, region, locations, hash_id, full):
         connections['cfn'], all_stacks, STACK_DATA['sg'], timestamp,
         build_params=sg_params, check_outputs=vpc_outputs, create=vpc_created
     )
-    #  Launch ECS Stack, don't wait
-    ecs_params = outputs_to_parameters(sg_outputs)
-    ecs_params.append(("KeyName", key_pair_name))
-    ecs_params.append(('StelligentDemoECSClusterName', DEMO_ECS))
-    ecs_stack, ecs_outputs, ecs_created = get_or_create_stack(
-        connections['cfn'], all_stacks, STACK_DATA['ecs'], timestamp,
-        build_params=ecs_params, check_outputs=sg_outputs, create=True,
-        wait=False
-    )
+    if not warm:
+        #  Launch ECS Stack, don't wait
+        ecs_params = outputs_to_parameters(sg_outputs)
+        ecs_params.append(("KeyName", key_pair_name))
+        ecs_params.append(('StelligentDemoECSClusterName', DEMO_ECS))
+        ecs_stack, ecs_outputs, ecs_created = get_or_create_stack(
+            connections['cfn'], all_stacks, STACK_DATA['ecs'], timestamp,
+            build_params=ecs_params, check_outputs=sg_outputs, create=True,
+            wait=False
+        )
     #  Get or create RDS
     rds_params = outputs_to_parameters(sg_outputs)
     rds_stack, rds_outputs, rds_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['rds'], timestamp,
         build_params=rds_params, check_outputs=sg_outputs, create=sg_created
     )
+    if warm:
+        print "Warming complete. VPC, SG, and RDS found or created."
+        sys.exit(0)
     #  Wait for S3
     get_resource_id(connections['cfn'], s3_stack)
     s3_outputs = get_stack_outputs(connections['cfn'], s3_stack)
@@ -576,7 +586,6 @@ def build(connections, region, locations, hash_id, full):
     build_params.append(("HashID", hash_id))
     build_params.append(("KeyName", key_pair_name))
     build_params.append(("PrivateKey", private_key))
-    copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
     with open(STACK_DATA['main']['template']) as data_file:
         data = json.load(data_file)
     #  Inject locations
@@ -697,8 +706,9 @@ def main():
                         generated.""", default=new_hash)
     parser.add_argument('--full', action='store_true',
                         help="Always build all components. (VPC, RDS, etc.)")
+    parser.add_argument('--warm', action='store_true',
+                        help="Only build VPC, SG, and RDS")
     args = parser.parse_args()
-    full = args.full
     connections = dict()
     connections['cfn'] = cfn_connect(args.region)
     if args.action == "info":
@@ -717,7 +727,8 @@ def main():
             print "Please provide at least one IP Address."
             parser.print_help()
             sys.exit(1)
-        build(connections, args.region, args.locations, args.hash_id, full)
+        build(connections, args.region, args.locations, args.hash_id,
+              args.full, args.warm)
     elif args.action == "destroy":
         destroy(connections, args.region)
 
