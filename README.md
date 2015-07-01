@@ -23,12 +23,10 @@ Amazon Linux/Redhat/CentOS/Fedora:
 ==> sudo pip install boto awscli
 ==> aws configure
 ```
-Prepare to launch command (replace XXXX with your instagram keys):
+Prepare to launch command:
 ```
 ==> git clone https://github.com/stelligent/stelligent_demo.git
 ==> cd stelligent_demo
-==> export INSTAGRAM_CLIENT_ID=XXXXXXXXXXXXXXXXXXXXXXXX
-==> export INSTAGRAM_CLIENT_SECRET=XXXXXXXXXXXXXXXXXXXXXXXX
 ```
 ####All-In-One Amazon AWS automated demo from a single cli command:####
 ```
@@ -71,18 +69,6 @@ A list of launched stacks will be displayed from which you can select the one to
 
 
 This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and deploys inside with one command. One pipeline control box with Puppet and Jenkins, a CodeDeploy Nginx/PHP-FPM Application via AutoScalingGroup, a Docker container via ElasticBeanstalk, private subnet Multi-AZ HA RDS databases , and ElastiCache for temporary user session data. ElasticLoadBalancers, resolved by Route53 RecordSets, sit in front of both CodeDeploy and Docker web tiers. SimpleStorageService is used for authenticated retrieval of static templates, manifests, and encrypted keys needed upon resource bootstrap. S3 is also used for the running demo to store logs and other outputs securely. 
-
-homepage screenshot:
-
-[![Demo CountPages alpha](http://share.gifyoutube.com/KzB6Gb.gif)](https://www.youtube.com/watch?v=ek1j272iAmc)
-
-http://stelligent-demo.elasticoperations.com displays two random Instagram images. The end-user selects their prefered image, and then proceeds to click thru a series of images pairs (CodeDeploy). Based on the user's selections, an Instagram image slideshow is generated and displayed (Docker).  S3 stores the images, RDS stores the path and tags, and ElastiCache stores the end-user's session data. Jenkins continually delivers the CodeDeploy application, as well as the Docker container, thru all stages of the Continuous Delivey Pipeline. 
-
-Jenkins jobs running Video:
-
-[![Demo CountPages alpha](http://share.gifyoutube.com/KzB6Gb.gif)](https://www.youtube.com/watch?v=ek1j272iAmc)
-
-Acceptance tests ensure the all resources are up and working correctly, and that the application and environment are secure.
 
 
 
@@ -144,12 +130,10 @@ Acceptance tests ensure the all resources are up and working correctly, and that
 	- builds Multi-AZ MySQL RDS for storing image tags and paths
 	- launches ElasticBeanstalk for Docker
 	- bootstraps jenkins server via cloud init and authenticated S3
-		- adds python instagram functionality
 		- adds git functionality
 		- installs and configures jenkins via puppet
 		- pulls jenkins job templates from authenticated S3 and creates jenkins jobs
 		- jenkins executes based on SCM
-			- gets instagram images and generates html
 			- pushes code and images to staging (pending)
 			- application and security acceptance testing (pending)
 			- push to production with CodeDeploy

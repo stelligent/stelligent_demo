@@ -68,7 +68,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 end
 		jenkins.vm.provision :hosts
 		jenkins.vm.provision :shell, 
-			:args =>  "#{ENV['INSTAGRAM_CLIENT_ID']}, #{ENV['INSTAGRAM_CLIENT_SECRET']}", 
 			:inline => <<-SHELL
     				yum -y update
     				rpm -i http://yum.puppetlabs.com/puppetlabs-release-el-6.noarch.rpm
@@ -78,10 +77,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 				tar fxz Python-2.7.9.tgz
 				cd Python-2.7.9 && ./configure --prefix=/usr/local && make && make altinstall
 				wget -nv https://bootstrap.pypa.io/get-pip.py && /usr/local/bin/python2.7 get-pip.py
-				/usr/local/bin/pip2.7 install --upgrade awscli awsebcli python-instagram 
+				/usr/local/bin/pip2.7 install --upgrade awscli awsebcli
 				mkdir -pv /var/lib/jenkins
-				echo $1 > /var/lib/jenkins/.instagram.client.id
-				echo $2 > /var/lib/jenkins/.instagram.client.secret
 
   			SHELL
   		jenkins.vm.provision :puppet do |puppet|

@@ -84,12 +84,6 @@
     "PrivateKey": {
       "Type": "String"
     },
-    "InstagramId": {
-      "Type": "String"
-    },
-    "InstagramSecret": {
-      "Type": "String"
-    },
     "CodeDeployAppName": {
       "Type": "String"
     },
@@ -557,22 +551,6 @@
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
-              "/var/lib/jenkins/.instagram.client.id": {
-                "content": {
-                  "Ref": "InstagramId"
-                },
-                "mode": "000444",
-                "owner": "root",
-                "group": "root"
-              },
-              "/var/lib/jenkins/.instagram.client.secret": {
-                "content": {
-                  "Ref": "InstagramSecret"
-                },
-                "mode": "000444",
-                "owner": "root",
-                "group": "root"
-              },
               "/var/lib/jenkins/stelligent-demo.pem": {
                 "content": {
                   "Ref": "PrivateKey"
@@ -612,7 +590,7 @@
                 "command": "wget -nv https://bootstrap.pypa.io/get-pip.py && python2.7 get-pip.py"
               },
               "bootstrapH": {
-                "command": "/usr/local/bin/pip2.7 install --upgrade awscli awsebcli python-instagram"
+                "command": "/usr/local/bin/pip2.7 install --upgrade awscli awsebcli"
               },
               "bootstrapI": {
                 "command": "puppet module install rtyler/jenkins --version 1.3.0"

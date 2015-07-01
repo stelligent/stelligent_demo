@@ -243,18 +243,6 @@ def inject_locations(locations, data):
     return data
 
 
-def get_instagram_keys_from_env():
-    try:
-        insta_id = os.environ['INSTAGRAM_CLIENT_ID']
-        insta_secret = os.environ['INSTAGRAM_CLIENT_SECRET']
-    except KeyError:
-        print "Please set both 'INSTAGRAM_CLIENT_ID' and " \
-              "'INSTAGRAM_CLIENT_SECRET' in your environment."
-        sys.exit(1)
-    else:
-        return insta_id, insta_secret
-
-
 def create_cfn_stack(cfn_connection, stack_name, data, build_params=None,
                      capabilities=['CAPABILITY_IAM'], disable_rollback='true'):
     build_params = build_params or list()
@@ -507,7 +495,6 @@ def outputs_to_parameters(outputs, params=None):
 
 
 def build(connections, region, locations, hash_id, full, warm):
-    instagram_id, instagram_secret = get_instagram_keys_from_env()
     locations = add_cidr_subnet(locations)
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     all_stacks = connections['cfn'].describe_stacks()
@@ -577,9 +564,6 @@ def build(connections, region, locations, hash_id, full, warm):
     build_params = outputs_to_parameters(s3_outputs)
     build_params += outputs_to_parameters(rds_outputs)
     build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
-    #  Setup Instagram Access
-    build_params.append(("InstagramId", instagram_id))
-    build_params.append(("InstagramSecret", instagram_secret))
     build_params.append(("StelligentDemoName", stack_name))
     build_params.append(("DemoRegion", region))
     build_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))

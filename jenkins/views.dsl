@@ -6,7 +6,6 @@ deliveryPipelineView('Continuous Delivery Pipeline') {
     pipelines {
         component('Image Selector Application', 'ISA-poll-version-control')
         component('Image Slide Show', 'DockerStage')
-        component('Instagram Image Processing', 'InstagramImageGet')
     }
 }
 
@@ -30,22 +29,6 @@ listView('Image Slide Show') {
     description('Image Slide Show')
     jobs {
         regex('Docker.+')
-    }
-    columns {
-        status()
-        weather()
-        name()
-        lastSuccess()
-        lastFailure()
-        lastDuration()
-        buildButton()
-    }
-}
-
-listView('Image Processing') {
-    description('Image Processing')
-    jobs {
-        regex('Instagram.+')
     }
     columns {
         status()
