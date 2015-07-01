@@ -58,13 +58,13 @@ MAIN_S3_BUCKET = 'stelligent-demo'  # Permanent S3 Bucket
 MAIN_S3_BUCKET_REGION = 'us-east-1'
 DOCKER_ZIPFILE = 'stelligent-demo.zip'
 DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
+FILES_TO_MAIN_S3 = [DOCKER_ZIPFILE]
 FILES_TO_S3 = ['jenkins/seed.xml.erb',
                'puppet/installJenkins.pp',
                'puppet/installJenkinsJob.pp',
                'puppet/installJenkinsPlugins.pp',
                'puppet/installJenkinsUsers.pp',
-               'puppet/installJenkinsSecurity.pp',
-               DOCKER_ZIPFILE]
+               'puppet/installJenkinsSecurity.pp']
 INGRESS_PORTS = ['22', '2222', '8080']
 ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 
@@ -153,13 +153,13 @@ def prepare_docker_zip():
     print "Done!"
 
 
-def copy_files_to_s3(s3_connection, bucket):
+def copy_files_to_s3(s3_connection, bucket, files):
     prepare_docker_zip()
     sys.stdout.write("Sending files to S3...")
     sys.stdout.flush()
     s3_bucket = s3_connection.get_bucket(bucket)
     s3_key = S3Key(s3_bucket)
-    for f in FILES_TO_S3:
+    for f in files:
         s3_key.key = os.path.basename(f)
         with open(f) as f:
             s3_key.set_contents_from_file(f)
@@ -418,7 +418,8 @@ def empty_related_buckets(s3_connection, bucket_name):
         keys = bucket.get_all_keys()
         if keys:
             print "Deleting the following files from %s:" % bucket_name
-            print keys
+            for key in keys:
+                print key.name
             bucket.delete_keys(keys)
     except S3ResponseError:
         pass
@@ -505,7 +506,8 @@ def build(connections, region, locations, hash_id, full, warm):
         key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
         private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
         #  Copy files to S3
-        copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET)
+        copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET,
+                         FILES_TO_MAIN_S3)
         #  Launch ElasticBeanstalk Stack, don't wait
         eb_params = list()
         eb_params.append(("HashID", hash_id))
@@ -559,6 +561,9 @@ def build(connections, region, locations, hash_id, full, warm):
     #  Wait for S3
     get_resource_id(connections['cfn'], s3_stack)
     s3_outputs = get_stack_outputs(connections['cfn'], s3_stack)
+    s3_outputs_parsed = {x.key: x.value for x in s3_outputs}
+    ephemeral_bucket = s3_outputs_parsed[DEMO_S3_BUCKET]
+    copy_files_to_s3(connections['s3'], ephemeral_bucket, FILES_TO_S3)
     #  Setup Main Stack
     stack_name = "%s-%s" % (STACK_DATA['main']['prefix'], timestamp)
     build_params = outputs_to_parameters(s3_outputs)
@@ -633,7 +638,7 @@ def destroy(connections, region):
         if stack_type == 'S3':
             outputs = {x.key: x.value for x in stack.outputs}
             try:
-                s3_bucket = outputs['StelligentDemoBucket']
+                s3_bucket = outputs[DEMO_S3_BUCKET]
                 empty_related_buckets(connections['s3'], s3_bucket)
             except KeyError:
                 pass

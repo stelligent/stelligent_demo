@@ -358,7 +358,9 @@
               "Ref": "StelligentDemoJenkinsRole"
             },
             "buckets": [
-              "stelligent-demo"
+              "stelligent-demo", {
+                "Ref": "StelligentDemoBucket"
+              }
             ]
           }
         },
@@ -493,42 +495,78 @@
                 }
               },
               "/etc/puppet/manifests/installJenkins.pp": {
-                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkins.pp",
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://s3.amazonaws.com/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkins.pp"]
+                  ]
+                },
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsJob.pp": {
-                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkinsJob.pp",
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://s3.amazonaws.com/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkinsJob.pp"]
+                  ]
+                },
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsPlugins.pp": {
-                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkinsPlugins.pp",
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://s3.amazonaws.com/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkinsPlugins.pp"]
+                  ]
+                },
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsUsers.pp": {
-                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkinsUsers.pp",
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://s3.amazonaws.com/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkinsUsers.pp"]
+                  ]
+                },
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsSecurity.pp": {
-                "source": "http://stelligent-demo.s3.amazonaws.com/installJenkinsSecurity.pp",
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://s3.amazonaws.com/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkinsSecurity.pp"]
+                  ]
+                },
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/templates/seed.xml.erb": {
-                "source": "http://stelligent-demo.s3.amazonaws.com/seed.xml.erb",
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://s3.amazonaws.com/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/seed.xml.erb"]
+                  ]
+                },
                 "mode": "000400",
                 "owner": "root",
                 "group": "root",
