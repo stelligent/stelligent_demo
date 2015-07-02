@@ -32,7 +32,7 @@
     },
     "StelligentDemoECSInstanceType": {
       "Type": "String",
-      "Default": "t2.medium"
+      "Default": "m3.large"
     },
     "StelligentDemoECSClusterName": {
       "Type": "String",
@@ -47,6 +47,22 @@
     },
     "StelligentDemoPrivateSecurityGroupId": {
         "Type": "String"
+    },
+    "StelligentDemoDockerRepo": {
+        "Type": "String",
+        "Default": "stelligent-demo-docker-repo"
+    },
+    "StelligentDemoDockerRegistryLabel": {
+        "Type": "String",
+        "Default": "stelligent"
+    },
+    "StelligentDemoDockerImageId": {
+        "Type": "String",
+        "Default": "05b545320fdb"
+    },
+    "StelligentDemoDockerImage": {
+        "Type": "String",
+        "Default": "stelligent-demo-docker-image"
     }
   },
   "Mappings": {
@@ -106,32 +122,32 @@
     },
     "StelligentDemoECSELB": {
         "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
-        "Properties" : {                                        
+        "Properties" : {
           "Subnets" : [ { "Ref" : "StelligentDemoPublicSubnet" } ],
-          "Listeners" : [                                 
+          "Listeners" : [
             { "LoadBalancerPort" : "80", "InstancePort" : "8011", "Protocol" : "HTTP" },
             { "LoadBalancerPort" : "2222", "InstancePort" : "22", "Protocol" : "TCP" }
-          ],                                              
-          "HealthCheck" : {                               
-            "Target" : "HTTP:8011/",                  
-            "HealthyThreshold" : "2",               
-            "UnhealthyThreshold" : "5",             
-            "Interval" : "5",                       
-            "Timeout" : "4"                         
-          },                                              
+          ],
+          "HealthCheck" : {
+            "Target" : "HTTP:8011/",
+            "HealthyThreshold" : "2",
+            "UnhealthyThreshold" : "5",
+            "Interval" : "5",
+            "Timeout" : "4"
+          },
           "SecurityGroups" : [ { "Ref" : "StelligentDemoPublicSecurityGroup" } ]
-        }                                                       
+        }
     },
 
     "EcsInstanceAsg" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
         "AvailabilityZones" : [{
-          "Fn::FindInMap": [                                                    
-            "AvailabilityZone", {                                               
-              "Ref": "AWS::Region"                                              
-            },                                                                  
-            "Public"                                                            
+          "Fn::FindInMap": [
+            "AvailabilityZone", {
+              "Ref": "AWS::Region"
+            },
+            "Public"
           ]
         }],
         "VPCZoneIdentifier" : [ { "Ref" : "StelligentDemoPublicSubnet" } ],
@@ -163,14 +179,21 @@
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
              "#!/bin/bash -xe\n",
              "echo ECS_CLUSTER=", { "Ref" : "StelligentDemoECSCluster" },
-             " >> /etc/ecs/ecs.config\n"
+             " >> /etc/ecs/ecs.config\n",
+             "yum -y install aws-cli\n",
+             "aws s3 cp s3://", { "Ref": "StelligentDemoDockerRepo" },
+             "/images/", { "Ref": "StelligentDemoDockerImage" },
+             ".tar.gz - | gunzip | docker load\n",
+             "docker tag ", { "Ref": "StelligentDemoDockerImageId" },
+             " ", { "Ref": "StelligentDemoDockerRegistryLabel" }, "/",
+             { "Ref": "StelligentDemoDockerImage" }, "\n"
         ]]}}
       },
-      "CreationPolicy" : {                                            
-        "ResourceSignal" : {                                        
-          "Timeout" : "PT5M"                                      
-        }                                                           
-      } 
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Timeout" : "PT5M"
+        }
+      }
     },
 
     "StelligentDemoPublicLockedSecurityGroup": {
@@ -182,6 +205,55 @@
         },
         "SecurityGroupIngress": []
       }
+    },
+
+    "StelligentDemoECSServiceRole": {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2008-10-17",
+          "Statement" : [ {
+            "Effect" : "Allow",
+            "Principal" : {
+              "Service" : [ "ecs.amazonaws.com" ]
+            },
+            "Action" : [ "sts:AssumeRole" ]
+          } ]
+        }
+      }
+    },
+
+    "StelligentDemoECSServiceRolePolicy": {
+      "Type" : "AWS::IAM::Policy",
+      "DependsOn": "StelligentDemoECSRole",
+      "Properties" : {
+        "PolicyName": "StelligentDemoECSRolePolicy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [ {
+            "Effect": "Allow",
+            "Action": [
+              "elasticloadbalancing:Describe*",
+              "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+              "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+              "ec2:Describe*",
+              "ec2:AuthorizeSecurityGroupIngress"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:*"
+            ],
+            "Resource": [
+              "arn:aws:s3:::stelligent-demo-docker-repo/*"
+            ]
+          }
+        ]},
+        "Roles": [{ "Ref": "StelligentDemoECSServiceRole" }]
+      }
+
     },
 
     "StelligentDemoECSRole": {
@@ -217,12 +289,24 @@
               "ecs:RegisterContainerInstance",
               "ecs:Submit*"
             ],
-            "Resource": [ { "Fn::Join": [ "", [ 
-              "arn:aws:ecs:", {
-              "Ref": "AWS::Region" }, ":*:cluster/", {
-              "Ref": "StelligentDemoECSCluster" } ]
-            ]}]
-          } ]
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "s3:*"
+            ],
+            "Resource": [
+              "arn:aws:s3:::stelligent-demo-docker-repo/*"
+            ]
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "elasticloadbalancing:*"
+            ],
+            "Resource": "*"
+          }]
         },
         "Roles": [{ "Ref": "StelligentDemoECSRole" }]
       }
@@ -248,6 +332,56 @@
         "Path" : "/",
         "Roles" : [{ "Ref" : "StelligentDemoECSRole" }]
       }
+    },
+
+    "StelligentDemoECSService": {
+      "Type": "AWS::ECS::Service",
+      "DependsOn": [
+        "StelligentDemoECSTaskDefinition",
+        "StelligentDemoECSCluster",
+        "StelligentDemoECSELB",
+        "StelligentDemoECSRole",
+        "EcsInstanceAsg"
+      ],
+      "Properties": {
+        "Cluster": {"Ref": "StelligentDemoECSCluster" },
+        "DesiredCount": "1",
+        "LoadBalancers": [{
+            "ContainerName": "StelligentDemoDockerContainer",
+            "ContainerPort": "8011",
+            "LoadBalancerName": {"Ref": "StelligentDemoECSELB"}
+        }],
+        "Role": {"Ref": "StelligentDemoECSServiceRole"},
+        "TaskDefinition": {"Ref": "StelligentDemoECSTaskDefinition"}
+      }
+    },
+
+    "StelligentDemoECSTaskDefinition": {
+      "Type": "AWS::ECS::TaskDefinition",
+      "Properties": {
+        "ContainerDefinitions": [{
+          "Name": "StelligentDemoDockerContainer",
+          "MountPoints": [{
+            "SourceVolume": "StelligentDemoVolume",
+            "ContainerPath": "/var/StelligentDemoVolume"
+          }],
+          "Image": { "Fn::Join": [ "/", [
+            { "Ref": "StelligentDemoDockerRegistryLabel" },
+            { "Ref": "StelligentDemoDockerImage" }
+          ]]},
+          "Cpu": "512",
+          "PortMappings": [{
+            "ContainerPort": "8011",
+            "HostPort": "8011"
+          }],
+          "Memory": "512",
+          "Essential": "True"
+        }],
+        "Volumes": [{
+          "Host": { "SourcePath": "/var/lib/docker/vfs/dir" },
+          "Name": "StelligentDemoVolume"
+        }]
+      }
     }
 
   },
@@ -259,6 +393,56 @@
     "StelligentEcsElbName" : {
       "Description" : "Load Balancer for Stelligent Demo ECS",
       "Value" : { "Ref" : "StelligentDemoECSELB" }
+    },
+    "StelligentDemoVPC": {
+      "Value": {
+        "Ref": "StelligentDemoVPC"
+      }
+    },
+    "StelligentDemoPublicSubnet": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSubnet"
+      }
+    },
+    "StelligentDemoPrivateSubnet1": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet1"
+      }
+    },
+    "StelligentDemoPrivateSubnet2": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSubnet2"
+      }
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Value": {
+        "Ref": "StelligentDemoPublicSecurityGroup"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroup": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroup"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupId": {
+      "Value": {
+          "Ref" : "StelligentDemoPrivateSecurityGroupId"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupSSH": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroupSSH"
+      }
+    },
+    "StelligentDemoPrivateSecurityGroupMySQL": {
+      "Value": {
+        "Ref": "StelligentDemoPrivateSecurityGroupMySQL"
+      }
+    },
+    "StelligentDemoPublicRouteTableAssociation": {
+      "Value": {
+        "Ref": "StelligentDemoPublicRouteTableAssociation"
+      }
     }
   }
 }
