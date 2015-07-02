@@ -166,7 +166,8 @@ def copy_files_to_s3(s3_connection, bucket, files):
     print "Done!"
 
 
-def create_and_upload_index_to_s3(s3, outputs=dict()):
+def create_and_upload_index_to_s3(s3, outputs=None):
+    outputs = outputs or dict()
     output_key = "StelligentDemoBucketURL"
     bucket_url = ([output.value for output in outputs
                   if output.key == output_key])[0]

@@ -111,6 +111,35 @@
         "Private1": "us-west-2b",
         "Private2": "us-west-2c"
       }
+    },
+    "S3Endpoints": {
+      "us-east-1": {
+        "Endpoint": "s3-external-1.amazonaws.com"
+      },
+      "us-west-1": {
+        "Endpoint": "s3-us-west-1.amazonaws.com"
+      },
+      "us-west-2": {
+        "Endpoint": "s3-us-west-2.amazonaws.com"
+      },
+      "eu-west-1": {
+        "Endpoint": "s3-eu-west-1.amazonaws.com"
+      },
+      "eu-central-1": {
+        "Endpoint": "s3-eu-central-1.amazonaws.com"
+      },
+      "ap-southeast-1": {
+        "Endpoint": "s3-ap-southeast-1.amazonaws.com"
+      },
+      "ap-southeast-2": {
+        "Endpoint": "s3-ap-southeast-2.amazonaws.com"
+      },
+      "ap-northeast-1": {
+        "Endpoint": "s3-ap-northeast-1.amazonaws.com"
+      },
+      "sa-east-1": {
+        "Endpoint": "s3-sa-east-1.amazonaws.com"
+      }
     }
   },
   "Resources": {
@@ -497,7 +526,14 @@
               "/etc/puppet/manifests/installJenkins.pp": {
                 "source": {
                   "Fn::Join": [
-                    "", ["https://s3.amazonaws.com/", {
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
                       "Ref": "StelligentDemoBucket"
                     }, "/installJenkins.pp"]
                   ]
@@ -510,7 +546,14 @@
               "/etc/puppet/manifests/installJenkinsJob.pp": {
                 "source": {
                   "Fn::Join": [
-                    "", ["https://s3.amazonaws.com/", {
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
                       "Ref": "StelligentDemoBucket"
                     }, "/installJenkinsJob.pp"]
                   ]
@@ -523,7 +566,14 @@
               "/etc/puppet/manifests/installJenkinsPlugins.pp": {
                 "source": {
                   "Fn::Join": [
-                    "", ["https://s3.amazonaws.com/", {
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
                       "Ref": "StelligentDemoBucket"
                     }, "/installJenkinsPlugins.pp"]
                   ]
@@ -536,7 +586,14 @@
               "/etc/puppet/manifests/installJenkinsUsers.pp": {
                 "source": {
                   "Fn::Join": [
-                    "", ["https://s3.amazonaws.com/", {
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
                       "Ref": "StelligentDemoBucket"
                     }, "/installJenkinsUsers.pp"]
                   ]
@@ -549,7 +606,14 @@
               "/etc/puppet/manifests/installJenkinsSecurity.pp": {
                 "source": {
                   "Fn::Join": [
-                    "", ["https://s3.amazonaws.com/", {
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
                       "Ref": "StelligentDemoBucket"
                     }, "/installJenkinsSecurity.pp"]
                   ]
@@ -562,7 +626,14 @@
               "/etc/puppet/templates/seed.xml.erb": {
                 "source": {
                   "Fn::Join": [
-                    "", ["https://s3.amazonaws.com/", {
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
                       "Ref": "StelligentDemoBucket"
                     }, "/seed.xml.erb"]
                   ]
