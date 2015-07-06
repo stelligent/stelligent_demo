@@ -89,6 +89,15 @@
     },
     "CodeDeployDeploymentGroup": {
       "Type": "String"
+    },
+    "JenkinsUser": {
+      "Type": "String"
+    },
+    "JenkinsEmail": {
+      "Type": "String"
+    },
+    "JenkinsPassword": {
+      "Type": "String"
     }
   },
   "Mappings": {
@@ -584,19 +593,23 @@
                 "authentication": "S3AccessCreds"
               },
               "/etc/puppet/manifests/installJenkinsUsers.pp": {
-                "source": {
-                  "Fn::Join": [
-                    "", ["https://", {
-                      "Fn::FindInMap": [
-                        "S3Endpoints", {
-                          "Ref": "AWS::Region"
-                        },
-                        "Endpoint"
-                      ]
-                    }, "/", {
-                      "Ref": "StelligentDemoBucket"
-                    }, "/installJenkinsUsers.pp"]
-                  ]
+                "content": {
+                  "Fn::Join": ["", [
+                    "node /.*internal$/ {\n",
+                    "    include jenkins\n",
+                    "\n",
+                    "    jenkins::user { '", {
+                      "Ref": "JenkinsUser"
+                    }, "':\n",
+                    "        email    => '", {
+                      "Ref": "JenkinsEmail"
+                    }, "',\n",
+                    "        password => '", {
+                      "Ref": "JenkinsPassword"
+                    }, "',\n",
+                    "    }\n",
+                    "}\n"
+                  ]]
                 },
                 "mode": "000400",
                 "owner": "root",

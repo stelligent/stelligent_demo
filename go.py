@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import getpass
 import hashlib
 import json
 import os
@@ -63,8 +64,10 @@ FILES_TO_S3 = ['jenkins/seed.xml.erb',
                'puppet/installJenkins.pp',
                'puppet/installJenkinsJob.pp',
                'puppet/installJenkinsPlugins.pp',
-               'puppet/installJenkinsUsers.pp',
                'puppet/installJenkinsSecurity.pp']
+JENKINS_USER = 'stelligent_demo'
+JENKINS_EMAIL = 'stelligent@example.com'
+JENKINS_PASSWORD = 'changeme123'
 INGRESS_PORTS = ['22', '2222', '8080']
 ALLOWED_ACTIONS = ["build", "destroy", "info", "test"]
 
@@ -161,8 +164,8 @@ def copy_files_to_s3(s3_connection, bucket, files):
     s3_key = S3Key(s3_bucket)
     for f in files:
         s3_key.key = os.path.basename(f)
-        with open(f) as f:
-            s3_key.set_contents_from_file(f)
+        with open(f) as opened_file:
+            s3_key.set_contents_from_file(opened_file)
     print "Done!"
 
 
@@ -496,12 +499,12 @@ def outputs_to_parameters(outputs, params=None):
     return params
 
 
-def build(connections, region, locations, hash_id, full, warm):
-    locations = add_cidr_subnet(locations)
+def build(connections, args):
+    locations = add_cidr_subnet(args.locations)
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
     all_stacks = connections['cfn'].describe_stacks()
-    if warm:
-        print "Only launching VPC, SG, and RDS in %s..." % region
+    if args.warm:
+        print "Only launching VPC, SG, and RDS in %s..." % args.region
     else:
         #  Setup EC2 Key Pair
         key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
@@ -511,8 +514,8 @@ def build(connections, region, locations, hash_id, full, warm):
                          FILES_TO_MAIN_S3)
         #  Launch ElasticBeanstalk Stack, don't wait
         eb_params = list()
-        eb_params.append(("HashID", hash_id))
-        eb_params.append(("DemoRegion", region))
+        eb_params.append(("HashID", args.hash_id))
+        eb_params.append(("DemoRegion", args.region))
         eb_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
         eb_params.append(("KeyName", key_pair_name))
         eb_stack, eb_outputs, eb_created = get_or_create_stack(
@@ -521,7 +524,7 @@ def build(connections, region, locations, hash_id, full, warm):
         )
         #  Launch S3 Stack, don't wait
         s3_params = list()
-        s3_params.append(("DemoRegion", region))
+        s3_params.append(("DemoRegion", args.region))
         s3_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
         s3_stack, s3_outputs, s3_created = get_or_create_stack(
             connections['cfn'], all_stacks, STACK_DATA['s3'], timestamp,
@@ -532,7 +535,7 @@ def build(connections, region, locations, hash_id, full, warm):
     #  Get or create VPC
     vpc_stack, vpc_outputs, vpc_created = get_or_create_stack(
         connections['cfn'], all_stacks, STACK_DATA['vpc'], timestamp,
-        create=full
+        create=args.full
     )
     #  Get or create SG
     sg_params = outputs_to_parameters(vpc_outputs)
@@ -540,7 +543,7 @@ def build(connections, region, locations, hash_id, full, warm):
         connections['cfn'], all_stacks, STACK_DATA['sg'], timestamp,
         build_params=sg_params, check_outputs=vpc_outputs, create=vpc_created
     )
-    if not warm:
+    if not args.warm:
         #  Launch ECS Stack, don't wait
         ecs_params = outputs_to_parameters(sg_outputs)
         ecs_params.append(("KeyName", key_pair_name))
@@ -556,7 +559,7 @@ def build(connections, region, locations, hash_id, full, warm):
         connections['cfn'], all_stacks, STACK_DATA['rds'], timestamp,
         build_params=rds_params, check_outputs=sg_outputs, create=sg_created
     )
-    if warm:
+    if args.warm:
         print "Warming complete. VPC, SG, and RDS found or created."
         sys.exit(0)
     #  Wait for S3
@@ -571,37 +574,41 @@ def build(connections, region, locations, hash_id, full, warm):
     build_params += outputs_to_parameters(rds_outputs)
     build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
     build_params.append(("StelligentDemoName", stack_name))
-    build_params.append(("DemoRegion", region))
+    build_params.append(("DemoRegion", args.region))
     build_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
-    build_params.append(("HashID", hash_id))
+    build_params.append(("HashID", args.hash_id))
     build_params.append(("KeyName", key_pair_name))
     build_params.append(("PrivateKey", private_key))
+    build_params.append(("JenkinsUser", args.jenkins_user))
+    build_params.append(("JenkinsEmail", args.jenkins_email))
+    build_params.append(("JenkinsPassword", args.jenkins_password))
     with open(STACK_DATA['main']['template']) as data_file:
         data = json.load(data_file)
     #  Inject locations
     data = inject_locations(locations, data)
     #  Inject Custom AMI
     data, build_params = inject_custom_ami(
-        JENKINS_INSTANCE, data, build_params, connections['ec2'], region)
+        JENKINS_INSTANCE, data, build_params, connections['ec2'], args.region)
     #  Setup IAM Roles/Policies
-    IRN = "-".join((IAM_ROLE_NAME, region, hash_id))
-    IPN = "-".join((IAM_POLICY_NAME, region, hash_id))
+    IRN = "-".join((IAM_ROLE_NAME, args.region, args.hash_id))
+    IPN = "-".join((IAM_POLICY_NAME, args.region, args.hash_id))
     role_arn = create_iam_role(connections['iam'], IRN, IAM_ROLE_DOC)
     put_iam_role_policy(connections['iam'], IRN, IPN, IAM_POLICY_DOC)
     #  Add Extra Information to Stack
-    CAN = "-".join((CODEDEPLOY_APP_NAME, region, hash_id))
-    CGN = "-".join((CODEDEPLOY_GROUP_NAME, region, hash_id))
+    CAN = "-".join((CODEDEPLOY_APP_NAME, args.region, args.hash_id))
+    CGN = "-".join((CODEDEPLOY_GROUP_NAME, args.region, args.hash_id))
     build_params.append(("CodeDeployAppName", CAN))
     build_params.append(("CodeDeployDeploymentGroup", CGN))
     #  Inject Database name
     db_name = "%s%s" % (STACK_DATA['rds']['db_prefix'], timestamp)
     build_params.append(("StelligentDemoDBName", db_name))
     #  Create Stack
-    sys.stdout.write("Launching CloudFormation Stack in %s..." % region)
+    sys.stdout.write("Launching CloudFormation Stack in %s..." % args.region)
     sys.stdout.flush()
     create_cfn_stack(connections['cfn'], stack_name, data, build_params)
     #  Upload stack name to S3
-    dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
+    dest_name = "cloudformation.stack.name-%s-%s" % (args.region,
+                                                     args.hash_id)
     set_stack_name_in_s3(connections['main_s3'], stack_name,
                          dest_name, MAIN_S3_BUCKET)
     print "Done!"
@@ -629,7 +636,7 @@ def build(connections, region, locations, hash_id, full, warm):
         print '%s = %s' % (output.key, output.value)
 
 
-def destroy(connections, region):
+def destroy(connections, args):
     stacks = list_and_get_stacks(connections['cfn'], allow_all=True)
     for stack in stacks:
         stack, stack_type = stack
@@ -654,14 +661,15 @@ def destroy(connections, region):
             delete_codedeploy_application(connections['codedeploy'],
                                           parameters['CodeDeployAppName'])
             #  Destroy IAM Roles/Policies
-            IRN = "-".join((IAM_ROLE_NAME, region, hash_id))
-            IPN = "-".join((IAM_POLICY_NAME, region, hash_id))
+            IRN = "-".join((IAM_ROLE_NAME, args.region, hash_id))
+            IPN = "-".join((IAM_POLICY_NAME, args.region, hash_id))
             delete_iam_policy(connections['iam'], IRN, IPN)
             delete_iam_role(connections['iam'], IRN)
             #  Destroy EC2 Key Pair
             delete_ec2_key_pair(connections['ec2'], parameters['KeyName'])
             #  Remove the stackname from S3
-            dest_name = "cloudformation.stack.name-%s-%s" % (region, hash_id)
+            dest_name = "cloudformation.stack.name-%s-%s" % (args.region,
+                                                             hash_id)
             delete_stack_name_from_s3(connections['main_s3'], MAIN_S3_BUCKET,
                                       dest_name)
         #  Destroy Stack
@@ -694,11 +702,23 @@ def main():
                         help="""Define the hash to use for multiple
                         deployments.  If left blank, the hash will be
                         generated.""", default=new_hash)
+    parser.add_argument('-u', '--user', action="store", dest="jenkins_user",
+                        default=JENKINS_USER, help="Username for Jenkins")
+    parser.add_argument('-e', '--email', action="store", dest="jenkins_email",
+                        default=JENKINS_EMAIL, help="Email for Jenkins")
+    parser.add_argument('-p', '--password', action="store_true",
+                        dest="password_prompt",
+                        help="Prompt for Jenkins Password")
     parser.add_argument('--full', action='store_true',
                         help="Always build all components. (VPC, RDS, etc.)")
     parser.add_argument('--warm', action='store_true',
                         help="Only build VPC, SG, and RDS")
     args = parser.parse_args()
+    if args.password_prompt:
+        print "WARNING: Password will be passed to CFN in plain text."
+        args.jenkins_password = getpass.getpass()
+    else:
+        args.jenkins_password = JENKINS_PASSWORD
     connections = dict()
     connections['cfn'] = cfn_connect(args.region)
     if args.action == "info":
@@ -717,10 +737,9 @@ def main():
             print "Please provide at least one IP Address."
             parser.print_help()
             sys.exit(1)
-        build(connections, args.region, args.locations, args.hash_id,
-              args.full, args.warm)
+        build(connections, args)
     elif args.action == "destroy":
-        destroy(connections, args.region)
+        destroy(connections, args)
 
 
 if __name__ == '__main__':
