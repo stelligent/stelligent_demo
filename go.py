@@ -60,7 +60,9 @@ MAIN_S3_BUCKET_REGION = 'us-east-1'
 DOCKER_ZIPFILE = 'stelligent-demo.zip'
 DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
 FILES_TO_MAIN_S3 = [DOCKER_ZIPFILE]
-FILES_TO_S3 = ['jenkins/seed.xml.erb',
+FILES_TO_S3 = ['cloudformation/cloudformation.asg.json',
+               'cloudformation/cloudformation.jenkins.json',
+               'jenkins/seed.xml.erb',
                'puppet/installJenkins.pp',
                'puppet/installJenkinsJob.pp',
                'puppet/installJenkinsPlugins.pp',
@@ -77,13 +79,15 @@ CODEDEPLOY_GROUP_NAME = 'stelligent-demo'
 
 
 #  Note: IAM_ROLE_NAME and IAM_POLICY_NAME will have the region and hash
-#        appended as 'StelligentDemoRole-us-east-1' to allow multi-region support
+#        appended as 'StelligentDemoRole-us-east-1' for multi-region support
 IAM_ROLE_NAME = 'StelligentDemoCodeDeployRole'
 IAM_ROLE_DOC = 'codedeploy/StelligentDemoCodeDeployRole.json'
 IAM_POLICY_NAME = 'StelligentDemoCodeDeployPolicy'
 IAM_POLICY_DOC = 'codedeploy/StelligentDemoCodeDeployPolicy.json'
 
 #  Resource Logical IDs
+JENKINS_STACK = "StelligentDemoJenkinsStack"
+ASG_STACK = "StelligentDemoASGStack"
 JENKINS_INSTANCE = "StelligentDemoJenkins"
 WEB_ASG_NAME = 'StelligentDemoWebASG'
 DEMO_RDS = 'StelligentDemoMysql'
@@ -109,7 +113,7 @@ def list_and_get_stacks(cfn_connection, allow_all=False):
     for type in STACK_DATA:
         match_stacks = [[stack, STACK_DATA[type]['type']] for
                         stack in all_stacks if
-                        re.match('%s-(\d+)' % STACK_DATA[type]['prefix'],
+                        re.match('%s-(\d+)$' % STACK_DATA[type]['prefix'],
                                  stack.stack_name)]
         stack_list = stack_list + match_stacks
     if stack_list:
@@ -215,7 +219,7 @@ def inject_custom_ami(resource, data, parameters, ec2_connection, region):
                                                                     region)
         print "Using default AMI for %s." % resource
         return data, parameters
-    data['Resources'][resource]['Properties']['ImageId'] = ami
+    parameters.append(("JenkinsAMI", ami))
     resource_config_set = "%sConfigSet" % resource
     parameters.append((resource_config_set, "quick"))
     print "Using image %s for %s." % (ami, resource)
@@ -429,7 +433,7 @@ def empty_related_buckets(s3_connection, bucket_name):
         pass
 
 
-def get_resource_id(cfn_connection, stack_name, resource_name=None):
+def get_resource_id(cfn_connection, stack_name, resource_name=None, wait=True):
     #  Initial Check
     if resource_name:
         resource_label = resource_name
@@ -443,6 +447,8 @@ def get_resource_id(cfn_connection, stack_name, resource_name=None):
             info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
             status = info['ResourceStatus']
             resource_id = info['PhysicalResourceId']
+            if not wait:
+                return resource_id
         else:
             status = cfn_connection.describe_stacks(stack_name)[0].stack_status
             resource_id = cfn_connection.describe_stacks(
@@ -469,6 +475,12 @@ def get_resource_id(cfn_connection, stack_name, resource_name=None):
                 info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
                 status = info['ResourceStatus']
                 resource_id = info['PhysicalResourceId']
+                if not wait:
+                    sys.stdout.write("\rWaiting for %s...Started!" %
+                                     resource_label)
+                    sys.stdout.flush()
+                    sys.stdout.write("\n")
+                    return resource_id
             else:
                 status = cfn_connection.describe_stacks(
                     stack_name)[0].stack_status
@@ -613,14 +625,18 @@ def build(connections, args):
                          dest_name, MAIN_S3_BUCKET)
     print "Done!"
     #  Give Feedback whilst we wait...
-    get_resource_id(connections['cfn'], stack_name, DEMO_ELB)
-    asg_id = get_resource_id(connections['cfn'], stack_name, WEB_ASG_NAME)
+    asg_stack_id = get_resource_id(connections['cfn'], stack_name,
+                                   ASG_STACK, wait=False)
+    get_resource_id(connections['cfn'], asg_stack_id, DEMO_ELB)
+    asg_id = get_resource_id(connections['cfn'], asg_stack_id, WEB_ASG_NAME)
     #  Setup CodeDeploy
     create_codedeploy_application(connections['codedeploy'],
                                   CAN)
     create_codedeploy_deployment_group(connections['codedeploy'],
                                        CAN, CGN, asg_id, role_arn)
-    get_resource_id(connections['cfn'], stack_name, JENKINS_INSTANCE)
+    jenkins_stack_id = get_resource_id(connections['cfn'], stack_name,
+                                       JENKINS_STACK, wait=False)
+    get_resource_id(connections['cfn'], jenkins_stack_id, JENKINS_INSTANCE)
     # Wait for Elastic Beanstalk
     get_resource_id(connections['cfn'], eb_stack)
     print "Gathering Stack Outputs...almost there!"

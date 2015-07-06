@@ -1,7 +1,820 @@
 {
-	"AWSTemplateFormatVersion" : "2010-09-09",
- 	"Description" : "Stelligent Demo: Jenkins",
-  	"Parameters" : {},
- 	"Resources" : {},
-  	"Outputs" : {}
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Stelligent Demo: Jenkins",
+  "Parameters": {
+    "InstanceTypeJenkins": {
+      "Type": "String",
+      "Default": "m1.medium"
+    },
+    "JenkinsAMI": {
+      "Type": "String",
+      "Default": "default"
+    },
+    "DemoRegion": {
+      "Type": "String",
+      "Default": "us-east-1"
+    },
+    "HashID": {
+      "Type": "String"
+    },
+    "StelligentDemoVPC": {
+      "Type": "String"
+    },
+    "StelligentDemoZoneName": {
+      "Type": "String"
+    },
+    "PrimaryPermanentS3Bucket": {
+      "Type": "String"
+    },
+    "StelligentDemoBucket": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSubnet": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicLockedSecurityGroup": {
+      "Type": "String"
+    },
+    "StelligentDemoDBHost": {
+      "Type": "String"
+    },
+    "StelligentDemoDBName": {
+      "Type": "String"
+    },
+    "StelligentDemoDBUser": {
+      "Type": "String"
+    },
+    "StelligentDemoDBPass": {
+      "Type": "String"
+    },
+    "JenkinsUser": {
+      "Type": "String"
+    },
+    "JenkinsEmail": {
+      "Type": "String"
+    },
+    "JenkinsPassword": {
+      "Type": "String"
+    },
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "PrivateKey": {
+      "Type": "String"
+    },
+    "StelligentDemoJenkinsConfigSet": {
+      "Type": "String",
+      "Default": "default"
+    },
+    "CodeDeployAppName": {
+      "Type": "String"
+    },
+    "CodeDeployDeploymentGroup": {
+      "Type": "String"
+    }
+  },
+  "Mappings": {
+    "InstanceAMIs": {
+      "us-east-1": {
+        "AMI": "ami-1ccae774"
+      },
+      "us-west-2": {
+        "AMI": "ami-ff527ecf"
+      }
+    },
+    "AvailabilityZone": {
+      "us-east-1": {
+        "Public": "us-east-1c",
+        "Private1": "us-east-1d",
+        "Private2": "us-east-1e"
+      },
+      "us-west-2": {
+        "Public": "us-west-2a",
+        "Private1": "us-west-2b",
+        "Private2": "us-west-2c"
+      }
+    },
+    "S3Endpoints": {
+      "us-east-1": {
+        "Endpoint": "s3-external-1.amazonaws.com"
+      },
+      "us-west-1": {
+        "Endpoint": "s3-us-west-1.amazonaws.com"
+      },
+      "us-west-2": {
+        "Endpoint": "s3-us-west-2.amazonaws.com"
+      },
+      "eu-west-1": {
+        "Endpoint": "s3-eu-west-1.amazonaws.com"
+      },
+      "eu-central-1": {
+        "Endpoint": "s3-eu-central-1.amazonaws.com"
+      },
+      "ap-southeast-1": {
+        "Endpoint": "s3-ap-southeast-1.amazonaws.com"
+      },
+      "ap-southeast-2": {
+        "Endpoint": "s3-ap-southeast-2.amazonaws.com"
+      },
+      "ap-northeast-1": {
+        "Endpoint": "s3-ap-northeast-1.amazonaws.com"
+      },
+      "sa-east-1": {
+        "Endpoint": "s3-sa-east-1.amazonaws.com"
+      }
+    }
+  },
+  "Conditions": {
+    "UseDefaultJenkinsAMI": {
+      "Fn::Equals": [{
+        "Ref": "JenkinsAMI"
+      }, "default"]
+    }
+  },
+  "Resources": {
+    "StelligentDemoJenkinsEth0": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "Description": "eth0jenkins",
+        "SubnetId": {
+          "Ref": "StelligentDemoPublicSubnet"
+        },
+        "GroupSet": [{
+          "Ref": "StelligentDemoPublicLockedSecurityGroup"
+        }, {
+          "Ref": "StelligentDemoPublicSecurityGroup"
+        }]
+      }
+    },
+    "StelligentDemoJenkinsEIP": {
+      "Type": "AWS::EC2::EIP",
+      "Properties": {
+        "Domain": "vpc"
+      }
+    },
+    "StelligentDemoJenkinsAssocEIP": {
+      "Type": "AWS::EC2::EIPAssociation",
+      "DependsOn": "StelligentDemoJenkinsEIP",
+      "Properties": {
+        "NetworkInterfaceId": {
+          "Ref": "StelligentDemoJenkinsEth0"
+        },
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "StelligentDemoJenkinsEIP",
+            "AllocationId"
+          ]
+        }
+      }
+    },
+    "StelligentDemoJenkinsDNS": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "DependsOn": "StelligentDemoJenkinsEIP",
+      "Properties": {
+        "HostedZoneName": {
+          "Fn::Join": [
+            "", [{
+                "Ref": "StelligentDemoZoneName"
+              },
+              "."
+            ]
+          ]
+        },
+        "RecordSets": [{
+          "Name": {
+            "Fn::Join": [
+              ".", [{
+                "Fn::Join": [
+                  "-", [
+                    "stelligent-demo-jenkins", {
+                      "Ref": "DemoRegion"
+                    }, {
+                      "Ref": "HashID"
+                    }
+                  ]
+                ]
+              }, {
+                "Fn::Join": [
+                  "", [{
+                      "Ref": "StelligentDemoZoneName"
+                    },
+                    "."
+                  ]
+                ]
+              }]
+            ]
+          },
+          "Type": "A",
+          "TTL": "900",
+          "ResourceRecords": [{
+            "Ref": "StelligentDemoJenkinsEIP"
+          }]
+        }]
+      }
+    },
+    "StelligentDemoJenkins": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "InstanceType": {
+          "Ref": "InstanceTypeJenkins"
+        },
+        "ImageId": {
+          "Fn::If": [
+            "UseDefaultJenkinsAMI", {
+              "Fn::FindInMap": [
+                "InstanceAMIs", {
+                  "Ref": "AWS::Region"
+                },
+                "AMI"
+              ]
+            }, {
+              "Ref": "JenkinsAMI"
+            }
+          ]
+        },
+        "AvailabilityZone": {
+          "Fn::FindInMap": [
+            "AvailabilityZone", {
+              "Ref": "AWS::Region"
+            },
+            "Public"
+          ]
+        },
+        "IamInstanceProfile": {
+          "Ref": "StelligentDemoJenkinsInstanceProfile"
+        },
+        "NetworkInterfaces": [{
+          "NetworkInterfaceId": {
+            "Ref": "StelligentDemoJenkinsEth0"
+          },
+          "DeviceIndex": "0"
+        }],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "", [
+                "#!/bin/bash\n",
+                "yum update -y aws-cfn-bootstrap\n",
+                "/opt/aws/bin/cfn-init -v ",
+                "         -c ", {
+                  "Ref": "StelligentDemoJenkinsConfigSet"
+                },
+                "         --stack ", {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource StelligentDemoJenkins ",
+                "         --region ", {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "/opt/aws/bin/cfn-signal -e $? ",
+                "         --stack ", {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource StelligentDemoJenkins ",
+                "         --region ", {
+                  "Ref": "AWS::Region"
+                },
+                "\n"
+              ]
+            ]
+          }
+        }
+      },
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT10M"
+        }
+      },
+      "Metadata": {
+        "Comment": "Stelligent Demo Jenkins",
+        "AWS::CloudFormation::Authentication": {
+          "S3AccessCreds": {
+            "type": "S3",
+            "roleName": {
+              "Ref": "StelligentDemoJenkinsRole"
+            },
+            "buckets": [
+              "stelligent-demo", {
+                "Ref": "StelligentDemoBucket"
+              }
+            ]
+          }
+        },
+        "AWS::CloudFormation::Init": {
+          "configSets": {
+            "quick": [
+              "cfg-db",
+              "cfg-files",
+              "cfg-jenkins-commands",
+              "cfg-services"
+            ],
+            "full": [
+              "cfg-packages",
+              "cfg-db",
+              "cfg-files",
+              "cfg-sys-commands",
+              "cfg-jenkins-commands",
+              "cfg-services"
+            ],
+            "default": [{
+              "ConfigSet": "full"
+            }]
+          },
+          "cfg-packages": {
+            "packages": {
+              "rpm": {
+                "jenkins": "http://pkg.jenkins-ci.org/redhat/jenkins-1.596-1.1.noarch.rpm"
+              }
+            }
+          },
+          "cfg-db": {
+            "packages": {
+              "yum": {
+                "mysql": []
+              }
+            },
+            "files": {
+              "/root/createDB.sh": {
+                "content": {
+                  "Fn::Join": [
+                    "", [
+                      "#!/bin/bash\n",
+                      "mysql",
+                      " -h ", {
+                        "Ref": "StelligentDemoDBHost"
+                      },
+                      " -u ", {
+                        "Ref": "StelligentDemoDBUser"
+                      },
+                      " -p", {
+                        "Ref": "StelligentDemoDBPass"
+                      },
+                      " < /root/createDB.mysql\n"
+                    ]
+                  ]
+                },
+                "mode": "000444",
+                "owner": "root",
+                "group": "root"
+              },
+              "/root/createDB.mysql": {
+                "content": {
+                  "Fn::Join": [
+                    "", [
+                      "CREATE DATABASE ", {
+                        "Ref": "StelligentDemoDBName"
+                      },
+                      ";\n",
+                      "GRANT ALL ON ", {
+                        "Ref": "StelligentDemoDBName"
+                      },
+                      ".* TO '", {
+                        "Ref": "StelligentDemoDBUser"
+                      },
+                      "'@'localhost';\n",
+                      "FLUSH PRIVILEGES;\n"
+                    ]
+                  ]
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              }
+            },
+            "commands": {
+              "createDatabase": {
+                "command": "/bin/bash /root/createDB.sh"
+              }
+            }
+          },
+          "cfg-files": {
+            "files": {
+              "/etc/cfn/cfn-hup.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "", [
+                      "[main]\n",
+                      "stack=", {
+                        "Ref": "AWS::StackId"
+                      },
+                      "\n",
+                      "region=", {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000444",
+                "owner": "root",
+                "group": "root"
+              },
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "", [
+                      "[cfn-auto-reloader-hook]\n",
+                      "triggers=post.update\n",
+                      "path=Resources.StelligentDemoJenkins.Metadata.AWS::CloudFormation::Init\n",
+                      "action=/opt/aws/bin/cfn-init -v",
+                      "         --stack ", {
+                        "Ref": "AWS::StackName"
+                      },
+                      "         --resource StelligentDemoJenkins ",
+                      "         --region ", {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n",
+                      "runas=root\n"
+                    ]
+                  ]
+                }
+              },
+              "/etc/puppet/manifests/installJenkins.pp": {
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkins.pp"]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root",
+                "authentication": "S3AccessCreds"
+              },
+              "/etc/puppet/manifests/installJenkinsJob.pp": {
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkinsJob.pp"]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root",
+                "authentication": "S3AccessCreds"
+              },
+              "/etc/puppet/manifests/installJenkinsPlugins.pp": {
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkinsPlugins.pp"]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root",
+                "authentication": "S3AccessCreds"
+              },
+              "/etc/puppet/manifests/installJenkinsUsers.pp": {
+                "content": {
+                  "Fn::Join": ["", [
+                    "node /.*internal$/ {\n",
+                    "    include jenkins\n",
+                    "\n",
+                    "    jenkins::user { '", {
+                      "Ref": "JenkinsUser"
+                    }, "':\n",
+                    "        email    => '", {
+                      "Ref": "JenkinsEmail"
+                    }, "',\n",
+                    "        password => '", {
+                      "Ref": "JenkinsPassword"
+                    }, "',\n",
+                    "    }\n",
+                    "}\n"
+                  ]]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root",
+                "authentication": "S3AccessCreds"
+              },
+              "/etc/puppet/manifests/installJenkinsSecurity.pp": {
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/installJenkinsSecurity.pp"]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root",
+                "authentication": "S3AccessCreds"
+              },
+              "/etc/puppet/templates/seed.xml.erb": {
+                "source": {
+                  "Fn::Join": [
+                    "", ["https://", {
+                      "Fn::FindInMap": [
+                        "S3Endpoints", {
+                          "Ref": "AWS::Region"
+                        },
+                        "Endpoint"
+                      ]
+                    }, "/", {
+                      "Ref": "StelligentDemoBucket"
+                    }, "/seed.xml.erb"]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root",
+                "authentication": "S3AccessCreds"
+              },
+              "/var/lib/jenkins/cloudformation.stack.name": {
+                "source": {
+                  "Fn::Join": [
+                    "-", [
+                      "http://stelligent-demo.s3.amazonaws.com/cloudformation.stack.name", {
+                        "Ref": "DemoRegion"
+                      }, {
+                        "Ref": "HashID"
+                      }
+                    ]
+                  ]
+                },
+                "mode": "000444",
+                "owner": "root",
+                "group": "root",
+                "authentication": "S3AccessCreds"
+              },
+              "/var/lib/jenkins/stelligent-demo.pem": {
+                "content": {
+                  "Ref": "PrivateKey"
+                },
+                "mode": "000444",
+                "owner": "root",
+                "group": "root"
+              },
+              "/var/lib/jenkins/cloudformation-stack-name": {
+                "content": {
+                  "Ref": "AWS::StackName"
+                },
+                "mode": "000444",
+                "owner": "root",
+                "group": "root"
+              }
+            }
+          },
+          "cfg-sys-commands": {
+            "commands": {
+              "bootstrapB": {
+                "command": "mkdir -pv /etc/puppet/modules /var/lib/jenkins"
+              },
+              "bootstrapC": {
+                "command": "yum -y install git puppet python-pip python-devel gcc zlib-devel openssl-devel"
+              },
+              "bootstrapD": {
+                "command": "wget -nv https://www.python.org/ftp/python/2.7.9/Python-2.7.9.tgz"
+              },
+              "bootstrapE": {
+                "command": "tar fxz Python-2.7.9.tgz"
+              },
+              "bootstrapF": {
+                "command": "cd Python-2.7.9 && ./configure --prefix=/usr/local && make && make altinstall"
+              },
+              "bootstrapG": {
+                "command": "wget -nv https://bootstrap.pypa.io/get-pip.py && python2.7 get-pip.py"
+              },
+              "bootstrapH": {
+                "command": "/usr/local/bin/pip2.7 install --upgrade awscli awsebcli"
+              },
+              "bootstrapI": {
+                "command": "puppet module install rtyler/jenkins --version 1.3.0"
+              },
+              "bootstrapJ": {
+                "command": "sed -i 's|RedHat|Linux|g' /etc/puppet/modules/java/manifests/params.pp"
+              },
+              "bootstrapK": {
+                "command": "sed -i 's|java|/usr/bin/java|g' /etc/puppet/modules/jenkins/manifests/cli.pp"
+              }
+            }
+          },
+          "cfg-jenkins-commands": {
+            "commands": {
+              "installjenkins0": {
+                "command": "service jenkins restart"
+              },
+              "installjenkins1": {
+                "command": "while [[ $(curl -s -w \"%{http_code}\" http://localhost:8080 -o /dev/null) != \"200\" ]]; do sleep 1; done"
+              },
+              "installjenkinsA": {
+                "command": "puppet apply /etc/puppet/manifests/installJenkinsPlugins.pp > /root/installJenkinsPlugins.out 2>&1"
+              },
+              "installjenkinsB": {
+                "command": "puppet apply /etc/puppet/manifests/installJenkinsJob.pp > /root/installJenkinsJob.out 2>&1"
+              },
+              "installjenkinsC": {
+                "command": "puppet apply /etc/puppet/manifests/installJenkinsUsers.pp > /root/installJenkinsUsers.out 2>&1"
+              },
+              "installjenkinsD": {
+                "command": "puppet apply /etc/puppet/manifests/installJenkinsSecurity.pp > /root/installJenkinsSecurity.out 2>&1"
+              }
+            }
+          },
+          "cfg-services": {
+            "services": {
+              "sysvinit": {
+                "jenkins": {
+                  "enabled": "true",
+                  "ensureRunning": "true"
+                },
+                "cfn-hup": {
+                  "enabled": "true",
+                  "ensureRunning": "true",
+                  "files": [
+                    "/etc/cfn/cfn-hup.conf",
+                    "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "StelligentDemoJenkinsRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "codedeploy.amazonaws.com",
+                "ec2.amazonaws.com"
+              ]
+            },
+            "Action": [
+              "sts:AssumeRole"
+            ]
+          }]
+        },
+        "Path": "/"
+      }
+    },
+    "StelligentDemoJenkinsIAMPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "DependsOn": "StelligentDemoJenkinsRole",
+      "Properties": {
+        "PolicyName": "stelligent-demo-jenkins-policy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Action": [
+              "autoscaling:Describe*",
+              "cloudformation:DescribeStacks",
+              "ec2:Describe*",
+              "codedeploy:Get*",
+              "codedeploy:List*",
+              "codedeploy:CreateDeployment",
+              "codedeploy:RegisterApplicationRevision"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+          }, {
+            "Action": [
+              "s3:Get*",
+              "s3:List*"
+            ],
+            "Effect": "Allow",
+            "Resource": {
+              "Fn::Join": [
+                "", [
+                  "arn:aws:s3:::", {
+                    "Ref": "PrimaryPermanentS3Bucket"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }, {
+            "Action": [
+              "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": {
+              "Fn::Join": [
+                "", [
+                  "arn:aws:s3:::", {
+                    "Ref": "StelligentDemoBucket"
+                  },
+                  "/*"
+                ]
+              ]
+            }
+          }]
+        },
+        "Roles": [{
+          "Ref": "StelligentDemoJenkinsRole"
+        }]
+      }
+    },
+    "StelligentDemoJenkinsInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "DependsOn": "StelligentDemoJenkinsRole",
+      "Properties": {
+        "Path": "/",
+        "Roles": [{
+          "Ref": "StelligentDemoJenkinsRole"
+        }]
+      }
+    }
+  },
+  "Outputs": {
+    "StelligentDemoJenkinsEIP": {
+      "Value": {
+        "Ref": "StelligentDemoJenkinsEIP"
+      }
+    },
+    "StelligentDemoJenkinsURL": {
+      "Value": {
+        "Fn::Join": [
+          "", [
+            "http://", {
+              "Fn::GetAtt": [
+                "StelligentDemoJenkins",
+                "PublicDnsName"
+              ]
+            },
+            ":8080"
+          ]
+        ]
+      }
+    },
+    "StelligentDemoJenkinsCNAME": {
+      "Value": {
+        "Fn::Join": [
+          "", [
+            "http://stelligent-demo-jenkins-", {
+              "Ref": "DemoRegion"
+            },
+            "-", {
+              "Ref": "HashID"
+            },
+            ".", {
+              "Ref": "StelligentDemoZoneName"
+            },
+            ":8080"
+          ]
+        ]
+      }
+    },
+    "SSHCommandToJenkins": {
+      "Value": {
+        "Fn::Join": [
+          "", [
+            "ssh -i ", {
+              "Ref": "KeyName"
+            },
+            ".pem ec2-user@", {
+              "Ref": "StelligentDemoJenkinsEIP"
+            }
+          ]
+        ]
+      }
+    }
+  }
 }
