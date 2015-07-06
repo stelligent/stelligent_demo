@@ -1,7 +1,441 @@
 {
-	"AWSTemplateFormatVersion" : "2010-09-09",
- 	"Description" : "Stelligent Demo: ASG",
-  	"Parameters" : {},
- 	"Resources" : {},
-  	"Outputs" : {}
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Stelligent Demo: ASG",
+  "Parameters": {
+    "DemoRegion": {
+      "Type": "String",
+      "Default": "us-east-1"
+    },
+    "HashID": {
+      "Type": "String"
+    },
+    "StelligentDemoZoneName": {
+      "Type": "String"
+    },
+    "StelligentDemoDBHost": {
+      "Type": "String"
+    },
+    "StelligentDemoDBName": {
+      "Type": "String"
+    },
+    "StelligentDemoDBUser": {
+      "Type": "String"
+    },
+    "StelligentDemoDBPass": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSubnet": {
+      "Type": "String"
+    },
+    "StelligentDemoPublicSecurityGroup": {
+      "Type": "String"
+    },
+    "InstanceTypeASG": {
+      "Type": "String",
+      "Default": "m1.small"
+    },
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    }
+  },
+  "Mappings": {
+    "InstanceAMIs": {
+      "us-east-1": {
+        "AMI": "ami-1ccae774"
+      },
+      "us-west-2": {
+        "AMI": "ami-ff527ecf"
+      }
+    },
+    "AvailabilityZone": {
+      "us-east-1": {
+        "Public": "us-east-1c",
+        "Private1": "us-east-1d",
+        "Private2": "us-east-1e"
+      },
+      "us-west-2": {
+        "Public": "us-west-2a",
+        "Private1": "us-west-2b",
+        "Private2": "us-west-2c"
+      }
+    }
+  },
+  "Resources": {
+    "StelligentDemoWebASG": {
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "DependsOn": [
+        "StelligentDemoWebLaunchConfig"
+      ],
+      "Version": "2009-05-15",
+      "Properties": {
+        "AvailabilityZones": [{
+          "Fn::FindInMap": [
+            "AvailabilityZone", {
+              "Ref": "AWS::Region"
+            },
+            "Public"
+          ]
+        }],
+        "LaunchConfigurationName": {
+          "Ref": "StelligentDemoWebLaunchConfig"
+        },
+        "LoadBalancerNames": [{
+          "Ref": "StelligentDemoELB"
+        }],
+        "VPCZoneIdentifier": [{
+          "Ref": "StelligentDemoPublicSubnet"
+        }],
+        "MinSize": "2",
+        "MaxSize": "2",
+        "Tags": [{
+          "Key": "Name",
+          "Value": {
+            "Fn::Join": [
+              "-", [{
+                  "Ref": "AWS::StackName"
+                },
+                "webserver"
+              ]
+            ]
+          },
+          "PropagateAtLaunch": "true"
+        }]
+      }
+    },
+    "StelligentDemoWebLaunchConfig": {
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "Comment": "StelligentDemoWebLaunchConfig",
+        "AWS::CloudFormation::Init": {
+          "config": {
+            "files": {
+              "/etc/cfn/StelligentDemoDBHost": {
+                "content": {
+                  "Ref": "StelligentDemoDBHost"
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              },
+              "/etc/cfn/StelligentDemoDBName": {
+                "content": {
+                  "Ref": "StelligentDemoDBName"
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              },
+              "/etc/cfn/StelligentDemoDBUser": {
+                "content": {
+                  "Ref": "StelligentDemoDBUser"
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              },
+              "/etc/cfn/StelligentDemoDBPass": {
+                "content": {
+                  "Ref": "StelligentDemoDBPass"
+                },
+                "mode": "000644",
+                "owner": "root",
+                "group": "root"
+              },
+              "/etc/cfn/cfn-hup.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "", [
+                      "[main]\n",
+                      "stack=", {
+                        "Ref": "AWS::StackId"
+                      },
+                      "\n",
+                      "region=", {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n"
+                    ]
+                  ]
+                },
+                "mode": "000400",
+                "owner": "root",
+                "group": "root"
+              },
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf": {
+                "content": {
+                  "Fn::Join": [
+                    "", [
+                      "[cfn-auto-reloader-hook]\n",
+                      "triggers=post.update\n",
+                      "path=Resources.StelligentDemoWebASG.Metadata.AWS::CloudFormation::Init\n",
+                      "action=/opt/aws/bin/cfn-init -v ",
+                      "         --stack ", {
+                        "Ref": "AWS::StackName"
+                      },
+                      "         --resource StelligentDemoWebLaunchConfig ",
+                      "         --region ", {
+                        "Ref": "AWS::Region"
+                      },
+                      "\n",
+                      "runas=root\n"
+                    ]
+                  ]
+                }
+              }
+            },
+            "services": {
+              "sysvinit": {
+                "cfn-hup": {
+                  "enabled": "true",
+                  "ensureRunning": "true",
+                  "files": [
+                    "/etc/cfn/cfn-hup.conf",
+                    "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "InstanceType": {
+          "Ref": "InstanceTypeASG"
+        },
+        "ImageId": {
+          "Fn::FindInMap": [
+            "InstanceAMIs", {
+              "Ref": "AWS::Region"
+            },
+            "AMI"
+          ]
+        },
+        "AssociatePublicIpAddress": "true",
+        "IamInstanceProfile": {
+          "Ref": "StelligentDemoASGInstanceProfile"
+        },
+        "SecurityGroups": [{
+          "Ref": "StelligentDemoPublicSecurityGroup"
+        }],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "", [
+                "#!/bin/bash -xe\n",
+                "yum update -y aws-cfn-bootstrap aws-cli\n",
+                "aws s3 cp s3://aws-codedeploy-us-east-1/latest/install . --region ", {
+                  "Ref": "DemoRegion"
+                },
+                "\n",
+                "chmod +x ./install\n",
+                "./install auto\n",
+                "/opt/aws/bin/cfn-init -v ",
+                "         --stack ", {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource StelligentDemoWebLaunchConfig ",
+                "         --region ", {
+                  "Ref": "AWS::Region"
+                },
+                "\n",
+                "/opt/aws/bin/cfn-signal -e $? ",
+                "         --stack ", {
+                  "Ref": "AWS::StackName"
+                },
+                "         --resource StelligentDemoWebLaunchConfig ",
+                "         --region ", {
+                  "Ref": "AWS::Region"
+                },
+                "\n"
+              ]
+            ]
+          }
+        }
+      },
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": "PT5M"
+        }
+      }
+    },
+    "StelligentDemoELB": {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties": {
+        "Subnets": [{
+          "Ref": "StelligentDemoPublicSubnet"
+        }],
+        "Listeners": [{
+          "LoadBalancerPort": "80",
+          "InstancePort": "80",
+          "Protocol": "HTTP"
+        }, {
+          "LoadBalancerPort": "2222",
+          "InstancePort": "22",
+          "Protocol": "TCP"
+        }],
+        "HealthCheck": {
+          "Target": "HTTP:80/",
+          "HealthyThreshold": "2",
+          "UnhealthyThreshold": "5",
+          "Interval": "5",
+          "Timeout": "4"
+        },
+        "SecurityGroups": [{
+          "Ref": "StelligentDemoPublicSecurityGroup"
+        }]
+      }
+    },
+    "StelligentDemoELBDNS": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "DependsOn": "StelligentDemoELB",
+      "Properties": {
+        "HostedZoneName": {
+          "Fn::Join": [
+            "", [{
+                "Ref": "StelligentDemoZoneName"
+              },
+              "."
+            ]
+          ]
+        },
+        "RecordSets": [{
+          "Name": {
+            "Fn::Join": [
+              ".", [{
+                "Fn::Join": [
+                  "-", [
+                    "stelligent-demo", {
+                      "Ref": "DemoRegion"
+                    }, {
+                      "Ref": "HashID"
+                    }
+                  ]
+                ]
+              }, {
+                "Fn::Join": [
+                  "", [{
+                      "Ref": "StelligentDemoZoneName"
+                    },
+                    "."
+                  ]
+                ]
+              }]
+            ]
+          },
+          "Type": "A",
+          "AliasTarget": {
+            "HostedZoneId": {
+              "Fn::GetAtt": [
+                "StelligentDemoELB",
+                "CanonicalHostedZoneNameID"
+              ]
+            },
+            "DNSName": {
+              "Fn::GetAtt": [
+                "StelligentDemoELB",
+                "CanonicalHostedZoneName"
+              ]
+            }
+          }
+        }]
+      }
+    },
+    "StelligentDemoASGRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": [
+                "codedeploy.amazonaws.com",
+                "ec2.amazonaws.com"
+              ]
+            },
+            "Action": [
+              "sts:AssumeRole"
+            ]
+          }]
+        },
+        "Path": "/"
+      }
+    },
+    "StelligentDemoASGIAM": {
+      "Type": "AWS::IAM::Policy",
+      "DependsOn": "StelligentDemoASGRole",
+      "Properties": {
+        "PolicyName": "stelligent-demo-asg-policy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+            "Action": [
+              "autoscaling:PutLifecycleHook",
+              "autoscaling:DeleteLifecycleHook",
+              "autoscaling:RecordLifecycleActionHeartbeat",
+              "autoscaling:CompleteLifecycleAction",
+              "autoscaling:DescribeAutoscalingGroups",
+              "autoscaling:PutInstanceInStandby",
+              "autoscaling:PutInstanceInService",
+              "cloudformation:DescribeStacks",
+              "codedeploy:*",
+              "ec2:Describe*",
+              "Tag:get*",
+              "elasticbeanstalk:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+          }, {
+            "Action": [
+              "s3:Get*",
+              "s3:List*"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+              "arn:aws:s3:::stelligent-demo/*",
+              "arn:aws:s3:::aws-codedeploy-us-east-1/*"
+            ]
+          }]
+        },
+        "Roles": [{
+          "Ref": "StelligentDemoASGRole"
+        }]
+      }
+    },
+    "StelligentDemoASGInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "DependsOn": "StelligentDemoASGRole",
+      "Properties": {
+        "Path": "/",
+        "Roles": [{
+          "Ref": "StelligentDemoASGRole"
+        }]
+      }
+    }
+  },
+  "Outputs": {
+    "StelligentDemoWebASG": {
+      "Value": {
+        "Ref": "StelligentDemoWebASG"
+      }
+    },
+    "StelligentDemoELBDNSNAME": {
+      "Value": {
+        "Fn::Join": [
+          "", [
+            "http://", {
+              "Fn::GetAtt": [
+                "StelligentDemoELB",
+                "DNSName"
+              ]
+            }
+          ]
+        ]
+      }
+    }
+  }
 }
