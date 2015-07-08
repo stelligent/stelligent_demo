@@ -354,11 +354,11 @@
       "Description" : "Auto Scaling Group Name for ECS Instances",
       "Value" : { "Ref" : "StelligentDemoECSInstanceAsg" }
     },
-    "StelligentEcsElbName" : {
+    "StelligentDemoEcsElbName" : {
       "Description" : "Load Balancer for Stelligent Demo ECS",
       "Value" : { "Ref" : "StelligentDemoECSELB" }
     },
-    "StelligentEcsElbURL": {
+    "StelligentDemoEcsElbURL": {
       "Description": "URL for Stelligent Demo ECS Load Balancers",
       "Value": { "Fn::Join": ["", [
         "http://", { "Fn::GetAtt": [ "StelligentDemoECSELB", "DNSName" ] }
