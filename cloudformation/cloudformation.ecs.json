@@ -2,32 +2,13 @@
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Description" : "Stelligent Demo: ECS-Docker",
   "Parameters" : {
-    "StelligentDemoZoneName": {
-        "Type": "String",
-        "Default": "elasticoperations.com"
-    },
     "StelligentDemoVPC": {
       "Type": "String"
     },
     "StelligentDemoPublicSubnet": {
       "Type": "String"
     },
-    "StelligentDemoPrivateSubnet1": {
-      "Type": "String"
-    },
-    "StelligentDemoPrivateSubnet2": {
-      "Type": "String"
-    },
     "StelligentDemoPublicSecurityGroup": {
-      "Type": "String"
-    },
-    "StelligentDemoPrivateSecurityGroup": {
-      "Type": "String"
-    },
-    "StelligentDemoPublicRouteTableAssociation": {
-      "Type": "String"
-    },
-    "StelligentDemoPrivateSecurityGroupSSH": {
       "Type": "String"
     },
     "StelligentDemoECSInstanceType": {
@@ -42,23 +23,12 @@
     "KeyName": {
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
-    "StelligentDemoPrivateSecurityGroupMySQL": {
-        "Type": "String"
-    },
-    "StelligentDemoPrivateSecurityGroupId": {
-        "Type": "String"
-    },
-    "StelligentDemoDockerRepo": {
-        "Type": "String",
-        "Default": "stelligent-demo-docker-repo"
+    "StelligentDemoBucket": {
+        "Type" : "String"
     },
     "StelligentDemoDockerRegistryLabel": {
         "Type": "String",
         "Default": "stelligent"
-    },
-    "StelligentDemoDockerImageId": {
-        "Type": "String",
-        "Default": "05b545320fdb"
     },
     "StelligentDemoDockerImage": {
         "Type": "String",
@@ -139,7 +109,7 @@
         }
     },
 
-    "EcsInstanceAsg" : {
+    "StelligentDemoECSInstanceAsg" : {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
         "AvailabilityZones" : [{
@@ -174,36 +144,27 @@
         "InstanceType"   : { "Ref": "StelligentDemoECSInstanceType" },
         "KeyName"        : { "Ref": "KeyName" },
         "AssociatePublicIpAddress": true,
-        "SecurityGroups": [{ "Ref": "StelligentDemoPublicLockedSecurityGroup" },
-                           { "Ref": "StelligentDemoECSSecurityGroup" }],
+        "SecurityGroups": [{ "Ref": "StelligentDemoECSSecurityGroup" }],
         "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
              "#!/bin/bash -xe\n",
              "echo ECS_CLUSTER=", { "Ref" : "StelligentDemoECSCluster" },
              " >> /etc/ecs/ecs.config\n",
-             "yum -y install aws-cli\n",
-             "aws s3 cp s3://", { "Ref": "StelligentDemoDockerRepo" },
-             "/images/", { "Ref": "StelligentDemoDockerImage" },
-             ".tar.gz - | gunzip | docker load\n",
-             "docker tag ", { "Ref": "StelligentDemoDockerImageId" },
-             " ", { "Ref": "StelligentDemoDockerRegistryLabel" }, "/",
-             { "Ref": "StelligentDemoDockerImage" }, "\n"
+             "/usr/bin/yum -y install aws-cli unzip\n",
+             "export TMP=$(/bin/mktemp -d)\n",
+             "cd $TMP\n",
+             "aws --region ", { "Ref": "AWS::Region" },
+             " s3 cp s3://", { "Ref": "StelligentDemoBucket" },
+             "/stelligent-demo.zip .\n",
+             "/usr/bin/unzip stelligent-demo.zip\n",
+             "/usr/bin/docker tag $(docker build . | tail -1 | awk '{print $NF}') ",
+             { "Ref": "StelligentDemoDockerRegistryLabel" }, "/",
+             { "Ref": "StelligentDemoDockerImage" }, ":latest\n"
         ]]}}
       },
       "CreationPolicy" : {
         "ResourceSignal" : {
           "Timeout" : "PT5M"
         }
-      }
-    },
-
-    "StelligentDemoPublicLockedSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "stelligent-demo-public-locked",
-        "VpcId": {
-          "Ref": "StelligentDemoVPC"
-        },
-        "SecurityGroupIngress": []
       }
     },
 
@@ -246,9 +207,11 @@
             "Action": [
               "s3:*"
             ],
-            "Resource": [
-              "arn:aws:s3:::stelligent-demo-docker-repo/*"
-            ]
+            "Resource": [ { "Fn::Join": [ "", [ 
+              "arn:aws:s3:::", 
+              { "Ref": "StelligentDemoBucket" },
+              "/*"
+            ]]}]
           }
         ]},
         "Roles": [{ "Ref": "StelligentDemoECSServiceRole" }]
@@ -296,9 +259,11 @@
             "Action": [
               "s3:*"
             ],
-            "Resource": [
-              "arn:aws:s3:::stelligent-demo-docker-repo/*"
-            ]
+            "Resource": [ { "Fn::Join": [ "", [                                    
+              "arn:aws:s3:::",                                                     
+              { "Ref": "StelligentDemoBucket" },                                   
+              "/*"                                                                 
+            ]]}] 
           },
           {
             "Effect": "Allow",
@@ -337,11 +302,10 @@
     "StelligentDemoECSService": {
       "Type": "AWS::ECS::Service",
       "DependsOn": [
-        "StelligentDemoECSTaskDefinition",
         "StelligentDemoECSCluster",
-        "StelligentDemoECSELB",
-        "StelligentDemoECSRole",
-        "EcsInstanceAsg"
+        "StelligentDemoECSServiceRole",
+        "StelligentDemoECSServiceRolePolicy",
+        "StelligentDemoECSInstanceAsg"
       ],
       "Properties": {
         "Cluster": {"Ref": "StelligentDemoECSCluster" },
@@ -386,63 +350,19 @@
 
   },
   "Outputs": {
-    "StelligentEcsInstanceAsgName" : {
+    "StelligentDemoEcsInstanceAsgName" : {
       "Description" : "Auto Scaling Group Name for ECS Instances",
-      "Value" : { "Ref" : "EcsInstanceAsg" }
+      "Value" : { "Ref" : "StelligentDemoECSInstanceAsg" }
     },
     "StelligentEcsElbName" : {
       "Description" : "Load Balancer for Stelligent Demo ECS",
       "Value" : { "Ref" : "StelligentDemoECSELB" }
     },
-    "StelligentDemoVPC": {
-      "Value": {
-        "Ref": "StelligentDemoVPC"
-      }
-    },
-    "StelligentDemoPublicSubnet": {
-      "Value": {
-        "Ref": "StelligentDemoPublicSubnet"
-      }
-    },
-    "StelligentDemoPrivateSubnet1": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSubnet1"
-      }
-    },
-    "StelligentDemoPrivateSubnet2": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSubnet2"
-      }
-    },
-    "StelligentDemoPublicSecurityGroup": {
-      "Value": {
-        "Ref": "StelligentDemoPublicSecurityGroup"
-      }
-    },
-    "StelligentDemoPrivateSecurityGroup": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSecurityGroup"
-      }
-    },
-    "StelligentDemoPrivateSecurityGroupId": {
-      "Value": {
-          "Ref" : "StelligentDemoPrivateSecurityGroupId"
-      }
-    },
-    "StelligentDemoPrivateSecurityGroupSSH": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSecurityGroupSSH"
-      }
-    },
-    "StelligentDemoPrivateSecurityGroupMySQL": {
-      "Value": {
-        "Ref": "StelligentDemoPrivateSecurityGroupMySQL"
-      }
-    },
-    "StelligentDemoPublicRouteTableAssociation": {
-      "Value": {
-        "Ref": "StelligentDemoPublicRouteTableAssociation"
-      }
+    "StelligentEcsElbURL": {
+      "Description": "URL for Stelligent Demo ECS Load Balancers",
+      "Value": { "Fn::Join": ["", [
+        "http://", { "Fn::GetAtt": [ "StelligentDemoECSELB", "DNSName" ] }
+      ]]}
     }
   }
 }

@@ -59,14 +59,14 @@ MAIN_S3_BUCKET = 'stelligent-demo'  # Permanent S3 Bucket
 MAIN_S3_BUCKET_REGION = 'us-east-1'
 DOCKER_ZIPFILE = 'stelligent-demo.zip'
 DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
-FILES_TO_MAIN_S3 = [DOCKER_ZIPFILE]
 FILES_TO_S3 = ['cloudformation/cloudformation.asg.json',
                'cloudformation/cloudformation.jenkins.json',
                'jenkins/seed.xml.erb',
                'puppet/installJenkins.pp',
                'puppet/installJenkinsJob.pp',
                'puppet/installJenkinsPlugins.pp',
-               'puppet/installJenkinsSecurity.pp']
+               'puppet/installJenkinsSecurity.pp',
+               DOCKER_ZIPFILE]
 JENKINS_USER = 'stelligent_demo'
 JENKINS_EMAIL = 'stelligent@example.com'
 JENKINS_PASSWORD = 'changeme123'
@@ -511,6 +511,17 @@ def outputs_to_parameters(outputs, params=None):
     return params
 
 
+def fetch_parameters(outputs, params=list()):
+    results = list()
+    for param in params:
+        value = ([output.value for output in outputs
+                 if output.key == param])[0]
+        if value is not None:
+            results.append((param, value))
+
+    return results
+
+
 def build(connections, args):
     locations = add_cidr_subnet(args.locations)
     timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
@@ -521,9 +532,7 @@ def build(connections, args):
         #  Setup EC2 Key Pair
         key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
         private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
-        #  Copy files to S3
-        copy_files_to_s3(connections['main_s3'], MAIN_S3_BUCKET,
-                         FILES_TO_MAIN_S3)
+        ''' Removed until docker app is replaced
         #  Launch ElasticBeanstalk Stack, don't wait
         eb_params = list()
         eb_params.append(("HashID", args.hash_id))
@@ -534,6 +543,7 @@ def build(connections, args):
             connections['cfn'], all_stacks, STACK_DATA['eb'], timestamp,
             build_params=eb_params, create=True, wait=False
         )
+        '''
         #  Launch S3 Stack, don't wait
         s3_params = list()
         s3_params.append(("DemoRegion", args.region))
@@ -555,16 +565,6 @@ def build(connections, args):
         connections['cfn'], all_stacks, STACK_DATA['sg'], timestamp,
         build_params=sg_params, check_outputs=vpc_outputs, create=vpc_created
     )
-    if not args.warm:
-        #  Launch ECS Stack, don't wait
-        ecs_params = outputs_to_parameters(sg_outputs)
-        ecs_params.append(("KeyName", key_pair_name))
-        ecs_params.append(('StelligentDemoECSClusterName', DEMO_ECS))
-        ecs_stack, ecs_outputs, ecs_created = get_or_create_stack(
-            connections['cfn'], all_stacks, STACK_DATA['ecs'], timestamp,
-            build_params=ecs_params, check_outputs=sg_outputs, create=True,
-            wait=False
-        )
     #  Get or create RDS
     rds_params = outputs_to_parameters(sg_outputs)
     rds_stack, rds_outputs, rds_created = get_or_create_stack(
@@ -580,6 +580,20 @@ def build(connections, args):
     s3_outputs_parsed = {x.key: x.value for x in s3_outputs}
     ephemeral_bucket = s3_outputs_parsed[DEMO_S3_BUCKET]
     copy_files_to_s3(connections['s3'], ephemeral_bucket, FILES_TO_S3)
+    #  Launch ECS Stack, don't wait
+    ecs_params = fetch_parameters(sg_outputs,
+        ['StelligentDemoPublicSecurityGroup'])
+    ecs_params.extend(fetch_parameters(vpc_outputs, 
+        ['StelligentDemoPublicSubnet',
+         'StelligentDemoVPC']))
+    ecs_params.extend(fetch_parameters(s3_outputs, [DEMO_S3_BUCKET]))
+    ecs_params.append(("KeyName", key_pair_name))
+    ecs_params.append(('StelligentDemoECSClusterName', DEMO_ECS))
+    ecs_stack, ecs_outputs, ecs_created = get_or_create_stack(
+        connections['cfn'], all_stacks, STACK_DATA['ecs'], timestamp,
+        build_params=ecs_params, check_outputs=sg_outputs, create=True,
+        wait=False
+    )
     #  Setup Main Stack
     stack_name = "%s-%s" % (STACK_DATA['main']['prefix'], timestamp)
     build_params = outputs_to_parameters(s3_outputs)
@@ -638,12 +652,13 @@ def build(connections, args):
                                        JENKINS_STACK, wait=False)
     get_resource_id(connections['cfn'], jenkins_stack_id, JENKINS_INSTANCE)
     # Wait for Elastic Beanstalk
-    get_resource_id(connections['cfn'], eb_stack)
+    # get_resource_id(connections['cfn'], eb_stack)
     print "Gathering Stack Outputs...almost there!"
     main_outputs = get_stack_outputs(connections['cfn'], stack_name)
-    eb_outputs = get_stack_outputs(connections['cfn'], eb_stack)
+    # eb_outputs = get_stack_outputs(connections['cfn'], eb_stack)
     ecs_outputs = get_stack_outputs(connections['cfn'], ecs_stack)
-    outputs = main_outputs + eb_outputs + ecs_outputs
+    #outputs = main_outputs + eb_outputs + ecs_outputs
+    outputs = main_outputs + ecs_outputs
     outputs = sorted(outputs, key=lambda k: k.key)
     # Upload index.html to transient demo bucket
     create_and_upload_index_to_s3(connections['s3'], outputs)
