@@ -6,7 +6,9 @@ bucketName=$(< "/var/lib/jenkins/s3-bucket-name")
 echo $stackName
 echo $bucketName
 echo
+mkdir ~/.ssh
 aws cloudformation describe-stacks --region "${REGION}" --stack-name $stackName|grep PrivateKey -A22|cut -f3 > ~/.ssh/$stackName.pem
+chmod 600 ~/.ssh/$stackName.pem
 echo
 rm -fv stelligent-demo.zip
 echo

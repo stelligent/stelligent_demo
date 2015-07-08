@@ -47,6 +47,9 @@
     "StelligentDemoDBPass": {
       "Type": "String"
     },
+    "StelligentDemoStackName": {
+      "Type": "String"
+    },
     "JenkinsUser": {
       "Type": "String"
     },
@@ -585,7 +588,7 @@
               },
               "/var/lib/jenkins/cloudformation-stack-name": {
                 "content": {
-                  "Ref": "AWS::StackName"
+                  "Ref": "StelligentDemoStackName"
                 },
                 "mode": "000444",
                 "owner": "root",
@@ -704,6 +707,7 @@
               "autoscaling:Describe*",
               "cloudformation:DescribeStacks",
               "ec2:Describe*",
+              "elasticbeanstalk:*",
               "codedeploy:Get*",
               "codedeploy:List*",
               "codedeploy:CreateDeployment",

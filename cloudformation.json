@@ -208,6 +208,9 @@
           "StelligentDemoBucket": {
             "Ref": "StelligentDemoBucket"
           },
+          "StelligentDemoStackName": {
+            "Ref": "AWS::StackName"
+          },
           "StelligentDemoPublicSubnet": {
             "Ref": "StelligentDemoPublicSubnet"
           },
