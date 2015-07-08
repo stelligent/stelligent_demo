@@ -5,7 +5,6 @@ deliveryPipelineView('Continuous Delivery Pipeline') {
     enableManualTriggers()
     pipelines {
         component('Image Selector Application', 'ISA-poll-version-control')
-        component('Image Slide Show', 'DockerStage')
     }
 }
 
@@ -13,22 +12,6 @@ listView('Image Selector Application') {
     description('Image Selector Application')
     jobs {
         regex('ISA.+')
-    }
-    columns {
-        status()
-        weather()
-        name()
-        lastSuccess()
-        lastFailure()
-        lastDuration()
-        buildButton()
-    }
-}
-
-listView('Image Slide Show') {
-    description('Image Slide Show')
-    jobs {
-        regex('Docker.+')
     }
     columns {
         status()

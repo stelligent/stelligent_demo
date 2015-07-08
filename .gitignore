@@ -1,3 +1,4 @@
+*.pyc
 *.pem
 *.zip
 trustedips

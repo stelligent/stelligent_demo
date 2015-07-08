@@ -434,26 +434,31 @@ def get_resource_id(cfn_connection, stack_name, resource_name=None, wait=True):
         resource_label = resource_name
     else:
         resource_label = stack_name
-    try:
-        #  FIXME: Must be a better way...
-        if resource_name:
-            resource = cfn_connection.describe_stack_resource(stack_name,
-                                                              resource_name)
-            info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
-            status = info['ResourceStatus']
-            resource_id = info['PhysicalResourceId']
-            if not wait:
-                return resource_id
-        else:
-            status = cfn_connection.describe_stacks(stack_name)[0].stack_status
-            resource_id = cfn_connection.describe_stacks(
-                stack_name)[0].stack_id
-    except BotoServerError:
-        status = "NOT STARTED"
+    status = "NOT_STARTED"
+    waited = False
     while status != "CREATE_COMPLETE":
-        sys.stdout.write("\rWaiting for %s        " % resource_label)
-        sys.stdout.flush()
-        sleep(1)
+        try:
+            #  FIXME: Must be a better way...
+            if resource_name:
+                resource = cfn_connection.describe_stack_resources(
+                    stack_name, resource_name)[0]
+                status = resource.resource_status
+                resource_id = resource.physical_resource_id
+                if not wait and resource_id:
+                    if waited:
+                        sys.stdout.write("\rWaiting for %s...Started!" %
+                                         resource_label)
+                        sys.stdout.flush()
+                        sys.stdout.write("\n")
+                    return resource_id
+            else:
+                status = cfn_connection.describe_stacks(
+                    stack_name)[0].stack_status
+                resource_id = cfn_connection.describe_stacks(
+                    stack_name)[0].stack_id
+        except IndexError:
+            pass
+        waited = True
         sys.stdout.write("\rWaiting for %s.       " % resource_label)
         sys.stdout.flush()
         sleep(1)
@@ -462,25 +467,7 @@ def get_resource_id(cfn_connection, stack_name, resource_name=None, wait=True):
         sleep(1)
         sys.stdout.write("\rWaiting for %s...     " % resource_label)
         sys.stdout.flush()
-        try:
-            #  FIXME: Must be a better way...
-            if resource_name:
-                resource = cfn_connection.describe_stack_resource(
-                    stack_name, resource_name)
-                info = resource['DescribeStackResourceResponse']['DescribeStackResourceResult']['StackResourceDetail']
-                status = info['ResourceStatus']
-                resource_id = info['PhysicalResourceId']
-                if not wait:
-                    sys.stdout.write("\rWaiting for %s...Started!" %
-                                     resource_label)
-                    sys.stdout.flush()
-                    sys.stdout.write("\n")
-                    return resource_id
-            else:
-                status = cfn_connection.describe_stacks(
-                    stack_name)[0].stack_status
-        except BotoServerError:
-            status = "NOT STARTED"
+        sleep(1)
         if status.endswith('FAILED'):
             sys.stdout.write("\n")
             print "Stack Failed. Exiting..."
@@ -527,6 +514,7 @@ def build(connections, args):
         #  Setup EC2 Key Pair
         key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
         private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
+        ''' # FIXME: Change EB to something other than docker then re-enable
         #  Launch ElasticBeanstalk Stack, don't wait
         eb_params = list()
         eb_params.append(("HashID", args.hash_id))
@@ -537,6 +525,7 @@ def build(connections, args):
             connections['cfn'], all_stacks, STACK_DATA['eb'], timestamp,
             build_params=eb_params, create=True, wait=False
         )
+        '''
         #  Launch S3 Stack, don't wait
         s3_params = list()
         s3_params.append(("DemoRegion", args.region))
@@ -626,8 +615,8 @@ def build(connections, args):
     create_cfn_stack(connections['cfn'], stack_name, data, build_params)
     print "Done!"
     #  Give Feedback whilst we wait...
-    asg_stack_id = get_resource_id(connections['cfn'], stack_name,
-                                   ASG_STACK, wait=False)
+    asg_stack_id = get_resource_id(connections['cfn'], stack_name, ASG_STACK,
+                                   wait=False)
     asg_id = get_resource_id(connections['cfn'], asg_stack_id, WEB_ASG_NAME)
     #  Setup CodeDeploy
     create_codedeploy_application(connections['codedeploy'],
@@ -637,13 +626,19 @@ def build(connections, args):
     jenkins_stack_id = get_resource_id(connections['cfn'], stack_name,
                                        JENKINS_STACK, wait=False)
     get_resource_id(connections['cfn'], jenkins_stack_id, JENKINS_INSTANCE)
+    get_resource_id(connections['cfn'], stack_name)
+    ''' #  FIXME: Change EB to something other than docker then re-enable
     #  Wait for Elastic Beanstalk
     get_resource_id(connections['cfn'], eb_stack)
+    '''
     print "Gathering Stack Outputs...almost there!"
     main_outputs = get_stack_outputs(connections['cfn'], stack_name)
-    eb_outputs = get_stack_outputs(connections['cfn'], eb_stack)
+    #  FIXME: Change EB to something other than docker then re-enable
+    #  eb_outputs = get_stack_outputs(connections['cfn'], eb_stack)
     ecs_outputs = get_stack_outputs(connections['cfn'], ecs_stack)
-    outputs = main_outputs + eb_outputs + ecs_outputs
+    #  FIXME: Change EB to something other than docker then re-enable
+    #  outputs = main_outputs + eb_outputs + ecs_outputs
+    outputs = main_outputs + ecs_outputs
     outputs = sorted(outputs, key=lambda k: k.key)
     #  Upload index.html to transient demo bucket
     create_and_upload_index_to_s3(connections['s3'], outputs)

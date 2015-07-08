@@ -356,9 +356,9 @@
         "Fn::GetAtt": ["StelligentDemoJenkinsStack", "Outputs.StelligentDemoJenkinsURL"]
       }
     },
-    "StelligentDemoELBDNSNAME": {
+    "StelligentDemoELBDNSName": {
       "Value": {
-        "Fn::GetAtt": ["StelligentDemoASGStack", "Outputs.StelligentDemoELBDNSNAME"]
+        "Fn::GetAtt": ["StelligentDemoASGStack", "Outputs.StelligentDemoELBDNSName"]
       }
     },
     "StelligentDemoBucketURL": {

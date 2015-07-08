@@ -423,7 +423,7 @@
         "Ref": "StelligentDemoWebASG"
       }
     },
-    "StelligentDemoELBDNSNAME": {
+    "StelligentDemoELBDNSName": {
       "Value": {
         "Fn::Join": [
           "", [

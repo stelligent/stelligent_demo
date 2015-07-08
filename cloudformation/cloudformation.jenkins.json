@@ -706,12 +706,11 @@
             "Action": [
               "autoscaling:Describe*",
               "cloudformation:DescribeStacks",
-              "ec2:Describe*",
-              "elasticbeanstalk:*",
               "codedeploy:Get*",
               "codedeploy:List*",
               "codedeploy:CreateDeployment",
-              "codedeploy:RegisterApplicationRevision"
+              "codedeploy:RegisterApplicationRevision",
+              "ec2:Describe*"
             ],
             "Effect": "Allow",
             "Resource": "*"
