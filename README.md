@@ -161,7 +161,6 @@ This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and deploy
 
 # questions
 
-- Use [delivery pipeline](https://wiki.jenkins-ci.org/display/JENKINS/Delivery+Pipeline+Plugin) plugin?
 - Diagram of the stages and activities in the deployment pipeline?
 - Deployment time?
 - How does Vagrant get launched by the user/developer?
@@ -169,5 +168,4 @@ This demo creates ElasticCloud and VirtualPrivateCloud infrastructure and deploy
 - Make CloudFormation work in multiple regions and AZs
 - Consider using m3 default instance types
 - Are you doing any encryption (in transit or at rest?)?
-- Rename CloudFormation and other resources to Stelligent
 - Purpose of restricting IP endpoints in command?

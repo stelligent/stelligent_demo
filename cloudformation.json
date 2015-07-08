@@ -50,9 +50,6 @@
     "StelligentDemoDBPass": {
       "Type": "String"
     },
-    "PrimaryPermanentS3Bucket": {
-      "Type": "String"
-    },
     "InstanceTypeASG": {
       "Type": "String",
       "Default": "m1.small"
@@ -207,9 +204,6 @@
           },
           "StelligentDemoZoneName": {
             "Ref": "StelligentDemoZoneName"
-          },
-          "PrimaryPermanentS3Bucket": {
-            "Ref": "PrimaryPermanentS3Bucket"
           },
           "StelligentDemoBucket": {
             "Ref": "StelligentDemoBucket"

@@ -23,9 +23,6 @@
     "StelligentDemoZoneName": {
       "Type": "String"
     },
-    "PrimaryPermanentS3Bucket": {
-      "Type": "String"
-    },
     "StelligentDemoBucket": {
       "Type": "String"
     },
@@ -254,6 +251,14 @@
             "Ref": "StelligentDemoJenkinsEth0"
           },
           "DeviceIndex": "0"
+        }],
+        "Tags": [{
+          "Key": "Name",
+          "Value": {
+            "Fn::Join": ["", ["Jenkins-", {
+              "Ref": "AWS::StackName"
+            }]]
+          }
         }],
         "UserData": {
           "Fn::Base64": {
@@ -561,17 +566,9 @@
                 "group": "root",
                 "authentication": "S3AccessCreds"
               },
-              "/var/lib/jenkins/cloudformation.stack.name": {
-                "source": {
-                  "Fn::Join": [
-                    "-", [
-                      "http://stelligent-demo.s3.amazonaws.com/cloudformation.stack.name", {
-                        "Ref": "DemoRegion"
-                      }, {
-                        "Ref": "HashID"
-                      }
-                    ]
-                  ]
+              "/var/lib/jenkins/s3-bucket-name": {
+                "content": {
+                  "Ref": "StelligentDemoBucket"
                 },
                 "mode": "000444",
                 "owner": "root",
@@ -714,22 +711,6 @@
             ],
             "Effect": "Allow",
             "Resource": "*"
-          }, {
-            "Action": [
-              "s3:Get*",
-              "s3:List*"
-            ],
-            "Effect": "Allow",
-            "Resource": {
-              "Fn::Join": [
-                "", [
-                  "arn:aws:s3:::", {
-                    "Ref": "PrimaryPermanentS3Bucket"
-                  },
-                  "/*"
-                ]
-              ]
-            }
           }, {
             "Action": [
               "s3:*"

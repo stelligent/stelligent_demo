@@ -55,8 +55,6 @@ STACK_DATA = {
 }
 DEFAULT_REGION = 'us-east-1'
 ROUTE53_DOMAIN = 'elasticoperations.com'
-MAIN_S3_BUCKET = 'stelligent-demo'  # Permanent S3 Bucket
-MAIN_S3_BUCKET_REGION = 'us-east-1'
 DOCKER_ZIPFILE = 'stelligent-demo.zip'
 DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
 FILES_TO_S3 = ['cloudformation/cloudformation.asg.json',
@@ -124,13 +122,13 @@ def list_and_get_stacks(cfn_connection, allow_all=False):
                 print "%s) %s (%s) - %s" % (index + 1, stack[0].stack_name,
                                             stack[1], stack[0].stack_status)
             if allow_all:
-                print "nc) Non-Core: Select all but VPC/SG/RDS."
+                print "warm) Warm State: Select all but VPC/SG/RDS."
                 print "all) Select all."
             print "q) Quit."
             response = raw_input("Which stack?  ")
             if response in ['q', 'quit', 'exit']:
                 sys.exit(0)
-            if response == 'nc' and allow_all:
+            if response == 'warm' and allow_all:
                 return [stack for stack in stack_list if stack[1] not in [
                     'VPC', 'SG', 'RDS']]
             if response == 'all' and allow_all:
@@ -418,9 +416,6 @@ def delete_codedeploy_deployment_group(codedeploy_connection, app_name,
 
 
 def empty_related_buckets(s3_connection, bucket_name):
-    #  Safeguard. Do not delete items from main bucket.
-    if bucket_name == MAIN_S3_BUCKET:
-        return
     try:
         bucket = s3_connection.get_bucket(bucket_name)
         keys = bucket.get_all_keys()
@@ -532,7 +527,6 @@ def build(connections, args):
         #  Setup EC2 Key Pair
         key_pair_name = "%s-%s" % (STACK_DATA['main']['key_prefix'], timestamp)
         private_key = create_ec2_key_pair(connections['ec2'], key_pair_name)
-        ''' Removed until docker app is replaced
         #  Launch ElasticBeanstalk Stack, don't wait
         eb_params = list()
         eb_params.append(("HashID", args.hash_id))
@@ -543,7 +537,6 @@ def build(connections, args):
             connections['cfn'], all_stacks, STACK_DATA['eb'], timestamp,
             build_params=eb_params, create=True, wait=False
         )
-        '''
         #  Launch S3 Stack, don't wait
         s3_params = list()
         s3_params.append(("DemoRegion", args.region))
@@ -598,7 +591,6 @@ def build(connections, args):
     stack_name = "%s-%s" % (STACK_DATA['main']['prefix'], timestamp)
     build_params = outputs_to_parameters(s3_outputs)
     build_params += outputs_to_parameters(rds_outputs)
-    build_params.append(("PrimaryPermanentS3Bucket", MAIN_S3_BUCKET))
     build_params.append(("StelligentDemoName", stack_name))
     build_params.append(("DemoRegion", args.region))
     build_params.append(("StelligentDemoZoneName", ROUTE53_DOMAIN))
@@ -632,16 +624,10 @@ def build(connections, args):
     sys.stdout.write("Launching CloudFormation Stack in %s..." % args.region)
     sys.stdout.flush()
     create_cfn_stack(connections['cfn'], stack_name, data, build_params)
-    #  Upload stack name to S3
-    dest_name = "cloudformation.stack.name-%s-%s" % (args.region,
-                                                     args.hash_id)
-    set_stack_name_in_s3(connections['main_s3'], stack_name,
-                         dest_name, MAIN_S3_BUCKET)
     print "Done!"
     #  Give Feedback whilst we wait...
     asg_stack_id = get_resource_id(connections['cfn'], stack_name,
                                    ASG_STACK, wait=False)
-    get_resource_id(connections['cfn'], asg_stack_id, DEMO_ELB)
     asg_id = get_resource_id(connections['cfn'], asg_stack_id, WEB_ASG_NAME)
     #  Setup CodeDeploy
     create_codedeploy_application(connections['codedeploy'],
@@ -651,16 +637,15 @@ def build(connections, args):
     jenkins_stack_id = get_resource_id(connections['cfn'], stack_name,
                                        JENKINS_STACK, wait=False)
     get_resource_id(connections['cfn'], jenkins_stack_id, JENKINS_INSTANCE)
-    # Wait for Elastic Beanstalk
-    # get_resource_id(connections['cfn'], eb_stack)
+    #  Wait for Elastic Beanstalk
+    get_resource_id(connections['cfn'], eb_stack)
     print "Gathering Stack Outputs...almost there!"
     main_outputs = get_stack_outputs(connections['cfn'], stack_name)
-    # eb_outputs = get_stack_outputs(connections['cfn'], eb_stack)
+    eb_outputs = get_stack_outputs(connections['cfn'], eb_stack)
     ecs_outputs = get_stack_outputs(connections['cfn'], ecs_stack)
-    #outputs = main_outputs + eb_outputs + ecs_outputs
-    outputs = main_outputs + ecs_outputs
+    outputs = main_outputs + eb_outputs + ecs_outputs
     outputs = sorted(outputs, key=lambda k: k.key)
-    # Upload index.html to transient demo bucket
+    #  Upload index.html to transient demo bucket
     create_and_upload_index_to_s3(connections['s3'], outputs)
     print "Outputs:"
     for output in outputs:
@@ -698,11 +683,6 @@ def destroy(connections, args):
             delete_iam_role(connections['iam'], IRN)
             #  Destroy EC2 Key Pair
             delete_ec2_key_pair(connections['ec2'], parameters['KeyName'])
-            #  Remove the stackname from S3
-            dest_name = "cloudformation.stack.name-%s-%s" % (args.region,
-                                                             hash_id)
-            delete_stack_name_from_s3(connections['main_s3'], MAIN_S3_BUCKET,
-                                      dest_name)
         #  Destroy Stack
         sys.stdout.write("Deleting the CloudFormation Stack %s..." %
                          stack.stack_name)
@@ -758,7 +738,6 @@ def main():
     connections['codedeploy'] = codedeploy_connect(args.region)
     connections['ec2'] = ec2_connect(args.region)
     connections['iam'] = iam_connect(args.region)
-    connections['main_s3'] = s3_connect(MAIN_S3_BUCKET_REGION)
     connections['s3'] = s3_connect(args.region)
     if args.action == "test":
         #  Test pieces here
