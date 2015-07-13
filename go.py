@@ -693,6 +693,10 @@ def info(connections):
 
 
 def main():
+    if sys.version_info > (2, 7, 8):
+        print "There is currently an SSL issue with Python 2.7.9 and newer."
+        print "Please setup a virtualenv with Python 2.7.8 or less to proceed."
+        sys.exit(1)
     new_hash = hashlib.md5(str(time.time())).hexdigest()[:8]
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=ALLOWED_ACTIONS, action="store",
