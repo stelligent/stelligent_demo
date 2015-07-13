@@ -56,7 +56,7 @@ STACK_DATA = {
 DEFAULT_REGION = 'us-east-1'
 ROUTE53_DOMAIN = 'elasticoperations.com'
 DOCKER_ZIPFILE = 'stelligent-demo.zip'
-DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
+DOCKER_FILES = ['Dockerfile', 'index.html', 'stelogo.png']
 FILES_TO_S3 = ['cloudformation/cloudformation.asg.json',
                'cloudformation/cloudformation.jenkins.json',
                'jenkins/seed.xml.erb',
@@ -693,7 +693,7 @@ def info(connections):
 
 
 def main():
-    if sys.version_info > (2, 7, 8):
+    if sys.version_info[:3] > (2, 7, 8):
         print "There is currently an SSL issue with Python 2.7.9 and newer."
         print "Please setup a virtualenv with Python 2.7.8 or less to proceed."
         sys.exit(1)

@@ -95,8 +95,7 @@
         "Properties" : {
           "Subnets" : [ { "Ref" : "StelligentDemoPublicSubnet" } ],
           "Listeners" : [
-            { "LoadBalancerPort" : "80", "InstancePort" : "8011", "Protocol" : "HTTP" },
-            { "LoadBalancerPort" : "2222", "InstancePort" : "22", "Protocol" : "TCP" }
+            { "LoadBalancerPort" : "80", "InstancePort" : "8011", "Protocol" : "HTTP" }
           ],
           "HealthCheck" : {
             "Target" : "HTTP:8011/",
@@ -156,9 +155,9 @@
              " s3 cp s3://", { "Ref": "StelligentDemoBucket" },
              "/stelligent-demo.zip .\n",
              "/usr/bin/unzip stelligent-demo.zip\n",
-             "/usr/bin/docker tag $(docker build . | tail -1 | awk '{print $NF}') ",
+             "docker build -t ", 
              { "Ref": "StelligentDemoDockerRegistryLabel" }, "/",
-             { "Ref": "StelligentDemoDockerImage" }, ":latest\n"
+             { "Ref": "StelligentDemoDockerImage" }, ":latest .\n"
         ]]}}
       },
       "CreationPolicy" : {
@@ -339,7 +338,8 @@
             "HostPort": "8011"
           }],
           "Memory": "512",
-          "Essential": "True"
+          "Essential": "True",
+          "EntryPoint": [ "/usr/sbin/apachectl", "-D", "FOREGROUND" ]
         }],
         "Volumes": [{
           "Host": { "SourcePath": "/var/lib/docker/vfs/dir" },
