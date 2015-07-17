@@ -5,5 +5,4 @@ RUN yum -y install wget tar curl openssh-server httpd epel-release
 RUN sed -i 's/^Listen 80$/Listen 8011/' /etc/httpd/conf/httpd.conf
 ADD . /var/www/html
 RUN service sshd restart
-CMD /usr/sbin/apachectl -D FOREGROUND
 EXPOSE 8011

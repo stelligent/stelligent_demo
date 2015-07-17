@@ -327,7 +327,7 @@
           "Name": "StelligentDemoDockerContainer",
           "MountPoints": [{
             "SourceVolume": "StelligentDemoVolume",
-            "ContainerPath": "/var/StelligentDemoVolume"
+            "ContainerPath": "/var/www"
           }],
           "Image": { "Fn::Join": [ "/", [
             { "Ref": "StelligentDemoDockerRegistryLabel" },
