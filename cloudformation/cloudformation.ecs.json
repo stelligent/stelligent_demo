@@ -150,14 +150,15 @@
              " >> /etc/ecs/ecs.config\n",
              "/usr/bin/yum -y install aws-cli unzip\n",
              "export TMP=$(/bin/mktemp -d)\n",
-             "cd $TMP\n",
+             "pushd $TMP\n",
              "aws --region ", { "Ref": "AWS::Region" },
-             " s3 cp s3://", { "Ref": "StelligentDemoBucket" },
+             "s3 cp s3://", { "Ref": "StelligentDemoBucket" },
              "/stelligent-demo.zip .\n",
              "/usr/bin/unzip stelligent-demo.zip\n",
              "docker build -t ", 
              { "Ref": "StelligentDemoDockerRegistryLabel" }, "/",
-             { "Ref": "StelligentDemoDockerImage" }, ":latest .\n"
+             { "Ref": "StelligentDemoDockerImage" }, ":latest .\n",
+             "popd && rm -rf $TMP\n"
         ]]}}
       },
       "CreationPolicy" : {
