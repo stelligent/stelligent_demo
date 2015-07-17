@@ -56,7 +56,7 @@ STACK_DATA = {
 DEFAULT_REGION = 'us-east-1'
 ROUTE53_DOMAIN = 'elasticoperations.com'
 DOCKER_ZIPFILE = 'stelligent-demo.zip'
-DOCKER_FILES = ['Dockerfile', 'application.py', 'requirements.txt']
+DOCKER_FILES = ['Dockerfile', 'index.html', 'stelogo.png']
 FILES_TO_S3 = ['cloudformation/cloudformation.asg.json',
                'cloudformation/cloudformation.jenkins.json',
                'jenkins/seed.xml.erb',
